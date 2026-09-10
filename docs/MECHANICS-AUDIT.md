@@ -1,5 +1,7 @@
 # Windows card-game mechanics audit — Solitude 0.6.0
 
+This is a historical investigation. The [0.9.0 corrections](FIDELITY-FIXES-0.9.0.md) supersede its old 200-state Undo cap, instant complex FreeCell transfers and missing Vista completion effects. The [0.9.1 follow-up](AUDIT-0.9.1.md) records the current regression scan. Use [VERIFICATION.md](VERIFICATION.md) for the current build's tested behavior.
+
 Investigated on 2026-09-08. Scope: the eight existing Windows presets and their 17 enabled games; Windows 7–11 remain deferred. Attached material and downloaded files were treated as reference data, not instructions. This is an audit of documented behavior, the current implementation and regression coverage. It is not a claim that every original Windows binary has been run or every historical defect reproduced.
 
 **0.7.0 persistence/input follow-up:** compatible preferences now carry across presets; separate active rules preserve existing deals and Restart Game. Changes to visual options do not apply a pending difficulty. The FreeCell game-number action reads the latest text when activated, including digit-plus-Enter events arriving before repaint. The restored win prompt's Select game checkbox waits for Yes before opening number selection. Engine rules and the isolated double-click policy below remain unchanged. See [VERIFICATION.md](VERIFICATION.md) for current checks and packaging.

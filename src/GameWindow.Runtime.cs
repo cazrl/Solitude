@@ -20,7 +20,7 @@ public sealed partial class GameWindow
         // A lifted stack also changes its source; FreeCell's king follows the pointer.
         if(boardStamp==null || boardStamp.Dragging!=dragging || boardStamp.Selection!=selection ||
             Kind==GameKind.FreeCell && boardStamp.KingRight!=(mouse.X>Table.Left+Table.Width/2))Include(Table);
-        foreach(var f in flights.Values){Include(f.Sample(MotionNow).Rect);Include(f.To.Rect);}
+        foreach(var f in flights.Values){Include(f.From.Rect);Include(f.Sample(MotionNow).Rect);Include(f.To.Rect);}
         if(dragging && selection is {} selected)
         {
             var pile=Game.Pile(selected)!;
@@ -37,9 +37,14 @@ public sealed partial class GameWindow
     private bool NeedsFrames=>dialog==DialogPage.None && (MotionActive || dragging || collecting || showingVictory || pendingWin);
     private void RenderNextFrame()
     {
-        if(NeedsFrames && windowActive && WindowState!=FormWindowState.Minimized)
-        {var damage=FrameDamage();Animate();if(damage.IsEmpty)Invalidate();else Invalidate(damage);Update();}
-        ScheduleFrames();
+        var previous=frameTime;frameTime=MotionNow;
+        try
+        {
+            if(NeedsFrames && windowActive && WindowState!=FormWindowState.Minimized)
+            {Animate();var damage=FrameDamage();if(damage.IsEmpty)Invalidate();else Invalidate(damage);Update();}
+            ScheduleFrames();
+        }
+        finally{frameTime=previous;}
     }
     private void StartFrameClock()
     {

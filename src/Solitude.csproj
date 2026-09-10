@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Solitude</AssemblyName>
     <RootNamespace>Solitude</RootNamespace>
-    <Version>0.9.0</Version>
+    <Version>0.9.1</Version>
     <Description>Solitaire, FreeCell and Spider through the Windows eras</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/solitude.ico</ApplicationIcon>

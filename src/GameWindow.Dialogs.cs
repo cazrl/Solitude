@@ -5,13 +5,20 @@ public sealed partial class GameWindow
     private int dialogControl;
     private readonly Dictionary<char,string> dialogMnemonics=[];
     private readonly Dictionary<string,string> dialogRadios=[];
+    private readonly HashSet<string> dialogButtons=[];
+    private void RefreshDialogInput()
+    {
+        hotspots.RemoveAll(h=>h.Id.StartsWith("dialog-") || h.Id=="modal-close");
+        using var probe=new Bitmap(1,1);using var g=Graphics.FromImage(probe);
+        g.ScaleTransform(ScaleFactor,ScaleFactor);skin.Configure(g);PaintDialog(g);
+    }
     private void RegisterDialogKey(string id,string label)
     {
         int index=label.IndexOf('&');if(index>=0 && index+1<label.Length)dialogMnemonics[char.ToUpperInvariant(label[index+1])]="dialog-"+id;
     }
     private void PaintDialog(Graphics g)
     {
-        dialogControl=0;dialogMnemonics.Clear();dialogRadios.Clear();
+        dialogControl=0;dialogMnemonics.Clear();dialogRadios.Clear();dialogButtons.Clear();
         string title=dialog switch {
             DialogPage.Settings=>"Settings",DialogPage.Options=>ClassicFreeCell?"FreeCell Options":ClassicSpider?"Spider Options":"Options",DialogPage.Deck=>skin.Vista?"Change Appearance":"Select Card Back",
             DialogPage.Help=>GameCatalog.Name(Kind)+" Help",DialogPage.About=>"About "+(Kind==GameKind.Spider?"Spider":GameCatalog.Name(Kind)),DialogPage.Statistics=>"Statistics",
@@ -69,7 +76,7 @@ public sealed partial class GameWindow
                 Wrapped(g,$"Games played: {Statistics.Played}\nGames won: {Statistics.Won}\nBest score: {Statistics.BestScore}",new(x,y+38,w,75));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.AppAbout:
-                skin.Text(g,"Solitude 0.9.0",new(x,y,w,25),font:skin.Bold);
+                skin.Text(g,"Solitude 0.9.1",new(x,y,w,25),font:skin.Bold);
                 Wrapped(g,"Windows card games, 1990-2007.\nAn independent recreation.\nPress F6 to choose a Windows version.",new(x,y+38,w,78));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.MoveColumn:
@@ -108,6 +115,7 @@ public sealed partial class GameWindow
     private void DialogButton(Graphics g,string id,RectangleF r,string label,Action action,bool primary=false)
     {
         RegisterDialogKey(id,label);
+        dialogButtons.Add("dialog-"+id);
         // The close widget is excluded from the tab sequence so indexes follow the visible form controls.
         bool focus=keyboardFocus==dialogControl++;
         skin.Button(g,r,label,r.Contains(mouse),primary,focus:focus,pressed:pressedHotspot=="dialog-"+id && r.Contains(mouse));Add("dialog-"+id,r,action);

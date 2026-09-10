@@ -58,7 +58,7 @@ public sealed class Statistics
         Played++;Streak=won?Math.Max(0,Streak)+1:Math.Min(0,Streak)-1;
         BestWinStreak=Math.Max(BestWinStreak,Streak);BestLossStreak=Math.Max(BestLossStreak,-Streak);
         if(!won)return;
-        Won++;if(state.Score>BestScore || BestScoreDate==null){BestScore=Math.Max(BestScore,state.Score);BestScoreDate=DateTime.Today;}
+        Won++;if(Won==1 || state.Score>BestScore || state.Score==BestScore && BestScoreDate==null){BestScore=state.Score;BestScoreDate=DateTime.Today;}
         if(timed && (BestTime==null || state.Elapsed<BestTime))BestTime=state.Elapsed;
     }
     public void Validate(bool child=false)
@@ -203,6 +203,6 @@ public sealed class Store(string directory)
             Warning = null; return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        { Warning = "Your game could not be saved. Check that the save folder is writable."; return false; }
+        { Warning = "Your game could not be saved. "+ex.Message; return false; }
     }
 }

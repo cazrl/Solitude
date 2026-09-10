@@ -14,6 +14,11 @@ public sealed partial class GameWindow
     }
     private void PaintScaled(Graphics target)
     {
+        var previous=frameTime;frameTime=MotionNow;
+        try{PaintScaledFrame(target);}finally{frameTime=previous;}
+    }
+    private void PaintScaledFrame(Graphics target)
+    {
         if(skin.DeviceText)
         {
             var state=target.Save();target.ScaleTransform(ScaleFactor,ScaleFactor);PaintGame(target);target.Restore(state);return;

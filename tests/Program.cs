@@ -191,6 +191,52 @@ Test("200 simulated games preserve invariants (up to 40,000 actions)",()=>
     }
 });
 VariantChecks.Run(Test);
+Test("Winning negative Vegas balances and undated records keep their true high score",()=>
+{
+    var stats=new Statistics();stats.Record(new(){Kind=GameKind.Klondike,Score=-200},true,false);
+    Assert(stats.BestScore==-200 && stats.BestScoreDate==DateTime.Today);
+    stats.Record(new(){Kind=GameKind.Klondike,Score=-300},true,false);Assert(stats.BestScore==-200);
+    stats.Record(new(){Kind=GameKind.Klondike,Score=-100},true,false);Assert(stats.BestScore==-100);
+    var legacy=new Statistics{Played=10,Won=2,BestScore=500};legacy.Record(new(){Score=100},true,false);
+    Assert(legacy.BestScore==500 && legacy.BestScoreDate==null,"A lesser win invented the date of an older record");
+});
+Test("Malformed nested saves recover without overwriting their original data",()=>
+{
+    var source=JsonSerializer.Serialize(new SaveFile{Game=new Game(new(),1).State});
+    foreach(string name in new[]{"Preferences","Statistics","History","Sessions","SpiderSaves","Game.Tableau","Game.FreeCells","Game.Foundations","Statistics.Difficulties","Preferences.Rules"})
+    {
+        var json=System.Text.Json.Nodes.JsonNode.Parse(source)!;var path=name.Split('.');
+        if(path.Length==1)json[path[0]]=null;else json[path[0]]![path[1]]=null;
+        string directory=Path.GetFullPath("artifacts/corrupt-audit-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(directory);
+        var store=new Store(directory);string original=json.ToJsonString();File.WriteAllText(store.FilePath,original);
+        var loaded=store.Load();Assert(store.Warning!=null && loaded.Game==null,"Malformed input was accepted: "+name);
+        Assert(File.ReadAllText(store.FilePath)==original,"Load overwrote a malformed save");
+        Assert(store.Save(new()));Assert(Directory.GetFiles(directory,"*.unreadable-*").Any(p=>File.ReadAllText(p)==original),"Recovery lost the original save");
+    }
+});
+Test("All 17 era/game policies preserve cards and restore history under repeated actions",()=>
+{
+    foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))for(int seed=1;seed<=12;seed++)
+    {
+        var rules=GameCatalog.Defaults(era,kind).Rules;
+        if(kind==GameKind.Spider)rules.SpiderSuits=new[]{1,2,4}[seed%3];
+        var game=new Game(rules,seed);
+        for(int step=0;step<120 && !game.State.Won;step++)
+        {
+            if(step%11==10 && game.CanUndo)game.Undo();
+            else if(game.Hint() is {} hint)
+            {if(hint.From.Kind==PileKind.Stock)game.Draw();else if(hint.From==hint.To)game.Flip(hint.From.Pile);else game.Move(hint.From,hint.To);}
+            else break;
+            Game.Validate(game.State);
+            if(step%13==12)
+            {
+                string before=JsonSerializer.Serialize(game.State),history=JsonSerializer.Serialize(game.History);
+                game=Game.Restore(rules,game.State,game.History);
+                Assert(JsonSerializer.Serialize(game.State)==before && JsonSerializer.Serialize(game.History)==history,"Restore changed a valid active game: "+era+"/"+kind);
+            }
+        }
+    }
+});
 Directory.CreateDirectory("artifacts");
 File.WriteAllText("artifacts/game-tests.txt",$"{checks} verification groups passed; {failures} failed.\n");
 Console.WriteLine($"\n{checks} verification groups passed; {failures} failed.");

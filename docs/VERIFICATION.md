@@ -1,69 +1,72 @@
-# Verification — Solitude 0.9.0
+# Verification — Solitude 0.9.1
 
-Built locally on 9 September 2026. This is the correction build following the complete 0.8.1 fidelity audit. The [fix report](FIDELITY-FIXES-0.9.0.md) maps every finding to implementation, tests and remaining historical limits. The previous report is preserved as [VERIFICATION-0.8.1.md](VERIFICATION-0.8.1.md).
+Built and checked locally on 10 September 2026. The [application audit](AUDIT-0.9.1.md) explains the reproduced Vista flicker defects and the broader fixes. Previous results remain in [VERIFICATION-0.9.0.md](VERIFICATION-0.9.0.md).
 
 ## Delivered executable
 
 | Item | Verified result |
 |---|---|
 | Normal launch path | `dist/Solitude.exe` |
-| Retained release | `artifacts/release-v090/Solitude.exe` |
-| File version | **0.9.0.0** at both paths |
-| Size | **63,598,947 bytes** |
-| SHA-256 at both paths | `05C5FC036B08FC5BD44A9FC12FA25B6D4383AA75821861E5B1B22BB68D11A3AF` |
-| Package contents | Exactly one self-contained Windows x64 EXE in each release directory |
-| Previous executable | Preserved by atomic replacement under `artifacts/Solitude-before-*.exe`; 0.8.1 also retained separately |
+| Retained release | `artifacts/release-v091/Solitude.exe` |
+| File version | **0.9.1.0** at both paths |
+| Size | **63,600,483 bytes** |
+| SHA-256 at both paths | `007D308069C93F50075BDDB1B640FD892C8EA1E945AFF4F2EB6C2273DEBF4858` |
+| Package contents | Exactly one self-contained Windows x64 EXE |
+| Included runtime | .NET and WindowsDesktop **10.0.11** |
+| Previous executable | Preserved by atomic replacement; 0.9.0 also retained in `artifacts/release-v090` |
 
-`build.ps1 -SkipTests` packaged the source after the rules/UI checks below; its log is `artifacts/build-final-v090.log`. The script verifies equal hashes. The previous mismatch between the normal 0.8.0 launch path and the retained 0.8.1 build is resolved.
+`build.ps1 -SkipTests` packaged the source after the checks below. Build log: `artifacts/build-final-v091.log`. The delivered and retained copies have identical hashes. No existing game was terminated or visible game window launched. Tests used ephemeral forms and isolated workspace state; personal saves were not read or altered. Native single-file components can extract into Windows temporary storage. Clean-machine portability remains untested.
 
-No existing game process was terminated. No visible game window was launched, desktop input sent, original game binary executed, personal save accessed, installer run, or release uploaded. Test forms and render sessions used ephemeral state or isolated workspace directories. Self-contained runtime extraction still uses the Windows temporary directory. A clean-machine portability test was not performed.
+## Rules, persistence and interface
 
-## Rules, state and production UI
+- **53 rules/persistence groups passed; 0 failed.** Includes the existing 60,000-action conservation test, malformed nested-save recovery, signed Vegas records, and a new 17-profile rules/restore exploration over 12 seeds per profile.
+- **5,120 production UI checks passed.** All 17 game profiles, 100/125/150/200%, full double-click event sequences, shared compatible preferences, suspended sessions, captions, dialog geometry, keyboard/mouse input, save choices and animation interruption remain covered.
+- The total includes **972 new Vista animation assertions**, **53 immediate-input/checkpoint assertions** and **32 dialog-region reuse assertions**. No visible window or desktop input was used.
+- The animation subset compares full ARGB frames at cache handoff for all four Vista decks. It also compares clipped/full rendering over 45 deal frames and 30 stock-flip/transfer frames for each Vista game and scale, repeats frozen intermediate frames, and checks felt-edge opacity. The deadline/cleanup gap failed before the fix.
+- Immediate `Alt+G`, Down, Enter reproduced a division-by-zero exception before the fix. Menus and dialog acceptance now work without an intervening paint. Tests also cover Enter after focusing a FreeCell Options checkbox and clearing old effects on Spider checkpoint load.
+- Corrupt-save probes exercise ten null nested fields. They verify that loading preserves the bytes and recovery keeps an unreadable copy before writing a fresh state. Existing background write ordering, reporting and flush checks also pass.
 
-- **50 rules/persistence verification groups passed; 0 failed.** Log: `artifacts/rules-final-v090.log`. Includes card conservation over 60,000 rule-driven actions and existing deal, score, move, Undo and save validation.
-- **4,063 production UI checks passed.** Log: `artifacts/ui-final-v090.log`. Covers all 17 profiles, 100/125/150/200%, full double-click sequences, shared compatible settings, motion interruption/endpoints, outline/drag interaction, keyboard input, and partial/full repaint equivalence.
-- The new fidelity subset contains **2,338 checks**, included in the total above: `artifacts/fidelity-final-v090.log`. It exercises repeated foundation rearrangements, all-profile save-disabled suspension versus disk persistence, classic FreeCell inspection/one-move/loss/statistics, classic negative deals, original Options geometry/access keys, Vista sound/tips/save/resume behavior, owned dialog input, more than 200 Undo states, and win effects/results.
-- Classic FreeCell game -1 is exercised through four legal moves into a loss. The independent general zero/one-move fixtures are structurally valid; ordinary numbered-deal reachability is not claimed for those artificial fixtures.
-- Mnemonic labels are checked against labels without an underline in all eras and scales. Glyphs must remain unchanged above the underline; this catches the clipped Vista Exit label discovered during visual review.
-- Owned dialog tests move offscreen forms outside their parent bounds and exercise mouse routing. They do not establish visible activation, task switching, DWM composition or multi-monitor behavior.
-- Embedded WAV headers and sound event/option gates passed. Speaker output, latency, overlap and original audio mixing were not tested.
+Logs: `artifacts/rules-audit-v091.log`, `ui-final-v091.log`, `render-audit-v091.log`, and `input-audit-v091.log`. Failed-before logs and the precise scope are listed in the [audit](AUDIT-0.9.1.md).
 
-## Rendering and package checks
+## Rendering and package parity
 
-The tested source executable and final packaged EXE each produced **225 application views plus 36 motion samples**. All **261 PNG SHA-256 hashes match** between the runs. Both completed their render manifest; the generated images cover every enabled profile and all four scales.
+The tested source and final packaged EXE each completed **225 application views plus 36 motion samples**. All **261 PNG hashes match**. All **five exported embedded notices match** their source files; export exited 0.
 
-- Source renders: `artifacts/source-final-v090-renders`.
-- Delivered EXE renders: `artifacts/package-final-v090-renders`.
-- All 17 board overviews were visually reviewed in `artifacts/final-v090-Klondike-overview.png`, `final-v090-FreeCell-overview.png` and `final-v090-Spider-overview.png`.
-- Options contact sheets for all games were reviewed, along with final native-size 3.1 Options, XP FreeCell Statistics and Vista Options. New celebration frames and the final Vista Game Won dialog were inspected in `artifacts/fidelity-celebrations`.
-- The final Vista win fixture displays base score 474, awarded bonus 3,780 and total 4,254 consistently; the Exit caption is complete. This demonstrates presentation consistency, not certification of every original Vista scoring rule.
-- Notice export exited **0**. All **five embedded notice files match** their sources in `artifacts/notices-final-v090`.
-- Machine-readable package/image/notice hashes: `artifacts/package-validation-v090.json`.
+- Source renders: `artifacts/source-final-v091-renders`.
+- Package renders: `artifacts/package-final-v091-renders`.
+- Native-size overview sheets for all 17 profiles: `artifacts/qa-v091/Klondike-overview.png`, `FreeCell-overview.png`, `Spider-overview.png`.
+- Visual review covered those sheets, native 150% Vista Options and XP FreeCell Statistics, plus Vista motion samples. The 972 exact animation assertions provide the continuity checks that still images cannot establish.
+- Notice export: `artifacts/notices-final-v091`.
+- Machine-readable image/notice/package hashes: `artifacts/package-validation-v091.json`.
 
-The matching images prove that packaging preserves the tested rendering. They are not comparisons against 261 original Windows captures. The earlier measured XP palette corrections remain; complete frame identity is not certified.
+Matching source/package images verify packaging, not equality to 261 original Windows screenshots. The existing measured XP palette and historical presentation are retained. No original Microsoft executable was run during this audit.
 
-## Performance diagnostics
+## Performance
 
-Warm offscreen CPU paint costs at 150%:
+Three alternating runs of the retained 0.9.0 benchmark and new 0.9.1 benchmark used the same warm offscreen renderer at 150%. Each run records 120 frames per profile. The table reports the median of the three per-run medians, and the median of their p95 values. Heavy UI/render checks did not run concurrently with these measurements.
 
-| Profile | Median ms | p95 ms |
-|---|---:|---:|
-| 3.1 Solitaire | 2.08 | 2.80 |
-| 95 Solitaire | 2.52 | 3.79 |
-| 95 FreeCell | 2.73 | 3.57 |
-| XP Solitaire | 0.93 | 1.44 |
-| XP FreeCell | 0.93 | 1.57 |
-| XP Spider | 1.25 | 2.00 |
-| Vista Solitaire | 3.86 | 4.54 |
-| Vista FreeCell | 4.30 | 5.11 |
-| Vista Spider | 5.25 | 6.99 |
+| Profile | 0.9.0 median ms | 0.9.1 median ms | 0.9.0 p95 ms | 0.9.1 p95 ms |
+|---|---:|---:|---:|---:|
+| 3.1 Solitaire | 1.88 | 1.77 | 2.34 | 2.30 |
+| 95 Solitaire | 1.83 | 1.83 | 2.69 | 2.23 |
+| 95 FreeCell | 2.03 | 2.05 | 2.55 | 2.54 |
+| XP Solitaire | 0.84 | 0.84 | 1.01 | 0.99 |
+| XP FreeCell | 0.86 | 0.83 | 1.02 | 1.19 |
+| XP Spider | 1.03 | 1.13 | 1.24 | 1.69 |
+| Vista Solitaire | 3.76 | 3.76 | 4.40 | 4.37 |
+| Vista FreeCell | 3.70 | 3.61 | 4.15 | 4.51 |
+| Vista Spider | 3.97 | 3.94 | 4.62 | 4.41 |
 
-The production message-queue/frame-clock probe delivered 60 and 120 callbacks/second at those targets; the 144 target delivered 142.6 for full redraws and 144.0 for partial redraws. It did not starve the independent message-queue heartbeat. These measurements ran alongside offscreen UI validation and are diagnostic, not controlled before/after measurements.
+Vista's typical warm paint cost is effectively unchanged. XP Spider showed a small increase in these samples; this is not a universal speedup claim. Initial single runs had larger variance, so the alternating repetitions are reported instead. These warm costs include cached boards, not an exhaustive cost profile of every active card flight.
 
-Logs/data: `artifacts/benchmark-final-v090.log` and `artifacts/benchmark-final-v090.json`. These are CPU costs and offscreen callback rates, **not monitor FPS, input latency or a live smoothness test**. Completion choreography is reconstructed from the cited references, not calibrated by this benchmark.
+The updated production message-queue/frame-clock probe delivered **60.0 / 120.0 / 143.1 callbacks per second** for full redraws and **60.0 / 120.0 / 144.0** for partial redraws. The independent message-queue heartbeat remained responsive. These are **offscreen CPU costs and callback rates, not monitor FPS, display latency or a visible smoothness certification**.
 
-## Remaining verification boundaries
+Data: `artifacts/benchmark-comparison-v091.json`, `benchmark-pair-v090-{1,2,3}.json`, `benchmark-pair-v091-{1,2,3}.json`, and `benchmark-v091.json`. The rendering fix removes missing/jumping frames; it does not change the intended historical motion timing.
 
-Vista completion references are **RC1 build 5600**, not verified RTM footage. Me Spider resource identity, original fonts for later presets, glass composition, complete dialog/accelerator coverage, some scoring/timer details, event mixing and exact animation curves still need identified original-release baselines. Native Spider file compatibility and Vista negative-number Easter eggs remain unsupported. The retained Settings control and isolated double-click are deliberate user requirements.
+## Dependencies and remaining limits
 
-Publish and test builds emitted **NU1900** because the online NuGet vulnerability metadata feed was unavailable. Compilation and tests passed; the online dependency vulnerability scan did not complete. The artifact is a locally verified recreation, not a claim that every historical behavior or release condition has been certified.
+The online NuGet vulnerability query completed successfully against `api.nuget.org` and returned no package findings. There are no third-party PackageReferences. Result: `artifacts/dependency-audit-v091.json`. Early test builds reused a cached NU1900 metadata warning; the final packaging build completed without that warning. This package query does not certify the embedded runtime or host Windows against every security issue.
+
+The audit remains bounded by the available original-release evidence. Me Spider still uses preserved XP artwork. Vista finish references are RC1 build 5600, not verified RTM. Exact historical font bytes, desktop glass composition, complete original dialog/shortcut coverage, some scoring/focus rules, audio mixing and animation curves remain unverified. Vista negative-number Easter eggs and native Spider save-file compatibility are unsupported. The retained Settings button and isolated double-click behavior are deliberate user requirements.
+
+Live activation/task switching, multi-monitor behavior, monitor-visible animation, audio output and a prolonged visible-session resource soak were not performed. These limits are explicit; local tests establish the recreation's behavior and package consistency, not complete historical identity.

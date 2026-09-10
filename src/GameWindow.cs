@@ -373,6 +373,7 @@ public sealed partial class GameWindow : Form
         {
             if(dialog==DialogPage.SelectGame && EditDealNumber(keyData))return true;
             if(dialog==DialogPage.Help && helpPage==3 && EditHelpKeyword(keyData))return true;
+            RefreshDialogInput();
             var controls=hotspots.Where(h=>h.Enabled && h.Id.StartsWith("dialog-")).ToList();
             if((keyData&Keys.Alt)!=0 && dialogMnemonics.TryGetValue(char.ToUpperInvariant((char)(keyData&Keys.KeyCode)),out string? mnemonic))
             {
@@ -388,7 +389,8 @@ public sealed partial class GameWindow : Form
             {keyboardFocus=(keyboardFocus+(keyData==Keys.Tab?1:-1)+controls.Count)%Math.Max(1,controls.Count);Invalidate();return true;}
             if(keyData==Keys.Enter || keyData==Keys.Space)
             {
-                var target=keyboardFocus>=0 && keyboardFocus<controls.Count?controls[keyboardFocus]:controls.FirstOrDefault(h=>h.Id=="dialog-ok" || h.Id=="dialog-yes");target?.Action();Invalidate();return true;
+                var focused=keyboardFocus>=0 && keyboardFocus<controls.Count?controls[keyboardFocus]:null;
+                var target=focused!=null && (keyData==Keys.Space || dialogButtons.Contains(focused.Id))?focused:controls.FirstOrDefault(h=>h.Id=="dialog-ok" || h.Id=="dialog-yes");target?.Action();Invalidate();return true;
             }
             if(dialog==DialogPage.Settings && keyData is Keys.Up or Keys.Down)
             {ChooseDraftEra((Era)(((int)draft!.Era+(keyData==Keys.Down?1:7))%8));Invalidate();return true;}
@@ -396,9 +398,9 @@ public sealed partial class GameWindow : Form
         }
         if(menu>=0)
         {
-            var items=hotspots.Where(h=>h.Enabled && h.Id.StartsWith("menu-item")).ToList();
-            if(keyData is Keys.Down or Keys.Up){menuFocus=(menuFocus+(keyData==Keys.Down?1:-1)+items.Count)%items.Count;Invalidate();return true;}
-            if(keyData==Keys.Enter){if(menuFocus>=0 && menuFocus<items.Count)items[menuFocus].Action();return true;}
+            var items=PeriodMenu().Where(e=>e.Enabled && e.Action!=null).ToList();
+            if(keyData is Keys.Down or Keys.Up){if(items.Count>0)menuFocus=(menuFocus+(keyData==Keys.Down?1:-1)+items.Count)%items.Count;Invalidate();return true;}
+            if(keyData==Keys.Enter){if(menuFocus>=0 && menuFocus<items.Count)items[menuFocus].Action!();return true;}
             if(keyData is Keys.Left or Keys.Right){menu=menu==0?1:0;menuFocus=-1;Invalidate();return true;}
             if((keyData&Keys.KeyCode) is >= Keys.A and <= Keys.Z)
             {

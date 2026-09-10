@@ -11,6 +11,7 @@ public sealed partial class GameWindow
         public double End=>Start+Duration;
         public CardPose Sample(double now)
         {
+            if(now>=End)return To;
             if(Stops!=null){if(now>=End)return To;var current=From;foreach(var stop in Stops){if(now<stop.Time)break;current=stop.Pose;}return current;}
             if(Via.HasValue)return now<Start?From:now<End?Via.Value:To;
             float t=(float)Math.Clamp((now-Start)/Duration,0,1),ease=Period?t:1-MathF.Pow(1-t,3);
@@ -27,13 +28,14 @@ public sealed partial class GameWindow
     }
     private readonly Stopwatch motionClock=Stopwatch.StartNew();
     private double? renderMotionTime;
+    private double? frameTime;
     private int motionRevision;
     private readonly Dictionary<int,CardFlight> flights=[];
     private Dictionary<int,CardPose> restingCards=[];
     private readonly Dictionary<int,CardPose> dragPoses=[];
     private bool pendingWin;
     private double nextCollect;
-    private double MotionNow=>renderMotionTime??motionClock.Elapsed.TotalSeconds;
+    private double MotionNow=>frameTime??renderMotionTime??motionClock.Elapsed.TotalSeconds;
     private bool MotionActive=>flights.Count!=0;
     private Dictionary<int,CardPose> CaptureLayout()
     {
@@ -140,7 +142,9 @@ public sealed partial class GameWindow
     private void DrawGameCard(Graphics g,Card card,RectangleF r)
     {
         if(showingVictory && skin.Vista && Kind==GameKind.Klondike)return;
-        if(flights.TryGetValue(card.Key,out var flight) && MotionNow<flight.End && !IsDragged(card))return;
+        // The board cache must not depend on the clock. The animation layer
+        // owns a card until UpdateMotions removes its flight and rebuilds it.
+        if(flights.ContainsKey(card.Key) && !IsDragged(card))return;
         bool inverted=Kind==GameKind.FreeCell && !skin.Vista && !dragging && selection is {} selected && Game.Pile(selected) is {Count:>0} pile && pile[^1].Key==card.Key;
         art.Draw(g,card,r,Preferences.Era,Preferences.CardBack,invert:inverted);
     }
@@ -149,7 +153,7 @@ public sealed partial class GameWindow
         double now=MotionNow;var saved=g.Save();g.SetClip(Table,CombineMode.Intersect);
         foreach(var flight in flights.Values.OrderBy(f=>f.To.Layer))
         {
-            if(now>=flight.End || IsDragged(flight.To.Card))continue;
+            if(IsDragged(flight.To.Card) || now>=flight.End && !flight.To.Visible)continue;
             var pose=flight.Sample(now);
             art.Draw(g,pose.Card,pose.Rect,Preferences.Era,Preferences.CardBack,flight.To.Rect.Width);
         }

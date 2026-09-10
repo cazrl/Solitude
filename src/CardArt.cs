@@ -6,6 +6,9 @@ namespace Solitude;
 
 public sealed class CardArt : IDisposable
 {
+    // Half-up snapping is invariant under the board cache's integer offset.
+    // The small tolerance absorbs floating-point transform error at half pixels.
+    internal static int DevicePixel(float value)=>(int)MathF.Floor(value+.5001f);
     private readonly Dictionary<(int Face,Era Era,GameKind Kind,int Back,int Deck,int Frame,int W,int H,int Density),Bitmap> cardCache=[];
     private readonly Dictionary<(int Background,int W,int H),Bitmap> feltCache=[];
     public float RenderScale { get; set; } = 1;
@@ -66,7 +69,7 @@ public sealed class CardArt : IDisposable
         float squeeze=faceWidth>0?r.Width/faceWidth:1;
         var dest=new RectangleF(r.X,r.Y,cached.Width/density*squeeze,cached.Height/density);
         using var transform=g.Transform;PointF[] corners=[dest.Location,new(dest.Right,dest.Bottom)];transform.TransformPoints(corners);
-        var device=Rectangle.FromLTRB((int)MathF.Round(corners[0].X),(int)MathF.Round(corners[0].Y),(int)MathF.Round(corners[1].X),(int)MathF.Round(corners[1].Y));
+        var device=Rectangle.FromLTRB(DevicePixel(corners[0].X),DevicePixel(corners[0].Y),DevicePixel(corners[1].X),DevicePixel(corners[1].Y));
         var state=g.Save();g.ResetTransform();g.InterpolationMode=faceWidth>0 && Math.Abs(faceWidth-r.Width)>.01f?InterpolationMode.Bilinear:InterpolationMode.NearestNeighbor;
         if(invert)
         {
@@ -129,8 +132,10 @@ public sealed class CardArt : IDisposable
             using(var target=Graphics.FromImage(cached))
             {
                 target.CompositingMode=CompositingMode.SourceCopy;target.InterpolationMode=InterpolationMode.HighQualityBicubic;
+                target.PixelOffsetMode=PixelOffsetMode.Half;
                 var texture=VistaBackground==0?felt:backgrounds[VistaBackground-1];
-                target.DrawImage(texture,new Rectangle(0,0,width,height),new Rectangle(0,0,1600,992),GraphicsUnit.Pixel);
+                using var edge=new ImageAttributes();edge.SetWrapMode(WrapMode.TileFlipXY);
+                target.DrawImage(texture,new Rectangle(0,0,width,height),0,0,1600,992,GraphicsUnit.Pixel,edge);
             }
             feltCache.Add(key,cached);
         }

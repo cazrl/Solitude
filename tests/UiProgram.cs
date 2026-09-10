@@ -34,6 +34,8 @@ internal static partial class UiProgram
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         try
         {
+            if(args.Contains("--render-audit-only")){CheckAnimationContinuity();Console.WriteLine($"{checks} animation audit checks passed, without showing windows.");return 0;}
+            if(args.Contains("--input-audit-only")){CheckImmediateInput();Console.WriteLine($"{checks} immediate-input checks passed, without showing windows.");return 0;}
             if(args.Contains("--caption-only")){CheckCaptionRendering();CheckFidelityFixes();Console.WriteLine($"{checks} caption checks passed, without showing windows.");return 0;}
             if(args.Contains("--fidelity-only")){CheckFidelityFixes();Console.WriteLine($"{checks} fidelity checks passed, without showing windows.");return 0;}
             if(args.Contains("--partial-only")){CheckPartialFrames();Console.WriteLine($"{checks} repaint checks passed, without showing windows.");return 0;}
@@ -89,7 +91,7 @@ internal static partial class UiProgram
                 Call(form,"ToggleMaximize");Check(!(bool)Field(form,"maximized")!,"Restore failed");
                 Console.WriteLine("PASS "+era+" frame, typography, inactive state, input, era switch, dialog drag, maximize/restore");
             }
-            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();
+            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();
             Console.WriteLine($"{checks} UI checks passed. No windows were shown and no desktop input was sent.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine(ex);return 1;}

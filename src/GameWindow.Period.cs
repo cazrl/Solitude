@@ -161,7 +161,10 @@ public sealed partial class GameWindow
         {
             menu=-1;
             if(!startup)RecordAbandonedGame();var rules=Preferences.Rules.Clone();rules.SpiderSuits=saved.Game.SpiderSuits;
-            Game=Game.Restore(rules,saved.Game,saved.History);selection=null;hint=null;collecting=false;pendingWin=false;StopCardMotion();RequestSave();Invalidate();
+            CancelDrag();Game=Game.Restore(rules,saved.Game,saved.History);selection=null;hint=null;collecting=false;pendingWin=false;
+            showingVictory=false;victoryTrail?.Dispose();victoryTrail=null;
+            lastTick=activeTime.Elapsed.TotalSeconds;elapsedFraction=0;lastSavedSecond=Game.State.Elapsed;
+            StopCardMotion();RequestSave();Invalidate();
         }
         if(prompt && Preferences.SpiderPromptOpen)Confirm("Do you want to discard the current game and open the last saved game?",LoadCheckpoint);else LoadCheckpoint();
     }

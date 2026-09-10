@@ -188,6 +188,8 @@ internal static partial class UiProgram
             var type=typeof(GameWindow).GetNestedType("PeriodDialogHost",BindingFlags.NonPublic)!;
             using var host=(Form)Activator.CreateInstance(type,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,null,[form],null)!;Set(form,"dialogHost",host);
             type.GetMethod("RefreshSurface")!.Invoke(host,null);host.Location=new(-500,-500);
+            var originalRegion=host.Region;type.GetMethod("RefreshSurface")!.Invoke(host,null);
+            Check(ReferenceEquals(originalRegion,host.Region),"Unchanged dialog paint replaced its native window region");
             Check(host.Left==-500 && host.Top==-500 && host.Owner==form && !host.ShowInTaskbar,"Dialog geometry confined to parent");
             var bounds=(RectangleF)Field(form,"dialogBounds")!;var button=Hit(form,"dialog-cancel");
             int x=(int)((button.X+button.Width/2-bounds.X)*scale/100),y=(int)((button.Y+button.Height/2-bounds.Y)*scale/100);

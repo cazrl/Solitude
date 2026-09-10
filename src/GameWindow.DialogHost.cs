@@ -49,17 +49,23 @@ public sealed partial class GameWindow
             using(var probe=new Bitmap(1,1))using(var g=Graphics.FromImage(probe))game.PaintDialog(g);
             var bounds=game.dialogBounds;float scale=game.ScaleFactor;
             var size=new Size((int)MathF.Ceiling(bounds.Width*scale),(int)MathF.Ceiling(bounds.Height*scale));
-            if(surface==null || surface.Size!=size){surface?.Dispose();surface=new Bitmap(size.Width,size.Height);ClientSize=size;}
+            bool resized=surface==null || surface.Size!=size;
+            if(resized){surface?.Dispose();surface=new Bitmap(size.Width,size.Height);ClientSize=size;}
             if(!positioned){Location=game.PointToScreen(new((int)(bounds.X*scale),(int)(bounds.Y*scale)));positioned=true;}
             game.hotspots.RemoveAll(h=>h.Id.StartsWith("dialog-") || h.Id=="modal-close");
-            using(var g=Graphics.FromImage(surface))
+            using(var g=Graphics.FromImage(surface!))
             {
                 g.Clear(game.skin.Face);g.TranslateTransform(-bounds.X*scale,-bounds.Y*scale);g.ScaleTransform(scale,scale);
                 game.skin.Configure(g);game.PaintDialog(g);
             }
-            using var shape=game.skin.WindowShape(new(0,0,bounds.Width,bounds.Height));
-            using var transform=new Matrix();transform.Scale(scale,scale);shape.Transform(transform);
-            var old=Region;Region=new Region(shape);old?.Dispose();
+            if(resized)
+            {
+                // Replacing a visible window region invalidates the window. Do
+                // it only on resize, rather than generating another paint here.
+                using var shape=game.skin.WindowShape(new(0,0,bounds.Width,bounds.Height));
+                using var transform=new Matrix();transform.Scale(scale,scale);shape.Transform(transform);
+                var old=Region;Region=new Region(shape);old?.Dispose();
+            }
         }
         protected override void OnPaint(PaintEventArgs e){RefreshSurface();if(surface!=null)e.Graphics.DrawImageUnscaled(surface,0,0);}
         private PointF World(Point point){var bounds=game.dialogBounds;return new(point.X/game.ScaleFactor+bounds.X,point.Y/game.ScaleFactor+bounds.Y);}

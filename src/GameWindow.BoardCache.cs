@@ -23,8 +23,9 @@ public sealed partial class GameWindow
             int firstHotspot=hotspots.Count;
             using(var target=Graphics.FromImage(boardBitmap))
             {
+                target.Clear(Color.Transparent);
                 skin.Configure(target);target.ScaleTransform(art.RenderScale,art.RenderScale);
-                target.TranslateTransform(-MathF.Round(Table.X*art.RenderScale)/art.RenderScale,-MathF.Round(Table.Y*art.RenderScale)/art.RenderScale);
+                target.TranslateTransform(-CardArt.DevicePixel(Table.X*art.RenderScale)/art.RenderScale,-CardArt.DevicePixel(Table.Y*art.RenderScale)/art.RenderScale);
                 PaintTable(target);
             }
             boardCardAreas.Clear();boardCardAreas.AddRange(cardAreas);boardHotspots.Clear();boardHotspots.AddRange(hotspots.Skip(firstHotspot));boardStamp=stamp;
@@ -32,6 +33,6 @@ public sealed partial class GameWindow
         else{cardAreas.AddRange(boardCardAreas);hotspots.AddRange(boardHotspots);}
         using var transform=g.Transform;PointF[] origin=[Table.Location];transform.TransformPoints(origin);
         var state=g.Save();g.ResetTransform();g.CompositingMode=CompositingMode.SourceCopy;
-        g.DrawImageUnscaled(boardBitmap,(int)MathF.Round(origin[0].X),(int)MathF.Round(origin[0].Y));g.Restore(state);
+        g.DrawImageUnscaled(boardBitmap,CardArt.DevicePixel(origin[0].X),CardArt.DevicePixel(origin[0].Y));g.Restore(state);
     }
 }

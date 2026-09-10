@@ -1,4 +1,4 @@
-# Solitude 0.9.0
+# Solitude 0.9.1
 
 Solitaire, FreeCell and Spider in one portable Windows EXE. Click **Settings...** at the top right to choose a Windows version and game. **F6** and the window icon menu remain available too. Windows 7–11 remain deferred.
 
@@ -17,9 +17,9 @@ Windows 98's Spider belonged to the separate Plus! 98 add-on and is not offered 
 
 ## Run
 
-**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.9.0/Solitude.exe)** from the [0.9.0 release](https://github.com/cazrl/Solitude/releases/tag/v0.9.0).
+**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.9.1/Solitude.exe)** from the [0.9.1 release](https://github.com/cazrl/Solitude/releases/tag/v0.9.1).
 
-The **0.9.0** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v090/Solitude.exe`](artifacts/release-v090/Solitude.exe). Older packages are preserved under `artifacts`.
+The **0.9.1** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v091/Solitude.exe`](artifacts/release-v091/Solitude.exe). Older packages are preserved under `artifacts`.
 
 Run the EXE on 64-bit Windows 10 or 11. It contains the runtime, artwork and notices. No installer, account, network connection or separate .NET installation is required. Native runtime components may extract into the temporary directory.
 
@@ -28,6 +28,8 @@ Settings selects the Windows version, game and display size. Compatible choices 
 Each Windows/game combination retains its own suspended deal, undo history and records. Existing deals keep their original rules until you choose a new deal; Restart Game replays the same deal with those rules. Sharing a setting never copies Vista mechanics into a classic game. The visible Settings button is always present in the menu strip; **Records** and **About Solitude** are inside the selector.
 
 ## Period presentation
+
+Version 0.9.1 fixes Vista cards disappearing for a frame as animation ends, one-pixel jumps at fractional display scales, and incomplete repaints during moves/flips. It also corrects rapid menu/dialog keyboard input, Spider checkpoint effect cleanup, and negative Vegas records. The [complete follow-up audit](docs/AUDIT-0.9.1.md) separates reproduced defects, test coverage and remaining historical comparisons; [verification](docs/VERIFICATION.md) records the package and performance results.
 
 Version 0.9 addresses the complete audit: neutral foundation rearrangement scoring; unsaved in-memory sessions; classic FreeCell loss/one-move feedback, card inspection and Cards Left; dialog mnemonics and measured Options layouts; embedded early fonts; actual owned dialog windows; Vista sound/save/startup/restart/tip controls; restored completion effects; and full-session undo in the later games. Details and remaining historical limits: [FIDELITY-FIXES-0.9.0.md](docs/FIDELITY-FIXES-0.9.0.md).
 
