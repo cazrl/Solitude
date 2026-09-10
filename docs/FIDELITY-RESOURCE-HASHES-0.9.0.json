@@ -1,0 +1,26 @@
+{
+  "src/Assets/Fonts/system-10.fnt": {
+    "bytes": 5441,
+    "sha256": "DC318B12F7EDF251D924DACFFFEA5636D58272F03F650B3BB7A1FC382A6B3AFE"
+  },
+  "src/Assets/Fonts/ms-sans-serif-8.fnt": {
+    "bytes": 4035,
+    "sha256": "D7815303C692D025D45C0BEB987EAB525004A60F28BE03F93786F520F8855001"
+  },
+  "references/Vista/sounds-442489.zip": {
+    "bytes": 6127666,
+    "sha256": "909AD32EDB4A382C03FB17DCAB91F956C732D03F9E2DA783960BA848C3ECFA05"
+  },
+  "references/Vista/solitaire-original.mov": {
+    "bytes": 9605749,
+    "sha256": "B2828EB83AAB9AD365DF0F3D12729C727F6505AF2B4E500FD226F56DC07E1A3F"
+  },
+  "references/Vista/spider-original.mov": {
+    "bytes": 11455995,
+    "sha256": "2B8E66935432D197254F229BE4116D3099B9BDEF5BB721425C7B77FD696D6612"
+  },
+  "references/Mechanics/freecell-xp.resource.bin": {
+    "bytes": 55296,
+    "sha256": "BA517F623B778F4B842F559EA344CB64D3CAE9DE172AECFA4E330C733BAAD601"
+  }
+}

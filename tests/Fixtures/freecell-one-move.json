@@ -1,0 +1,309 @@
+{
+  "Kind": 1,
+  "SpiderSuits": 1,
+  "FreeCells": [
+    [
+      {
+        "Id": 49,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 28,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 46,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 35,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ]
+  ],
+  "UndoCount": 0,
+  "Seed": 1,
+  "Stock": [],
+  "Waste": [],
+  "Foundations": [
+    [],
+    [],
+    [],
+    []
+  ],
+  "Tableau": [
+    [
+      {
+        "Id": 30,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 44,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 34,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 12,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 25,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 36,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 27,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 5,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 41,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 7,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 4,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 6,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 40,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 11,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 2,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 20,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 39,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 3,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 29,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 51,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 38,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 0,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 17,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 14,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 1,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 18,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 33,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 9,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 42,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 16,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 21,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 26,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 31,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 47,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 19,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 22,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 48,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 37,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 43,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 15,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 8,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 45,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ],
+    [
+      {
+        "Id": 50,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 13,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 24,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 32,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 10,
+        "FaceUp": true,
+        "Copy": 0
+      },
+      {
+        "Id": 23,
+        "FaceUp": true,
+        "Copy": 0
+      }
+    ]
+  ],
+  "Score": 0,
+  "Moves": 12,
+  "Elapsed": 0,
+  "Recycles": 0,
+  "WasteFan": 0,
+  "Started": true,
+  "WinRecorded": false
+}

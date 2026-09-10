@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup><Compile Include="Program.cs" /><Compile Include="VariantChecks.cs" /><Compile Include="../src/Game*.cs" Link="%(Filename)%(Extension)" Exclude="../src/GameWindow*.cs" /><Compile Include="../src/Preferences.cs" Link="Preferences.cs" /><Compile Include="../src/SaveCoordinator.cs" Link="SaveCoordinator.cs" /></ItemGroup>
+</Project>

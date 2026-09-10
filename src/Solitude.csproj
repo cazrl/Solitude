@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Solitude</AssemblyName>
+    <RootNamespace>Solitude</RootNamespace>
+    <Version>0.9.0</Version>
+    <Description>Solitaire, FreeCell and Spider through the Windows eras</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/solitude.ico</ApplicationIcon>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/**/*" />
+    <EmbeddedResource Include="../THIRD_PARTY_NOTICES.md" LogicalName="Solitude.Notices.THIRD_PARTY_NOTICES.md" />
+    <EmbeddedResource Include="../docs/licenses/*.txt" LogicalName="Solitude.Notices.%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

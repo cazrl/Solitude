@@ -1,0 +1,18 @@
+# Window appearance references — updated for 0.8.0
+
+Inspected on 2026-09-08. These are reference screenshots, not executable downloads or instructions. The screenshot files remain under ignored `references/WindowsUI/` for local comparison. The embedded artwork is listed in ASSET-SOURCES.md; 0.8 adds preserved Vista frame/button and game-icon images. Caption measurements from Microsoft's original DWM examples and the XP captures below are in [FRAME-ALIGNMENT.md](FRAME-ALIGNMENT.md).
+
+| Preset | Reference | Applied characteristics |
+|---|---|---|
+| Windows 3.0 | [Mouse dialog](https://guidebookgallery.org/pics/gui/settings/mouse/win30.png), [Calculator](https://guidebookgallery.org/pics/gui/applications/office/calculator/win30.png) | Alternating navy `#000080` and teal `#008080` pixels in active frames, centered System bitmap title, white dialogs, control-menu box, arrow title buttons and crossed checkboxes. |
+| Windows 3.1 | [Mouse dialog](https://guidebookgallery.org/pics/gui/settings/mouse/win31.png), [Solitaire options](https://cdn.mobygames.com/29baa550-ac03-11ed-b57a-02420a000130.webp) | Solid navy active frame, white inactive caption, System bitmap font, compact Options layout and white score strip. |
+| Windows 95 | [Calculator](https://guidebookgallery.org/pics/gui/applications/office/calculator/win95.png), [Solitaire options](https://cdn.mobygames.com/b4c2873a-c1d4-11ed-ab6b-02420a000194.webp) | Solid navy title, silver `#C0C0C0` controls, three square caption buttons, MS Sans Serif bitmap font, beveled controls and white Solitaire score strip. |
+| Windows 98 | [Calculator](https://guidebookgallery.org/pics/gui/applications/office/calculator/win98.png) | Silver controls and caption gradient from `#000080` to `#1084D0`. |
+| Windows Me | [Calculator](https://guidebookgallery.org/pics/gui/applications/office/calculator/winme.png) | Warm gray `#D4D0C8` controls, gradient from `#0A246A` to `#A6CAF0`, MS Sans Serif bitmap lettering. |
+| Windows 2000 | [Calculator](https://guidebookgallery.org/pics/gui/applications/office/calculator/win2000pro.png) | The same warm gray and slate-blue palette as Me, with Tahoma lettering. These releases deliberately retain their historically similar frame colors. |
+| Windows XP | [Blue Luna calculator](https://guidebookgallery.org/pics/gui/applications/office/calculator/winxppro.png), [Solitaire with Olive Luna](https://cdn.mobygames.com/screenshots/16120092-microsoft-windows-xp-included-games-windows-a-solitaire-game-in-.png) | Rounded upper frame, Luna title buttons, cream client surfaces and white Solitaire score strip. Solitude uses the blue Luna scheme. |
+| Windows Vista | [Original Solitaire game capture](https://cdn.mobygames.com/screenshots/11645147-microsoft-windows-vista-included-games-windows-solitaire.jpg), [preserved background](https://www.spriters-resource.com/pc_computer/solitairewindowsvista7/asset/573977/) | Original felt, rounded empty slots, proportional cards, pale menu strip and gray time/score strip. Aero borders/reflections and the dark maximized caption are drawn reconstructions. |
+
+The palette values above were sampled directly from the reference PNGs, away from text and borders. The Solitaire captures also include user-chosen color schemes; those colors were not used to invent default schemes.
+
+Historical default windows varied with installed themes, display depth, resolution and user preferences. This release targets one recognizable default-era appearance per preset. It does not run the original OS rendering stack. Vista glass does not blur the actual desktop. The Windows selector and help viewer remain reconstructed content; the former extra Game Feel and expanded Options pages were removed in 0.6. Full pixel identity is not claimed.
