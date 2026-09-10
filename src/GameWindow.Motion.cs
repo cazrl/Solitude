@@ -52,7 +52,7 @@ public sealed partial class GameWindow
         int fan=Math.Max(1,Math.Min(Game.State.WasteFan,Game.State.Waste.Count));
         for(int i=0;i<Game.State.Waste.Count;i++)
         {
-            int slot=i-(Game.State.Waste.Count-fan);var r=TopCard(1);r.X+=Math.Max(0,slot)*(skin.Modern?19:16);
+            int slot=i-(Game.State.Waste.Count-fan);var r=TopCard(1);r.X+=Math.Max(0,slot)*WasteStep;
             Add(Game.State.Waste[i],r,new(PileKind.Waste,0,i),slot>=0,100+i);
         }
         for(int col=0;col<Game.State.Tableau.Count;col++)for(int i=0;i<Game.State.Tableau[col].Count;i++)

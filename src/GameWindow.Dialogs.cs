@@ -77,7 +77,7 @@ public sealed partial class GameWindow
                 Wrapped(g,$"Games played: {Statistics.Played}\nGames won: {Statistics.Won}\nBest score: {Statistics.BestScore}",new(x,y+38,w,75));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.AppAbout:
-                skin.Text(g,"Solitude 0.10.0",new(x,y,w,25),font:skin.Bold);
+                skin.Text(g,"Solitude 0.10.1",new(x,y,w,25),font:skin.Bold);
                 Wrapped(g,"Windows card games, 1990-2007.\nORBIT, imagined for 2126.\nPress F6 to choose an edition.",new(x,y+38,w,78));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.MoveColumn:

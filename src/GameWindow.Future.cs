@@ -87,7 +87,7 @@ public sealed partial class GameWindow
         int count=Math.Max(1,Math.Min(Game.State.WasteFan,Game.State.Waste.Count));
         for(int i=0;i<count && Game.State.Waste.Count>0;i++)
         {
-            int index=Game.State.Waste.Count-count+i;var r=TopCard(1);r.X+=i*19;
+            int index=Game.State.Waste.Count-count+i;var r=TopCard(1);r.X+=i*WasteStep;
             var pos=new Position(PileKind.Waste,0,index);if(!(dragging && IsSelected(pos)))DrawGameCard(g,Game.State.Waste[index],r);
             if(i==count-1)cardAreas.Add((pos,r));
         }
@@ -115,7 +115,7 @@ public sealed partial class GameWindow
     }
     private RectangleF FuturePosition(Position p)=>p.Kind switch
     {
-        PileKind.Stock=>StockRect,PileKind.Waste=>new(TopCard(1).X+Math.Max(0,Math.Min(Game.State.WasteFan,Game.State.Waste.Count)-1)*19,TopCard(1).Y,CardWidth,CardHeight),
+        PileKind.Stock=>StockRect,PileKind.Waste=>new(TopCard(1).X+Math.Max(0,Math.Min(Game.State.WasteFan,Game.State.Waste.Count)-1)*WasteStep,TopCard(1).Y,CardWidth,CardHeight),
         PileKind.Foundation=>TopCard(p.Pile+3),_=>TableauCard(p.Pile,Math.Max(0,p.Index<0?Game.State.Tableau[p.Pile].Count-1:p.Index))
     };
     private void FutureOutline(Graphics g,RectangleF r,Color color,float strength=1)

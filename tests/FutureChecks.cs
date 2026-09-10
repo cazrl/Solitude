@@ -69,8 +69,29 @@ internal static partial class UiProgram
                 Check(bounds.Top>=0 && bounds.Bottom<=form.Height/(scale/100f),"ORBIT dialog does not fit at "+scale+": "+page);Key(form,Keys.Escape);
             }
         }
-        CheckFuturePersistence();CheckFutureWin();CheckFutureMotionInterruption();
+        CheckFuturePersistence();CheckFutureWin();CheckFutureMotionInterruption();CheckFutureCardSeparation();
         Console.WriteLine("PASS ORBIT palettes, input, frame continuity, reduced motion, saved sessions and constellation victory");
+    }
+    private static void CheckFutureCardSeparation()
+    {
+        foreach(int scale in new[]{100,125,150,200})
+        {
+            using var form=new GameWindow(new Store("artifacts/orbit-separation-state"),Era.Future2126,1989,scale,true);
+            form.Game.Draw();Paint(form);
+            var top=Area(form,new(PileKind.Waste,0,form.Game.State.Waste.Count-1));
+            float width=(float)typeof(GameWindow).GetProperty("CardWidth",Private)!.GetValue(form)!;
+            float step=(float)typeof(GameWindow).GetProperty("WasteStep",Private)!.GetValue(form)!;
+            Check(step>=width*31/96,"Draw-three overlap hides a two-digit rank or its suit");
+            using var frame=new Bitmap(form.Width,form.Height);DrawFrame(form,frame);
+            int y=(int)((top.Y+top.Height*.55f)*scale/100);
+            int x=(int)MathF.Round(top.X*scale/100);
+            int darkest=Enumerable.Range(Math.Max(0,x-1),4).Select(xx=>frame.GetPixel(xx,y).R).Min();
+            int face=frame.GetPixel(x+(int)(8*scale/100f),y).R;
+            Check(face-darkest>65,"Overlapping ORBIT cards lack a visible separating edge");
+            var guidance=(RectangleF)typeof(GameWindow).GetMethod("FuturePosition",Private)!.Invoke(form,[new Position(PileKind.Waste)])!;
+            Check(guidance==top,"ORBIT waste guidance differs from its clickable card");
+            if(scale==150)frame.Save("artifacts/orbit-checks/separated-waste.png");
+        }
     }
     private static void CheckFutureMotionInterruption()
     {

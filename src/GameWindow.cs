@@ -66,6 +66,7 @@ public sealed partial class GameWindow : Form
     private float CardHeight => CardWidth * (skin.Modern?152f/111:96f/71);
     private float TableMargin => skin.Future?Table.Width*.052f:skin.Modern?Table.Width*(Kind==GameKind.Klondike?.1f:.035f):Kind==GameKind.FreeCell?1:12;
     private float ColumnGap => (Table.Width-2*TableMargin-CardWidth)/(Game.State.Tableau.Count-1);
+    private float WasteStep => skin.Future?CardWidth*.36f:skin.Modern?19:16;
     private float TableauY => Kind==GameKind.Spider?Table.Top+(skin.Modern?30:12):Table.Top + CardHeight + (skin.Future?72:skin.Modern ? 52 : Kind==GameKind.FreeCell?15:24);
     private RectangleF TopCard(int slot) => new(Table.Left+TableMargin+ColumnGap*slot,Table.Top+(skin.Future?34:skin.Modern?24:12),CardWidth,CardHeight);
     private RectangleF StockRect => Kind==GameKind.Spider?new(Table.Right-CardWidth-16,Table.Bottom-CardHeight-12,CardWidth,CardHeight):TopCard(0);

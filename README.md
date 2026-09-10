@@ -1,4 +1,4 @@
-# Solitude 0.10.0
+# Solitude 0.10.1
 
 Solitaire, FreeCell and Spider in one portable Windows EXE, now with **ORBIT / Solitude 2126**: a fictional Solitaire edition imagined one century ahead. Click **Settings** at the top right to choose an edition and game. **F6** and the window icon menu remain available too. Windows 7–11 remain deferred.
 
@@ -18,9 +18,9 @@ Windows 98's Spider belonged to the separate Plus! 98 add-on and is not offered 
 
 ## Run
 
-**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.10.0/Solitude.exe)** from the [0.10.0 release](https://github.com/cazrl/Solitude/releases/tag/v0.10.0).
+**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.10.1/Solitude.exe)** from the [0.10.1 release](https://github.com/cazrl/Solitude/releases/tag/v0.10.1).
 
-The **0.10.0** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v0100/Solitude.exe`](artifacts/release-v0100/Solitude.exe). Older packages are preserved under `artifacts`.
+The **0.10.1** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v0101/Solitude.exe`](artifacts/release-v0101/Solitude.exe). Older packages are preserved under `artifacts`.
 
 Run the EXE on 64-bit Windows 10 or 11. It contains the runtime, artwork and notices. No installer, account, network connection or separate .NET installation is required. Native runtime components may extract into the temporary directory.
 

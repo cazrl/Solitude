@@ -93,7 +93,7 @@ public sealed class FutureArt : IDisposable
         for(int i=5;i>=1;i--)Panel(g,new(2+i*.35f,3+i*.7f,95,135),Color.FromArgb(8,0,0,0),Color.Transparent,7);
         var r=new RectangleF(.5f,.5f,95,135);using var path=Skin.Rounded(r,6);
         using(var fill=new LinearGradientBrush(r,card.FaceUp?Color.FromArgb(251,252,248):Color.FromArgb(24,49,65),card.FaceUp?Color.FromArgb(224,235,236):Color.FromArgb(10,24,39),68))g.FillPath(fill,path);
-        using(var edge=new Pen(card.FaceUp?Color.FromArgb(226,244,245):Color.FromArgb(140,Accent),.8f))g.DrawPath(edge,path);
+        using(var edge=new Pen(card.FaceUp?Color.FromArgb(76,102,116):Color.FromArgb(140,Accent),card.FaceUp?1.15f:.8f))g.DrawPath(edge,path);
         if(!card.FaceUp)
         {
             using var inset=Skin.Rounded(new(5,5,86,126),4);using var p=new Pen(Color.FromArgb(80,Accent),.6f);g.DrawPath(p,inset);
