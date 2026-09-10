@@ -66,7 +66,7 @@ internal static partial class UiProgram
     }
     private static void CheckImmediateInput()
     {
-        foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
+        foreach(var era in GameCatalog.HistoricalEras)foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
         {
             using var form=new GameWindow(new Store("artifacts/input-audit-isolated"),era,1,100,true,kind);Paint(form);
             var before=form.Game.State;

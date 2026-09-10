@@ -7,7 +7,7 @@ internal static partial class UiProgram
 {
     private static void CheckFidelityFixes()
     {
-        foreach(var era in Enum.GetValues<Era>())
+        foreach(var era in GameCatalog.HistoricalEras)
         {
             foreach(var scoring in new[]{Scoring.Standard,Scoring.Vegas})
             {
@@ -155,7 +155,7 @@ internal static partial class UiProgram
     }
     private static void CheckMnemonicGlyphs()
     {
-        foreach(var era in Enum.GetValues<Era>())foreach(int scale in new[]{100,125,150,200})foreach(string label in new[]{"E&xit","&Play again"})
+        foreach(var era in GameCatalog.HistoricalEras)foreach(int scale in new[]{100,125,150,200})foreach(string label in new[]{"E&xit","&Play again"})
         {
             using var skin=new Skin(era);float s=scale/100f;
             using var plain=new Bitmap((int)(140*s),(int)(40*s));using var marked=new Bitmap(plain.Width,plain.Height);
@@ -182,7 +182,7 @@ internal static partial class UiProgram
     }
     private static void CheckOwnedDialogHost()
     {
-        foreach(var era in Enum.GetValues<Era>())foreach(int scale in new[]{100,125,150,200})
+        foreach(var era in GameCatalog.HistoricalEras)foreach(int scale in new[]{100,125,150,200})
         {
             using var form=new GameWindow(new Store("artifacts/dialog-fidelity-isolated"),era,1,scale,true);Call(form,"OpenDialog",DialogPage.Options);Paint(form);
             var type=typeof(GameWindow).GetNestedType("PeriodDialogHost",BindingFlags.NonPublic)!;

@@ -1,6 +1,6 @@
-# Solitude 0.9.1
+# Solitude 0.10.0
 
-Solitaire, FreeCell and Spider in one portable Windows EXE. Click **Settings...** at the top right to choose a Windows version and game. **F6** and the window icon menu remain available too. Windows 7–11 remain deferred.
+Solitaire, FreeCell and Spider in one portable Windows EXE, now with **ORBIT / Solitude 2126**: a fictional Solitaire edition imagined one century ahead. Click **Settings** at the top right to choose an edition and game. **F6** and the window icon menu remain available too. Windows 7–11 remain deferred.
 
 | Windows version | Solitaire / Klondike | FreeCell | Spider |
 |---|---|---|---|
@@ -12,20 +12,33 @@ Solitaire, FreeCell and Spider in one portable Windows EXE. Click **Settings...*
 | 2000 | Yes | Yes | — |
 | XP | Yes | Yes | Yes |
 | Vista | Yes | Yes | Yes |
+| ORBIT / Solitude 2126 (fictional) | Yes | — | — |
 
 Windows 98's Spider belonged to the separate Plus! 98 add-on and is not offered as a base-Windows game.
 
 ## Run
 
-**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.9.1/Solitude.exe)** from the [0.9.1 release](https://github.com/cazrl/Solitude/releases/tag/v0.9.1).
+**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.10.0/Solitude.exe)** from the [0.10.0 release](https://github.com/cazrl/Solitude/releases/tag/v0.10.0).
 
-The **0.9.1** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v091/Solitude.exe`](artifacts/release-v091/Solitude.exe). Older packages are preserved under `artifacts`.
+The **0.10.0** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v0100/Solitude.exe`](artifacts/release-v0100/Solitude.exe). Older packages are preserved under `artifacts`.
 
 Run the EXE on 64-bit Windows 10 or 11. It contains the runtime, artwork and notices. No installer, account, network connection or separate .NET installation is required. Native runtime components may extract into the temporary directory.
 
 Settings selects the Windows version, game and display size. Compatible choices are shared across Windows presets and survive closing the EXE. Display size is global; Solitaire options, classic FreeCell options and Spider difficulty/options carry to versions that support them. Classic and XP card backs remain separate artwork families. Vista appearance, animation and save choices carry across its three games.
 
 Each Windows/game combination retains its own suspended deal, undo history and records. Existing deals keep their original rules until you choose a new deal; Restart Game replays the same deal with those rules. Sharing a setting never copies Vista mechanics into a classic game. The visible Settings button is always present in the menu strip; **Records** and **About Solitude** are inside the selector.
+
+## ORBIT / 2126
+
+Choose **Settings → ORBIT / Solitude 2126 → OK**. A dark orbital observatory, original porcelain-style cards and geometric court figures replace the historical game surface and window frame. Aurora, Solstice and Nebula provide three lighting palettes. The board stays still when idle.
+
+![ORBIT Solitaire in the Aurora observatory](docs/images/orbit-2126.png)
+
+Cards lift, bank and flip into position. Foundation arrivals send out docking waves; a win gathers 52 lights into an orbital constellation. Hint traces a possible move. Undo can reverse a card during its flight, and double-click sends only the chosen card home. A finish button appears when the remaining face-up deal is ready for collection.
+
+**Experience** controls draw count, scoring, spatial motion, light trails/waves and synthesized sound. **Atmosphere** chooses the palette, also available with F7. Turn spatial motion off for instant play and immediate win results. ORBIT saves its deal and preferences automatically; compatible draw/scoring choices travel across editions. These controls and effects belong only to the fictional edition.
+
+See the [design and controls](docs/ORBIT-2126.md) and [verification results](docs/VERIFICATION.md). The historic presets retain their period presentation, including the Vista rendering fixes from 0.9.1.
 
 ## Period presentation
 

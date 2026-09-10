@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Solitude;
 
-public enum Era { Windows30, Windows31, Windows95, Windows98, WindowsMe, Windows2000, WindowsXP, WindowsVista }
+public enum Era { Windows30, Windows31, Windows95, Windows98, WindowsMe, Windows2000, WindowsXP, WindowsVista, Future2126 }
 public sealed class Preferences
 {
     public int FrameRate { get; set; } = 120;
@@ -16,6 +16,8 @@ public sealed class Preferences
     public int CardBack { get; set; } = 6;
     public int VistaDeck { get; set; } = 1;
     public int VistaBackground { get; set; }
+    public int FuturePalette { get; set; }
+    public bool FutureAtmosphere { get; set; } = true;
     public bool ShowStatus { get; set; } = true;
     public bool OutlineDragging { get; set; }
     public bool Animate { get; set; } = true;
@@ -117,7 +119,7 @@ public sealed class Store(string directory)
     {
         if (new FileInfo(path).Length > 128 * 1024 * 1024) throw new InvalidDataException("Save file too large.");
         var saved = JsonSerializer.Deserialize<SaveFile>(File.ReadAllText(path), Options) ?? throw new InvalidDataException("Empty save.");
-        if (saved.Format is not (1 or 2 or 3 or 4 or 5 or 6) || saved.Preferences?.Rules == null || saved.Statistics == null || saved.History == null || saved.Sessions == null || saved.Sessions.Count > 17 || saved.SpiderSaves==null || saved.SpiderSaves.Count>3)
+        if (saved.Format is not (1 or 2 or 3 or 4 or 5 or 6) || saved.Preferences?.Rules == null || saved.Statistics == null || saved.History == null || saved.Sessions == null || saved.Sessions.Count > 18 || saved.SpiderSaves==null || saved.SpiderSaves.Count>3)
             throw new InvalidDataException("Unsupported save format.");
         ValidateSession(saved.Preferences, saved.Game, saved.History,saved.ActiveRules);
         saved.Shared?.Validate();
@@ -178,6 +180,7 @@ public sealed class Store(string directory)
     {
         if (p?.Rules == null || history == null || !Enum.IsDefined(p.Era) || !GameCatalog.Available(p.Era, p.Rules.Kind) || !Enum.IsDefined(p.Rules.Scoring) || p.Rules.DrawCount is not (1 or 3) || p.Scale is not (100 or 125 or 150 or 200) || p.CardBack is < 0 or > 11 || p.VistaDeck is < 0 or > 3 || p.VistaBackground is < 0 or > 4)
             throw new InvalidDataException("Invalid saved preferences.");
+        if(p.FuturePalette is <0 or >2)throw new InvalidDataException("Invalid ORBIT palette.");
         _ = new Game(p.Rules, 1);
         if(p.FrameRate is not (60 or 120 or 144) || p.MotionDuration is not (140 or 210 or 320))throw new InvalidDataException("Invalid animation preferences.");
         if(activeRules!=null && activeRules.Kind!=p.Rules.Kind)throw new InvalidDataException("Active game type does not match its preset.");

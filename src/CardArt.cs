@@ -12,6 +12,7 @@ public sealed class CardArt : IDisposable
     private readonly Dictionary<(int Face,Era Era,GameKind Kind,int Back,int Deck,int Frame,int W,int H,int Density),Bitmap> cardCache=[];
     private readonly Dictionary<(int Background,int W,int H),Bitmap> feltCache=[];
     public float RenderScale { get; set; } = 1;
+    public FutureArt Future { get; } = new();
     private readonly Bitmap faces;
     private readonly List<Bitmap> xpBacks = [];
     private readonly List<Bitmap> oldBacks = [];
@@ -48,6 +49,7 @@ public sealed class CardArt : IDisposable
     }
     public void Draw(Graphics g, Card card, RectangleF r, Era era, int back, float faceWidth=0,bool invert=false)
     {
+        if(era==Era.Future2126){Future.DrawCard(g,card,r,RenderScale,faceWidth);return;}
         float density=RenderScale;
         int width=Math.Max(1,(int)Math.Ceiling((faceWidth>0?faceWidth:r.Width)*density)),height=Math.Max(1,(int)Math.Ceiling(r.Height*density));
         int frame=!card.FaceUp && TimedBacks && era is not (Era.WindowsXP or Era.WindowsVista) && Kind==GameKind.Klondike && animatedBacks.ContainsKey(back)
@@ -145,5 +147,5 @@ public sealed class CardArt : IDisposable
     public void DrawSpiderFelt(Graphics g,RectangleF bounds) {using var brush=new TextureBrush(spiderFelt);g.FillRectangle(brush,bounds);}
     public void DrawKing(Graphics g,RectangleF bounds,bool right) => g.DrawImage(right?kingRight:kingLeft,bounds);
     public void DrawSpiderAbout(Graphics g,RectangleF bounds) => g.DrawImage(spiderAbout,bounds);
-    public void Dispose(){faces.Dispose();felt.Dispose();spiderFaces.Dispose();spiderBack.Dispose();spiderFelt.Dispose();spiderAbout.Dispose();kingLeft.Dispose();kingRight.Dispose();foreach(var b in xpBacks.Concat(oldBacks).Concat(vistaFaces).Concat(vistaBacks).Concat(backgrounds).Concat(animatedBacks.Values.SelectMany(b=>b)).Concat(cardCache.Values).Concat(feltCache.Values))b.Dispose();}
+    public void Dispose(){Future.Dispose();faces.Dispose();felt.Dispose();spiderFaces.Dispose();spiderBack.Dispose();spiderFelt.Dispose();spiderAbout.Dispose();kingLeft.Dispose();kingRight.Dispose();foreach(var b in xpBacks.Concat(oldBacks).Concat(vistaFaces).Concat(vistaBacks).Concat(backgrounds).Concat(animatedBacks.Values.SelectMany(b=>b)).Concat(cardCache.Values).Concat(feltCache.Values))b.Dispose();}
 }

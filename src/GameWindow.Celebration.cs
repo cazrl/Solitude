@@ -12,8 +12,8 @@ public sealed partial class GameWindow
         {
             PlayVistaSound("FREECELLWIN");OpenDialog(DialogPage.Won);return true;
         }
-        if(!skin.Vista && Kind!=GameKind.Spider)return false;
-        if(skin.Vista && !Preferences.Animate){OpenDialog(DialogPage.Won);return true;}
+        if(!skin.Modern && Kind!=GameKind.Spider)return false;
+        if(skin.Modern && !Preferences.Animate){OpenDialog(DialogPage.Won);return true;}
         collecting=false;selection=null;showingVictory=true;victoryStart=MotionNow;celebrationCue=-1;
         victoryTrail?.Dispose();victoryTrail=new Bitmap((int)MathF.Ceiling(WorldWidth),(int)MathF.Ceiling(WorldHeight));
         boardStamp=null;ScheduleFrames();return true;
@@ -25,7 +25,7 @@ public sealed partial class GameWindow
         if(Kind==GameKind.Spider)
         {
             PaintFireworks(g,elapsed);
-            if(!skin.Vista)
+            if(!skin.Modern)
             {
                 using var font=new Font("Arial",30,FontStyle.Bold,GraphicsUnit.Pixel);
                 string label="You Won!";float x=Table.Left+Table.Width/2-70,y=Table.Top+Table.Height/2-24;
@@ -74,27 +74,27 @@ public sealed partial class GameWindow
     }
     private void PaintFireworks(Graphics g,double elapsed)
     {
-        g.SmoothingMode=skin.Vista?SmoothingMode.AntiAlias:SmoothingMode.None;
+        g.SmoothingMode=skin.Modern?SmoothingMode.AntiAlias:SmoothingMode.None;
         int newest=(int)(elapsed/.65);
         for(int n=Math.Max(0,newest-4);n<=newest;n++)
         {
             double age=elapsed-n*.65;
             float x=Table.Left+Table.Width*(.16f+((n*37)%69)/100f),top=Table.Top+Table.Height*(.12f+((n*23)%39)/100f);
-            Color color=skin.Vista?Color.FromArgb(170+(n*19)%85,200+(n*7)%55,100+(n*43)%155):new[]{Color.Yellow,Color.Cyan,Color.Magenta,Color.Lime,Color.Red}[n%5];
+            Color color=skin.Modern?Color.FromArgb(170+(n*19)%85,200+(n*7)%55,100+(n*43)%155):new[]{Color.Yellow,Color.Cyan,Color.Magenta,Color.Lime,Color.Red}[n%5];
             if(age<.55)
             {
                 float y=Table.Bottom-(Table.Bottom-top)*(float)(age/.55);
-                using var pen=new Pen(color,skin.Vista?2:1);g.DrawLine(pen,x,y,x+2,y+15);continue;
+                using var pen=new Pen(color,skin.Modern?2:1);g.DrawLine(pen,x,y,x+2,y+15);continue;
             }
             age-=.55;if(age>2)continue;int alpha=(int)(255*(1-age/2));
             for(int p=0;p<50;p++)
             {
                 float angle=p*MathF.PI*2/50+n*.41f,speed=Table.Width*(.07f+.045f*((p*17)%11)/10);
                 float px=x+MathF.Cos(angle)*speed*(float)age,py=top+MathF.Sin(angle)*speed*(float)age+25*(float)(age*age);
-                using var pen=new Pen(Color.FromArgb(alpha,color),skin.Vista?1.4f:1);
+                using var pen=new Pen(Color.FromArgb(alpha,color),skin.Modern?1.4f:1);
                 g.DrawLine(pen,px,py,px-MathF.Cos(angle)*4,py-MathF.Sin(angle)*4);
             }
         }
-        if(newest!=celebrationCue){celebrationCue=newest;if(skin.Vista)PlayVistaSound("SPIDER_FIREWORKS0"+(newest%3+1));}
+        if(newest!=celebrationCue){celebrationCue=newest;if(skin.Modern)PlayVistaSound("SPIDER_FIREWORKS0"+(newest%3+1));}
     }
 }

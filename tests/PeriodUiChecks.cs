@@ -25,7 +25,7 @@ internal static partial class UiProgram
             ["&New Game|F2","&Select Game|F3","&Restart Game|","|","S&tatistics...|F4","&Options...|F5","|","&Undo|F10","|","E&xit|"],
             ["&New Game|F2","&Restart This Game|","|","&Undo|Ctrl+Z","&Deal Next Row|D","Show An Available &Move|M","|","D&ifficulty...|F3","S&tatistics...|F4","O&ptions...|F5","|","&Save This Game|Ctrl+S","&Open Last Saved Game|Ctrl+O","|","E&xit|"]
         ];
-        foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
+        foreach(var era in GameCatalog.HistoricalEras)foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
         {
             using var form=new GameWindow(new Store("artifacts/period-ui"),era,1,100,true,kind);Paint(form);Set(form,"renderMotionTime",10.0);
             var menu=Menu(form,0);Check(menu.All(e=>!e.Label.Contains("Feel") && !e.Label.Contains("Windows") && !e.Label.Contains("Collect") && !e.Label.Contains("Controls")),"Modern controls leaked into the game menu");

@@ -13,8 +13,9 @@ public sealed partial class GameWindow
     private readonly List<Hotspot> boardHotspots=[];
     private void PaintCachedTable(Graphics g)
     {
-        int frame=art.TimedBacks && !skin.Xp && !skin.Vista && Kind==GameKind.Klondike && Preferences.CardBack is 6 or 9 or 10 or 11?art.AnimationFrame:0;
-        var stamp=new BoardStamp(Game.State,Game.State.Moves,Table,Preferences.Scale,Preferences.Era,Preferences.VistaDeck,Preferences.CardBack,Preferences.VistaBackground,frame,
+        int frame=art.TimedBacks && !skin.Xp && !skin.Modern && Kind==GameKind.Klondike && Preferences.CardBack is 6 or 9 or 10 or 11?art.AnimationFrame:0;
+        if(skin.Future)frame=showingVictory?1:0;
+        var stamp=new BoardStamp(Game.State,Game.State.Moves,Table,Preferences.Scale,Preferences.Era,skin.Future?Preferences.FuturePalette:Preferences.VistaDeck,Preferences.CardBack,Preferences.VistaBackground,frame,
             selection,dragging,hint,flights.Count,motionRevision,Kind==GameKind.FreeCell && mouse.X>Table.Left+Table.Width/2,dialog!=DialogPage.None,Kind==GameKind.Spider?Game.State.Score:0);
         if(boardBitmap==null || boardStamp!=stamp)
         {
@@ -26,7 +27,8 @@ public sealed partial class GameWindow
                 target.Clear(Color.Transparent);
                 skin.Configure(target);target.ScaleTransform(art.RenderScale,art.RenderScale);
                 target.TranslateTransform(-CardArt.DevicePixel(Table.X*art.RenderScale)/art.RenderScale,-CardArt.DevicePixel(Table.Y*art.RenderScale)/art.RenderScale);
-                PaintTable(target);
+                if(skin.Future){Orbit.DrawScene(target,new(1,WindowHeader,WorldWidth-2,WorldHeight-WindowHeader-1),ScaleFactor,maximized);PaintFutureTable(target);}
+                else PaintTable(target);
             }
             boardCardAreas.Clear();boardCardAreas.AddRange(cardAreas);boardHotspots.Clear();boardHotspots.AddRange(hotspots.Skip(firstHotspot));boardStamp=stamp;
         }

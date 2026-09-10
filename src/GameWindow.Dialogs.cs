@@ -19,24 +19,25 @@ public sealed partial class GameWindow
     private void PaintDialog(Graphics g)
     {
         dialogControl=0;dialogMnemonics.Clear();dialogRadios.Clear();dialogButtons.Clear();
+        if(skin.Future && dialog is DialogPage.Options or DialogPage.Deck or DialogPage.Won or DialogPage.Help or DialogPage.About or DialogPage.AppAbout){PaintFutureDialog(g);return;}
         string title=dialog switch {
-            DialogPage.Settings=>"Settings",DialogPage.Options=>ClassicFreeCell?"FreeCell Options":ClassicSpider?"Spider Options":"Options",DialogPage.Deck=>skin.Vista?"Change Appearance":"Select Card Back",
+            DialogPage.Settings=>"Settings",DialogPage.Options=>ClassicFreeCell?"FreeCell Options":ClassicSpider?"Spider Options":"Options",DialogPage.Deck=>skin.Modern?"Change Appearance":"Select Card Back",
             DialogPage.Help=>GameCatalog.Name(Kind)+" Help",DialogPage.About=>"About "+(Kind==GameKind.Spider?"Spider":GameCatalog.Name(Kind)),DialogPage.Statistics=>"Statistics",
             DialogPage.SelectGame=>"Game Number",DialogPage.MoveColumn=>"Move to Empty Column...",DialogPage.Difficulty=>"Difficulty",DialogPage.Confirm=>GameTitle,DialogPage.Records=>"Saved Records",DialogPage.AppAbout=>"About Solitude",
-            DialogPage.NewGame=>"Deal",DialogPage.Restart=>"Restart",DialogPage.Lost=>"Game Over",DialogPage.Won=>skin.Vista?"Game Won":Kind==GameKind.Klondike?"Solitaire":"Game Over",_=>GameTitle};
+            DialogPage.NewGame=>"Deal",DialogPage.Restart=>"Restart",DialogPage.Lost=>"Game Over",DialogPage.Won=>skin.Modern?"Game Won":Kind==GameKind.Klondike?"Solitaire":"Game Over",_=>GameTitle};
         if(dialogHost!=null){dialogHost.Text=title;dialogHost.AccessibleName=title;}
         int width=dialog switch{DialogPage.Deck=>546,DialogPage.Help=>skin.Early?566:490,DialogPage.Settings=>548,DialogPage.Options=>skin.Early?510:430,_=>skin.Early?470:410};
         int height=dialog switch{DialogPage.Deck=>312,DialogPage.Help=>396,DialogPage.Settings=>406,DialogPage.Options=>338,DialogPage.About=>272,DialogPage.Statistics=>252,DialogPage.Won=>216,_=>182};
-        if(dialog==DialogPage.Options && !skin.Vista && Kind==GameKind.Klondike){width=skin.Early?278:342;height=skin.Early?230:216+(skin.Xp?9:0);}
+        if(dialog==DialogPage.Options && !skin.Modern && Kind==GameKind.Klondike){width=skin.Early?278:342;height=skin.Early?230:216+(skin.Xp?9:0);}
         if(dialog==DialogPage.SelectGame){width=360;height=228;}
-        if(dialog==DialogPage.About && Kind==GameKind.Spider && !skin.Vista){width=395;height=320;}
-        if(dialog==DialogPage.Deck && skin.Vista)height=408;
+        if(dialog==DialogPage.About && Kind==GameKind.Spider && !skin.Modern){width=395;height=320;}
+        if(dialog==DialogPage.Deck && skin.Modern)height=408;
         if(dialog==DialogPage.Options && ClassicFreeCell){width=390;height=200;}
         if(dialog==DialogPage.Options && ClassicSpider){width=395;height=268;}
-        if(dialog==DialogPage.Options && skin.Vista){width=430;height=Kind==GameKind.FreeCell?245:370;}
+        if(dialog==DialogPage.Options && skin.Modern){width=430;height=Kind==GameKind.FreeCell?245:370;}
         if(dialog==DialogPage.Difficulty){width=355;height=236;}
-        if(dialog==DialogPage.Won && skin.Vista){width=316;height=285;}
-        if(dialog==DialogPage.Won && !skin.Vista){width=365;height=190;}
+        if(dialog==DialogPage.Won && skin.Modern){width=316;height=285;}
+        if(dialog==DialogPage.Won && !skin.Modern){width=365;height=190;}
         if(dialog==DialogPage.Confirm){width=400;height=178;}
         if(dialog==DialogPage.AppAbout || dialog==DialogPage.Records){height=236;}
         if(dialog==DialogPage.Help){width=skin.Early?590:560;height=430;}
@@ -47,10 +48,10 @@ public sealed partial class GameWindow
         if(FreeCellDialogClient is {} client){width=client.Width+2*skin.Border;height=client.Height+skin.Caption+2*skin.Border;if(dialog==DialogPage.Statistics)title="FreeCell Statistics";}
         var bounds=new RectangleF(MathF.Round((WorldWidth-width)/2+dialogOffset.X),MathF.Round((WorldHeight-height)/2+dialogOffset.Y),width,height);
         dialogBounds=bounds;
-        if(skin.Xp || skin.Vista)
+        if(skin.Xp || skin.Modern)
         {
-            int steps=skin.Vista?7:3;
-            for(int i=steps;i>=1;i--){using var shadow=Skin.Rounded(new(bounds.X-i+2,bounds.Y-i+3,bounds.Width+2*i,bounds.Height+2*i),skin.Vista?8:5);using var brush=new SolidBrush(Color.FromArgb(skin.Vista?9:14,0,0,0));g.FillPath(brush,shadow);}
+            int steps=skin.Modern?7:3;
+            for(int i=steps;i>=1;i--){using var shadow=Skin.Rounded(new(bounds.X-i+2,bounds.Y-i+3,bounds.Width+2*i,bounds.Height+2*i),skin.Modern?8:5);using var brush=new SolidBrush(Color.FromArgb(skin.Modern?9:14,0,0,0));g.FillPath(brush,shadow);}
         }
         var buttons=skin.Frame(g,bounds,title,true,dialogHost!=null || windowActive,mouse,pressedHotspot!=null);
         var body=new RectangleF(bounds.X+skin.Border,bounds.Y+skin.Border+skin.Caption,bounds.Width-2*skin.Border,bounds.Height-skin.Caption-2*skin.Border);
@@ -76,8 +77,8 @@ public sealed partial class GameWindow
                 Wrapped(g,$"Games played: {Statistics.Played}\nGames won: {Statistics.Won}\nBest score: {Statistics.BestScore}",new(x,y+38,w,75));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.AppAbout:
-                skin.Text(g,"Solitude 0.9.1",new(x,y,w,25),font:skin.Bold);
-                Wrapped(g,"Windows card games, 1990-2007.\nAn independent recreation.\nPress F6 to choose a Windows version.",new(x,y+38,w,78));
+                skin.Text(g,"Solitude 0.10.0",new(x,y,w,25),font:skin.Bold);
+                Wrapped(g,"Windows card games, 1990-2007.\nORBIT, imagined for 2126.\nPress F6 to choose an edition.",new(x,y+38,w,78));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.MoveColumn:
                 Wrapped(g,"Move the entire column, or just the single card?",new(x,y,w,45));
@@ -85,7 +86,7 @@ public sealed partial class GameWindow
                 DialogButton(g,"single",new(x+119,body.Bottom-40,110,26),"Single card",()=>{CloseDialog();Changed(Game.Move(pendingFrom with{Index=-1},pendingTo));});
                 DialogButton(g,"cancel",new(x+238,body.Bottom-40,110,26),"Cancel",CloseDialog);break;
             case DialogPage.About:
-                if(Kind==GameKind.Spider && !skin.Vista)
+                if(Kind==GameKind.Spider && !skin.Modern)
                 {
                     art.DrawSpiderAbout(g,new(x,y,w,243*w/359));
                     DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
@@ -125,16 +126,16 @@ public sealed partial class GameWindow
         RegisterDialogKey(id,label);
         if(radio)dialogRadios["dialog-"+id]=new string(id.TakeWhile(c=>!char.IsDigit(c)).ToArray());
         skin.Check(g,r,label,selected,radio,enabled && r.Contains(mouse),enabled && pressedHotspot=="dialog-"+id && r.Contains(mouse),enabled);
-        if(enabled && keyboardFocus==dialogControl){var rect=r;rect.X+=16;rect.Width-=16;using var pen=new Pen(Color.Black){DashStyle=System.Drawing.Drawing2D.DashStyle.Dot};g.DrawRectangle(pen,rect.X,rect.Y,rect.Width,rect.Height);}
+        if(enabled && keyboardFocus==dialogControl){var rect=r;rect.X+=16;rect.Width-=16;using var pen=new Pen(skin.Future?Orbit.Accent:Color.Black){DashStyle=System.Drawing.Drawing2D.DashStyle.Dot};g.DrawRectangle(pen,rect.X,rect.Y,rect.Width,rect.Height);}
         if(enabled)dialogControl++;Add("dialog-"+id,r,action,enabled);
     }
     private void PaintSettings(Graphics g,float x,float y,float w,float bottom)
     {
-        skin.Text(g,"Choose your Windows version",new(x,y,w,19),font:skin.Bold);
+        skin.Text(g,"Choose your edition",new(x,y,w,19),font:skin.Bold);
         var list=new RectangleF(x,y+29,242,194);Skin.Fill(g,Color.White,list);Skin.Box(g,list,true);
-        for(int i=0;i<8;i++)
+        for(int i=0;i<Skin.Names.Length;i++)
         {
-            int index=i;var row=new RectangleF(list.X+2,list.Y+2+i*23.6f,list.Width-4,23.6f);bool selected=(int)draft!.Era==i;
+            float rowHeight=190f/Skin.Names.Length;int index=i;var row=new RectangleF(list.X+2,list.Y+2+i*rowHeight,list.Width-4,rowHeight);bool selected=(int)draft!.Era==i;
             if(selected)Skin.Fill(g,skin.Selection,row);
             skin.Text(g,Skin.Names[i],new(row.X+7,row.Y,row.Width-55,row.Height),selected?Color.White:Color.Black);
             skin.Text(g,Skin.Years[i],new(row.Right-40,row.Y,37,row.Height),selected?Color.White:Color.Gray);
@@ -146,10 +147,13 @@ public sealed partial class GameWindow
         {
             var state=g.Save();var r=new RectangleF(px,y+29,pw,95);
             preview.Frame(g,r,GameCatalog.Name(draft.Rules.Kind));
-            preview.MenuBar(g,new(r.X+preview.Border,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border,preview.MenuHeight));
-            preview.Text(g,"Game   Help",new(r.X+preview.Border+5,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border-10,preview.MenuHeight));
-            var table=new RectangleF(r.X+preview.Border,r.Y+preview.Top,r.Width-preview.Border*2,r.Height-preview.Top-preview.Border);
-            if(preview.Vista)art.DrawFelt(g,table);else Skin.Fill(g,Color.Green,table);
+            if(!preview.Future)
+            {
+                preview.MenuBar(g,new(r.X+preview.Border,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border,preview.MenuHeight));
+                preview.Text(g,"Game   Help",new(r.X+preview.Border+5,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border-10,preview.MenuHeight));
+            }
+            var table=new RectangleF(r.X+preview.Border,r.Y+(preview.Future?36:preview.Top),r.Width-preview.Border*2,r.Height-(preview.Future?36:preview.Top)-preview.Border);
+            if(preview.Future)Skin.Fill(g,Color.FromArgb(9,24,37),table);else if(preview.Vista)art.DrawFelt(g,table);else Skin.Fill(g,Color.Green,table);
             PaintGamePreview(g,table,draft);g.Restore(state);
         }
         skin.Text(g,"Game",new(px,y+133,pw,19),font:skin.Bold);
@@ -177,7 +181,7 @@ public sealed partial class GameWindow
     private void PaintOptions(Graphics g,float x,float y,float w,float bottom)
     {
         if(Kind!=GameKind.Klondike){PaintVariantOptions(g,x,y,w,bottom);return;}
-        if(!skin.Vista){PaintClassicOptions(g,x,y,w,bottom);return;}
+        if(!skin.Modern){PaintClassicOptions(g,x,y,w,bottom);return;}
         PaintVistaOptions(g,x,y,w,bottom);
     }
     private void ApplyOptions()
@@ -204,7 +208,7 @@ public sealed partial class GameWindow
     }
     private void PaintDeck(Graphics g,float x,float y,float w,float bottom)
     {
-        if(skin.Vista)
+        if(skin.Modern)
         {
             skin.Text(g,"Select a card deck:",new(x,y-4,w,20));
             string[] names=["Hearts","Seasons","Classic","Large Print"];
@@ -237,7 +241,7 @@ public sealed partial class GameWindow
         for(int i=0;i<12;i++)
         {
             int index=i;var r=new RectangleF(x+(i%6)*(w/6)+3,y+23+(i/6)*104,71,96);
-            art.Draw(g,new Card(0,false),r,skin.Vista?Era.WindowsXP:Preferences.Era,i);
+            art.Draw(g,new Card(0,false),r,skin.Modern?Era.WindowsXP:Preferences.Era,i);
             if(draft!.CardBack==i || keyboardFocus==dialogControl){using var pen=new Pen(skin.Title,2){DashStyle=keyboardFocus==dialogControl?System.Drawing.Drawing2D.DashStyle.Dot:System.Drawing.Drawing2D.DashStyle.Solid};g.DrawRectangle(pen,r.X-3,r.Y-3,r.Width+5,r.Height+5);}
             Add("dialog-back-"+i,r,()=>{draft!.CardBack=index;Invalidate();});dialogControl++;
         }

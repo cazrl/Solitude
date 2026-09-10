@@ -20,6 +20,8 @@ Preservation sources used by this local build:
 
 Original application code and the native runtime are not taken from those preservation projects. The game's logic, renderer, persistence and UI implementation are written in this repository.
 
+ORBIT / Solitude 2126 uses original procedural card designs, observatory scenery, iconography, animation and synthesized audio implemented in `FutureArt.cs`, `Skin.Future.cs` and the `GameWindow.Future` files. No downloaded artwork or audio was added for this fictional edition. It uses the host's Segoe UI font for text; that font is not newly embedded or installed by ORBIT.
+
 The self-contained executable includes Microsoft .NET runtime components under their applicable licenses. The SDK-provided runtime notices are copied into `docs/licenses` for reference.
 
 An upstream source-code license does not automatically license third-party Microsoft artwork. Rights to redistribute that artwork have not been independently established; see `docs/ASSET-SOURCES.md`.

@@ -4,5 +4,5 @@
     <UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems><RuntimeIdentifier>win-x64</RuntimeIdentifier><SelfContained>true</SelfContained>
   </PropertyGroup>
-  <ItemGroup><Compile Include="UiProgram.cs" /><Compile Include="PeriodUiChecks.cs" /><Compile Include="CaptionUiChecks.cs" /><Compile Include="FidelityFixChecks.cs" /><Compile Include="RenderingAuditChecks.cs" /><ProjectReference Include="../src/Solitude.csproj" /></ItemGroup>
+  <ItemGroup><Compile Include="UiProgram.cs" /><Compile Include="PeriodUiChecks.cs" /><Compile Include="CaptionUiChecks.cs" /><Compile Include="FidelityFixChecks.cs" /><Compile Include="RenderingAuditChecks.cs" /><Compile Include="FutureChecks.cs" /><ProjectReference Include="../src/Solitude.csproj" /></ItemGroup>
 </Project>

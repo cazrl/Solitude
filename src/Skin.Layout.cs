@@ -7,6 +7,13 @@ public sealed partial class Skin
     public CaptionLayout CaptionLayout(RectangleF bounds,bool modal=false,bool maximized=false)
     {
         var cap=new RectangleF(bounds.X+Border,bounds.Y+Border,bounds.Width-2*Border,Caption);
+        if(Future)
+        {
+            var close=new RectangleF(bounds.Right-43,bounds.Top+5,34,26);
+            var max=modal?RectangleF.Empty:new RectangleF(close.X-37,close.Y,34,26);
+            var min=modal?RectangleF.Empty:new RectangleF(max.X-37,close.Y,34,26);
+            return new(cap,new(bounds.X+16,bounds.Y+9,18,18),new(bounds.X+(modal?18:44),bounds.Y+1,Math.Max(0,(modal?close.X:min.X)-bounds.X-52),34),min,max,close);
+        }
         if(Early)
         {
             var min=modal?RectangleF.Empty:new RectangleF(cap.Right-36,cap.Y,18,Caption-1);

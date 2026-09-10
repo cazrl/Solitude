@@ -10,6 +10,7 @@ public sealed partial class Skin
     }
     public RectangleF[] Frame(Graphics g,RectangleF bounds,string title,bool modal=false,bool active=true,PointF? pointer=null,bool down=false,bool maximized=false)
     {
+        if(Future)return FutureFrame(g,bounds,title,modal,active,pointer,down,maximized);
         var saved=g.Save();using var shape=WindowShape(bounds,maximized);g.SetClip(shape,CombineMode.Intersect);
         var cap=new RectangleF(bounds.X+Border,bounds.Y+Border,bounds.Width-2*Border,Caption);
         var layout=CaptionLayout(bounds,modal,maximized);

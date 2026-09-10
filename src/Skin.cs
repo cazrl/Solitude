@@ -10,18 +10,20 @@ public sealed partial class Skin : IDisposable
     public bool Win30 => Era==Era.Windows30;
     public bool Xp => Era==Era.WindowsXP;
     public bool Vista => Era==Era.WindowsVista;
+    public bool Future => Era==Era.Future2126;
+    public bool Modern => Vista || Future;
     public bool DeviceText => raster==null;
     public bool Warm => Era is Era.WindowsMe or Era.Windows2000;
     public bool Gradient => Era is Era.Windows98 or Era.WindowsMe or Era.Windows2000;
-    public int Border => Early?5:Vista?8:3;
-    public int Caption => Early?19:Vista?19:Xp?27:18;
-    public int MenuHeight => Early?20:Vista?20:19;
-    public int StatusHeight => Early?18:Vista?23:18;
+    public int Border => Future?1:Early?5:Vista?8:3;
+    public int Caption => Future?35:Early?19:Vista?19:Xp?27:18;
+    public int MenuHeight => Future?74:Early?20:Vista?20:19;
+    public int StatusHeight => Future?76:Early?18:Vista?23:18;
     public int Top => Border+Caption+MenuHeight;
-    public Color Face => Early?Color.White:Xp?C(236,233,216):Vista?C(240,240,240):Warm?C(212,208,200):C(192,192,192);
+    public Color Face => Future?C(16,26,38):Early?Color.White:Xp?C(236,233,216):Vista?C(240,240,240):Warm?C(212,208,200):C(192,192,192);
     public Color ButtonFace => Early?C(192,192,192):Face;
     public Color Title => Warm?C(10,36,106):C(0,0,128);
-    public Color Selection => Xp?C(49,106,197):Vista?C(51,153,255):Title;
+    public Color Selection => Future?C(28,99,104):Xp?C(49,106,197):Vista?C(51,153,255):Title;
     public Font Ui { get; }
     public Font Bold { get; }
     public Font CaptionFont { get; }
@@ -34,8 +36,8 @@ public sealed partial class Skin : IDisposable
     }
     private readonly RasterFont? raster;
     public bool BitmapFontAvailable => raster!=null;
-    public static readonly string[] Names=["Windows 3.0","Windows 3.1 / 3.11","Windows 95","Windows 98","Windows Me","Windows 2000","Windows XP","Windows Vista"];
-    public static readonly string[] Years=["1990","1992","1995","1998","2000","2000","2001","2007"];
+    public static readonly string[] Names=["Windows 3.0","Windows 3.1 / 3.11","Windows 95","Windows 98","Windows Me","Windows 2000","Windows XP","Windows Vista","ORBIT / Solitude 2126"];
+    public static readonly string[] Years=["1990","1992","1995","1998","2000","2000","2001","2007","2126"];
     public static readonly string[] Characteristics=[
         "Dithered blue frame\nSystem bitmap lettering\nWhite menus and dialogs",
         "Solid blue frame\nSystem bitmap lettering\nArrow window buttons",
@@ -44,12 +46,13 @@ public sealed partial class Skin : IDisposable
         "Slate blue gradient\nWarm gray controls\nMS Sans Serif lettering",
         "Slate blue gradient\nWarm gray controls\nTahoma lettering",
         "Rounded Luna frame\nBlue and red title buttons\nCream dialog surfaces",
-        "Aero glass-style frame\nOriginal felt artwork\nSegoe UI lettering"];
+        "Aero glass-style frame\nOriginal felt artwork\nSegoe UI lettering",
+        "An orbital observatory\nOriginal porcelain cards\nSpatial motion and light"];
     public Skin(Era era)
     {
         Era=era;
-        string family=Vista?"Segoe UI":era is Era.Windows2000 or Era.WindowsXP?"Tahoma":"Microsoft Sans Serif";
-        Ui=new(family,Vista?12:Early?13:11,Early?FontStyle.Bold:FontStyle.Regular,GraphicsUnit.Pixel);
+        string family=Modern?"Segoe UI":era is Era.Windows2000 or Era.WindowsXP?"Tahoma":"Microsoft Sans Serif";
+        Ui=new(family,Modern?12:Early?13:11,Early?FontStyle.Bold:FontStyle.Regular,GraphicsUnit.Pixel);
         Bold=new(family,Vista?12:Early?13:11,FontStyle.Bold,GraphicsUnit.Pixel);
         CaptionFont=new(Xp?"Trebuchet MS":family,Xp?13:Vista?12:Early?13:11,Vista?FontStyle.Regular:FontStyle.Bold,GraphicsUnit.Pixel);
         if(Early)raster=RasterFont.Embedded("system-10.fnt");
@@ -67,12 +70,12 @@ public sealed partial class Skin : IDisposable
     public void Text(Graphics g,string text,RectangleF r,Color? color=null,Font? font=null,bool center=false)
     {
         if(UseRaster(g)){raster!.Draw(g,text,r,color??Color.Black,!Early && (font==Bold || font==CaptionFont),center);return;}
-        DrawNative(g,text,r,color??Color.Black,font??Ui,center,false);
+        DrawNative(g,text,r,color??(Future?Color.FromArgb(231,239,244):Color.Black),font??Ui,center,false);
     }
     public void Wrapped(Graphics g,string text,RectangleF r,Color? color=null)
     {
         if(UseRaster(g)){raster!.Draw(g,text,r,color??Color.Black,wrap:true);return;}
-        DrawNative(g,text,r,color??Color.Black,Ui,false,true);
+        DrawNative(g,text,r,color??(Future?Color.FromArgb(231,239,244):Color.Black),Ui,false,true);
     }
     public void Mnemonic(Graphics g,string text,RectangleF r,Color color,bool center=false)
     {
@@ -100,13 +103,14 @@ public sealed partial class Skin : IDisposable
         else p.AddLine(r.Right,r.Bottom,r.Left,r.Bottom);
         p.CloseFigure();return p;
     }
-    public GraphicsPath WindowShape(RectangleF r,bool maximized=false)=>Rounded(r,maximized?0:Vista?7:Xp?8:0,Vista);
+    public GraphicsPath WindowShape(RectangleF r,bool maximized=false)=>Rounded(r,maximized?0:Future?12:Vista?7:Xp?8:0,Vista || Future);
     private static void GradientFill(Graphics g,RectangleF r,Color[] colors,float[] positions,float angle=90)
     {
         using var b=new LinearGradientBrush(r,colors[0],colors[^1],angle){InterpolationColors=new ColorBlend{Colors=colors,Positions=positions}};g.FillRectangle(b,r);
     }
     public void Button(Graphics g,RectangleF r,string text,bool hover=false,bool primary=false,bool enabled=true,bool focus=false,bool pressed=false)
     {
+        if(Future){FutureButton(g,r,text,hover,primary,enabled,focus,pressed);return;}
         if(Early)
         {
             if(primary)g.DrawRectangle(Pens.Black,r.X-2,r.Y-2,r.Width+3,r.Height+3);
@@ -132,6 +136,14 @@ public sealed partial class Skin : IDisposable
     }
     public void Check(Graphics g,RectangleF r,string label,bool selected,bool radio=false,bool hover=false,bool pressed=false,bool enabled=true)
     {
+        if(Future)
+        {
+            var saved=g.Save();g.SmoothingMode=SmoothingMode.AntiAlias;var futureBox=new RectangleF(r.X,r.Y+(r.Height-14)/2,14,14);
+            using var edge=new Pen(hover?Color.FromArgb(147,245,228):Color.FromArgb(103,136,151));using var fill=new SolidBrush(Color.FromArgb(21,40,55));
+            if(radio){g.FillEllipse(fill,futureBox);g.DrawEllipse(edge,futureBox);if(selected){using var b=new SolidBrush(Color.FromArgb(130,235,219));g.FillEllipse(b,futureBox.X+4,futureBox.Y+4,6,6);}}
+            else {FutureArt.Panel(g,futureBox,selected?Color.FromArgb(130,235,219):Color.FromArgb(21,40,55),edge.Color,3);if(selected){using var p=new Pen(Color.FromArgb(8,38,40),1.8f);g.DrawLines(p,new PointF[]{new(futureBox.X+3,futureBox.Y+7),new(futureBox.X+6,futureBox.Y+10),new(futureBox.X+11,futureBox.Y+4)});}}
+            Mnemonic(g,label,new(r.X+23,r.Y,r.Width-23,r.Height),enabled?FutureArt.Ink:FutureArt.Muted);g.Restore(saved);return;
+        }
         var box=new RectangleF(r.X,MathF.Round(r.Y+(r.Height-13)/2),13,13);
         if(radio)
         {
@@ -166,6 +178,7 @@ public sealed partial class Skin : IDisposable
     }
     public void Group(Graphics g,string label,RectangleF r)
     {
+        if(Future){FutureArt.Panel(g,new(r.X,r.Y+7,r.Width,r.Height-7),Face,Color.FromArgb(63,86,104),7);float width=Measure(g,label);Fill(g,Face,new(r.X+10,r.Y,width+10,17));Text(g,label,new(r.X+15,r.Y-1,width+2,18),FutureArt.Muted);return;}
         using var pen=new Pen(Early?Color.Black:Xp?C(208,208,191):C(128,128,128));
         if(!Early && !Xp && !Vista)g.DrawRectangle(Pens.White,r.X+1,r.Y+7,r.Width-1,r.Height-7);
         g.DrawRectangle(pen,r.X,r.Y+6,r.Width,r.Height-6);

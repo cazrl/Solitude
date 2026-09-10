@@ -20,6 +20,7 @@ public sealed partial class GameWindow
     }
     private void SwitchGame(Preferences chosen)
     {
+        futurePulses.Clear();futureMessage=null;
         Rules? storedRules=Game.Rules.Clone();GameState? storedGame=Game.State;List<GameState> storedHistory=Game.History;
         bool different = Preferences.Era != chosen.Era || Kind != chosen.Rules.Kind;
         if (different)
@@ -57,9 +58,9 @@ public sealed partial class GameWindow
     }
     private RectangleF CellRect(int index, bool home)
     {
-        float gap = skin.Vista ? CardWidth + Table.Width * .013f : CardWidth;
+        float gap = skin.Modern ? CardWidth + Table.Width * .013f : CardWidth;
         float x = home ? Table.Right - TableMargin - CardWidth - (3-index)*gap : Table.Left + TableMargin + index*gap;
-        return new(x, Table.Top + (skin.Vista ? 22 : 1), CardWidth, CardHeight);
+        return new(x, Table.Top + (skin.Modern ? 22 : 1), CardWidth, CardHeight);
     }
     private IEnumerable<(Position Position, RectangleF Rect)> DestinationAreas()
     {
@@ -97,14 +98,14 @@ public sealed partial class GameWindow
     }
     private Position SelectedMove(Position origin,Position to)
     {
-        if (Kind!=GameKind.FreeCell || skin.Vista || origin.Kind!=PileKind.Tableau) return origin;
+        if (Kind!=GameKind.FreeCell || skin.Modern || origin.Kind!=PileKind.Tableau) return origin;
         var pile=Game.Pile(origin)!;
         for(int i=Game.Index(origin);i<pile.Count;i++)if(Game.CanMove(origin with{Index=i},to))return origin with{Index=i};
         return origin;
     }
     private bool RequestFreeCellColumnMove(Position from,Position to)
     {
-        if(Kind!=GameKind.FreeCell || skin.Vista || to.Kind!=PileKind.Tableau || Game.Pile(to)!.Count!=0 || Game.Pile(from)!.Count-Game.Index(from)<2)return false;
+        if(Kind!=GameKind.FreeCell || skin.Modern || to.Kind!=PileKind.Tableau || Game.Pile(to)!.Count!=0 || Game.Pile(from)!.Count-Game.Index(from)<2)return false;
         pendingFrom=from;pendingTo=to;OpenDialog(DialogPage.MoveColumn);return true;
     }
     private bool EditDealNumber(Keys key)
@@ -142,7 +143,7 @@ public sealed partial class GameWindow
     }
     private void PaintVariantTable(Graphics g)
     {
-        if(skin.Vista)art.DrawFelt(g,Table);
+        if(skin.Modern)art.DrawFelt(g,Table);
         else if(Kind==GameKind.Spider)art.DrawSpiderFelt(g,Table);
         else Skin.Fill(g,Color.Green,Table);
         var clip=g.Save();g.SetClip(Table,CombineMode.Intersect);
@@ -153,13 +154,13 @@ public sealed partial class GameWindow
                 var pile=Game.Pile(cell.Position)!;int count=pile.Count-(dragging && IsSelected(cell.Position)?1:0);
                 if(count==0)
                 {
-                    if(skin.Vista)Empty(g,cell.Rect,true);
+                    if(skin.Modern)Empty(g,cell.Rect,true);
                     else {var r=cell.Rect;Skin.Line(g,Color.Black,r.X,r.Y,r.Right-1,r.Y);Skin.Line(g,Color.Black,r.X,r.Y,r.X,r.Bottom-1);Skin.Line(g,Color.LimeGreen,r.Right-1,r.Y,r.Right-1,r.Bottom-1);Skin.Line(g,Color.LimeGreen,r.X,r.Bottom-1,r.Right-1,r.Bottom-1);}
                 }
                 else {DrawGameCard(g,pile[count-1],cell.Rect);cardAreas.Add((cell.Position,cell.Rect));}
                 Highlight(g,cell.Position,cell.Rect);
             }
-            if(!skin.Vista)
+            if(!skin.Modern)
             {
                 var r=new RectangleF(Table.Left+Table.Width/2-17,Table.Top+19,35,35);
                 art.DrawKing(g,r,mouse.X>Table.Left+Table.Width/2);
@@ -169,7 +170,7 @@ public sealed partial class GameWindow
         {
             for(int i=0;i<Game.State.Foundations.Count;i++)if(Game.State.Foundations[i].Count>0)
             {
-                var r=new RectangleF(Table.Left+16+i*(skin.Vista?CardWidth*.42f:24),Table.Bottom-CardHeight-12,CardWidth,CardHeight);
+                var r=new RectangleF(Table.Left+16+i*(skin.Modern?CardWidth*.42f:24),Table.Bottom-CardHeight-12,CardWidth,CardHeight);
                 DrawGameCard(g,Game.State.Foundations[i][0],r);
             }
             for(int i=0;i<Game.State.Stock.Count/10;i++)
@@ -177,7 +178,7 @@ public sealed partial class GameWindow
                 var r=StockRect;r.X-=i*12;art.Draw(g,new Card(0,false),r,Preferences.Era,Preferences.CardBack);
             }
             if(Game.State.Stock.Count>0)Highlight(g,new(PileKind.Stock),StockRect);
-            if(!skin.Vista)
+            if(!skin.Modern)
             {
                 var panel=new RectangleF(Table.Left+Table.Width/2-88,Table.Bottom-83,176,73);
                 Skin.Fill(g,Color.Green,panel);Skin.Box(g,panel,true);
@@ -194,7 +195,7 @@ public sealed partial class GameWindow
         for(int col=0;col<Game.State.Tableau.Count;col++)
         {
             var pile=Game.State.Tableau[col];
-            if(pile.Count==0){if(skin.Vista)Empty(g,TableauCard(col,0),false);Highlight(g,new(PileKind.Tableau,col),TableauCard(col,0));}
+            if(pile.Count==0){if(skin.Modern)Empty(g,TableauCard(col,0),false);Highlight(g,new(PileKind.Tableau,col),TableauCard(col,0));}
             for(int i=0;i<pile.Count;i++)
             {
                 var pos=new Position(PileKind.Tableau,col,i);var r=TableauCard(col,i);
@@ -209,7 +210,7 @@ public sealed partial class GameWindow
     }
     private void PaintVariantOptions(Graphics g,float x,float y,float w,float bottom)
     {
-        if(skin.Vista){PaintVistaOptions(g,x,y,w,bottom);return;}
+        if(skin.Modern){PaintVistaOptions(g,x,y,w,bottom);return;}
         if(ClassicFreeCell)
         {
             Check(g,"messages",new(x,y,w,23),"Display messages on illegal moves",draft!.FreeCellMessages,()=>{draft.FreeCellMessages=!draft.FreeCellMessages;Invalidate();});

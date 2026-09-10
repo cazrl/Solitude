@@ -54,12 +54,12 @@ public sealed partial class GameWindow
         {
             string content=helpPage==1?Kind switch
             {
-                GameKind.Klondike=>"Build the four suit stacks from Ace to King. Build the rows downward, alternating red and black cards. Only a King may fill an empty row.\n\nDrag a card or a sequence to move it. Double-click an exposed card to move it to a suit stack. Click the deck to turn over cards. "+(skin.Vista?"Exposed face-down cards turn over automatically.":"Click an exposed face-down card to turn it over. Use Enter or Space to select and place cards."),
+                GameKind.Klondike=>"Build the four suit stacks from Ace to King. Build the rows downward, alternating red and black cards. Only a King may fill an empty row.\n\nDrag a card or a sequence to move it. Double-click an exposed card to move it to a suit stack. Click the deck to turn over cards. "+(skin.Modern?"Exposed face-down cards turn over automatically.":"Click an exposed face-down card to turn it over. Use Enter or Space to select and place cards."),
                 GameKind.FreeCell=>"Build the four home cells from Ace to King in each suit. Build the columns downward in alternating colors. Each free cell holds one card. An empty column can hold any card.\n\nClick a card and then its destination. Enough empty free cells and columns must be available to move a sequence. Safe cards move to the home cells automatically.",
                 _=>"Build a sequence from King down to Ace in the same suit. A completed sequence is removed from the table. Remove all eight sequences to win.\n\nA card can go on the next higher rank of any suit. A sequence moves together only when it is in the same suit. Click the stock to deal a row; there must be a card in every column."
             }:Kind switch
             {
-                GameKind.Klondike=>skin.Vista?"New Game starts another deal. Restart Game returns to the current deal. Undo reverses a move; Hint shows a possible move. Change Appearance selects the cards and background. Options controls draw count, scoring, animation, sounds, tips and saved games.\n\nStandard awards points for playing cards. Vegas starts with a wager of 52; each card moved from the table to a suit stack returns 5.":"Deal starts a new game. Undo reverses the last action. Deck selects the card back. Options selects Draw One or Draw Three, the scoring system, the timer and the status bar.\n\nStandard awards points for playing cards. Vegas starts with a wager of 52; each card played to a suit stack returns 5. Keep score carries the Vegas balance between games.",
+                GameKind.Klondike=>skin.Modern?"New Game starts another deal. Restart Game returns to the current deal. Undo reverses a move; Hint shows a possible move. Change Appearance selects the cards and background. Options controls draw count, scoring, animation, sounds, tips and saved games.\n\nStandard awards points for playing cards. Vegas starts with a wager of 52; each card moved from the table to a suit stack returns 5.":"Deal starts a new game. Undo reverses the last action. Deck selects the card back. Options selects Draw One or Draw Three, the scoring system, the timer and the status bar.\n\nStandard awards points for playing cards. Vegas starts with a wager of 52; each card played to a suit stack returns 5. Keep score carries the Vegas balance between games.",
                 GameKind.FreeCell=>ClassicFreeCell?"New Game: F2\nSelect Game: F3\nStatistics: F4\nOptions: F5\nUndo: F10\n\nOptions controls messages for illegal moves, Quick play and the double-click shortcut to a free cell.":"New Game: F2\nSelect Game: F3\nStatistics: F4\nOptions: F5\nChange Appearance: F7\nUndo: Ctrl+Z\nHint: H",
                 _=>ClassicSpider?"New Game: F2\nDifficulty: F3\nStatistics: F4\nOptions: F5\nUndo: Ctrl+Z\nDeal Next Row: D\nShow An Available Move: M\nSave This Game: Ctrl+S\nOpen Last Saved Game: Ctrl+O":"New Game: F2\nStatistics: F4\nOptions: F5\nChange Appearance: F7\nUndo: Ctrl+Z\nHint: H"
             };
@@ -72,13 +72,13 @@ public sealed partial class GameWindow
         if(ClassicFreeCell)art.DrawKing(g,new(x+6,y+5,35,35),false);else Skin.DrawTinyIcon(g,x+8,y+9);
         skin.Text(g,GameCatalog.Name(Kind),new(x+52,y,w-52,27),font:skin.CaptionFont);
         skin.Text(g,Skin.Names[(int)Preferences.Era],new(x+52,y+33,w-52,23));
-        string credits=Kind==GameKind.Klondike && !skin.Vista?"Developed for Microsoft by Wes Cherry.\nOriginal card designs by Susan Kare.":ClassicFreeCell?"By Jim Horne.":"Microsoft Windows Games";
+        string credits=Kind==GameKind.Klondike && !skin.Modern?"Developed for Microsoft by Wes Cherry.\nOriginal card designs by Susan Kare.":ClassicFreeCell?"By Jim Horne.":"Microsoft Windows Games";
         Wrapped(g,credits,new(x+5,y+80,w-10,55));
         DialogButton(g,"ok",new(x+w-80,bottom-36,80,25),"OK",CloseDialog,true);
     }
     private void PaintPeriodWin(Graphics g,float x,float y,float w,float bottom)
     {
-        if(skin.Vista)
+        if(skin.Modern)
         {
             skin.Text(g,"Congratulations, you won the game!",new(x,y,w,24),center:true);
             int bonus=Game.State.TimeBonus;
@@ -96,9 +96,9 @@ public sealed partial class GameWindow
             DialogButton(g,"cancel",new(x+w-116,bottom-35,116,23),"E&xit",Close);return;
         }
 
-        string text=!skin.Vista && Kind==GameKind.Klondike?"Deal Again?":ClassicFreeCell?"Congratulations, you win!\nDo you want to play again?":"Congratulations, you won!\nDo you want to start another game?";
+        string text=!skin.Modern && Kind==GameKind.Klondike?"Deal Again?":ClassicFreeCell?"Congratulations, you win!\nDo you want to play again?":"Congratulations, you won!\nDo you want to start another game?";
         Wrapped(g,text,new(x+4,y+7,w-8,62));
-        if(skin.Vista)skin.Text(g,$"Score: {Game.State.Score}    Time: {Game.State.Elapsed}",new(x,y+72,w,23));
+        if(skin.Modern)skin.Text(g,$"Score: {Game.State.Score}    Time: {Game.State.Elapsed}",new(x,y+72,w,23));
         DialogButton(g,"ok",new(x,bottom-39,78,25),"Yes",()=>NewGame(),true);
         DialogButton(g,"cancel",new(x+88,bottom-39,78,25),"No",()=>{victoryTrail?.Dispose();victoryTrail=null;CloseDialog();});
         if(ClassicFreeCell)DialogButton(g,"select",new(x+176,bottom-39,122,25),"Select game",()=>OpenDialog(DialogPage.SelectGame));

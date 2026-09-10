@@ -34,6 +34,7 @@ internal static partial class UiProgram
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         try
         {
+            if(args.Contains("--future-only")){CheckFutureEdition();Console.WriteLine($"{checks} ORBIT checks passed without showing windows.");return 0;}
             if(args.Contains("--render-audit-only")){CheckAnimationContinuity();Console.WriteLine($"{checks} animation audit checks passed, without showing windows.");return 0;}
             if(args.Contains("--input-audit-only")){CheckImmediateInput();Console.WriteLine($"{checks} immediate-input checks passed, without showing windows.");return 0;}
             if(args.Contains("--caption-only")){CheckCaptionRendering();CheckFidelityFixes();Console.WriteLine($"{checks} caption checks passed, without showing windows.");return 0;}
@@ -41,7 +42,7 @@ internal static partial class UiProgram
             if(args.Contains("--partial-only")){CheckPartialFrames();Console.WriteLine($"{checks} repaint checks passed, without showing windows.");return 0;}
             if(args.Contains("--period-only")){CheckPeriodPresentation();Console.WriteLine($"{checks} period UI checks passed, without showing windows.");return 0;}
             var hashes=new HashSet<string>();
-            foreach(Era era in Enum.GetValues<Era>())
+            foreach(Era era in GameCatalog.HistoricalEras)
             {
                 using var skin=new Skin(era);using var bitmap=new Bitmap(420,260);
                 using(var g=Graphics.FromImage(bitmap)){skin.Configure(g);skin.Frame(g,new(0,0,420,260),"Solitaire");}
@@ -91,7 +92,7 @@ internal static partial class UiProgram
                 Call(form,"ToggleMaximize");Check(!(bool)Field(form,"maximized")!,"Restore failed");
                 Console.WriteLine("PASS "+era+" frame, typography, inactive state, input, era switch, dialog drag, maximize/restore");
             }
-            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();
+            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();CheckFutureEdition();
             Console.WriteLine($"{checks} UI checks passed. No windows were shown and no desktop input was sent.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
@@ -108,7 +109,7 @@ internal static partial class UiProgram
     }
     private static void CheckGameInteractions()
     {
-        foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
+        foreach(var era in GameCatalog.HistoricalEras)foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
         {
             using var form=new GameWindow(new Store("artifacts/ui-variant-state"),era,1,100,true,kind);Paint(form);
             Check(form.Game.Rules.Kind==kind,"Wrong game selected");
@@ -202,7 +203,7 @@ internal static partial class UiProgram
     }
     private static void CheckDoubleClicks()
     {
-        foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
+        foreach(var era in GameCatalog.HistoricalEras)foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))
         foreach(int scale in new[]{100,125,150,200})foreach(bool animate in new[]{false,true})
         {
             using var form=new GameWindow(new Store("artifacts/double-click-test"),era,1,scale,true,kind);
@@ -249,7 +250,7 @@ internal static partial class UiProgram
             }
         }
         Console.WriteLine("PASS complete double-click event sequences across all 17 profiles, four sizes, with and without animation");
-        foreach(var era in Enum.GetValues<Era>().Where(e=>e!=Era.WindowsVista))
+        foreach(var era in GameCatalog.HistoricalEras.Where(e=>e!=Era.WindowsVista))
         {
             using var form=new GameWindow(new Store("artifacts/deck-double-click"),era,1,150,true);
             Call(form,"OpenDialog",DialogPage.Deck);Paint(form);DoubleClick(form,Hit(form,"dialog-back-2"));
@@ -290,7 +291,7 @@ internal static partial class UiProgram
         object? Flight(GameWindow f,int key)=>((System.Collections.IDictionary)Field(f,"flights")!)[key];
         RectangleF Rect(object pose)=>(RectangleF)pose.GetType().GetProperty("Rect")!.GetValue(pose)!;
         object Prop(object item,string name)=>item.GetType().GetProperty(name)!.GetValue(item)!;
-        foreach(var era in new[]{Era.WindowsVista})
+        foreach(var era in new[]{Era.WindowsVista,Era.Future2126})
         {
             using var form=new GameWindow(new Store("artifacts/feel-test"),era,1,100,true);Paint(form);
             int key=form.Game.State.Stock[^1].Key;Key(form,Keys.Space);var flight=Flight(form,key);

@@ -15,6 +15,7 @@ public sealed partial class GameWindow
     private RectangleF previousDamage;
     private Rectangle FrameDamage()
     {
+        if(skin.Future)return ClientRectangle;
         RectangleF current=RectangleF.Empty;
         void Include(RectangleF r){r.Inflate(8,8);current=current.IsEmpty?r:RectangleF.Union(current,r);}
         // A lifted stack also changes its source; FreeCell's king follows the pointer.
@@ -34,7 +35,7 @@ public sealed partial class GameWindow
         int grid=skin.DeviceText?1:Preferences.Scale switch{125=>5,150=>3,200=>2,_=>1};
         return damage.IsEmpty?Rectangle.Empty:Rectangle.FromLTRB((int)Math.Floor(damage.Left*ScaleFactor/grid)*grid,(int)Math.Floor(damage.Top*ScaleFactor/grid)*grid,(int)Math.Ceiling(damage.Right*ScaleFactor/grid)*grid,(int)Math.Ceiling(damage.Bottom*ScaleFactor/grid)*grid);
     }
-    private bool NeedsFrames=>dialog==DialogPage.None && (MotionActive || dragging || collecting || showingVictory || pendingWin);
+    private bool NeedsFrames=>dialog==DialogPage.None && (MotionActive || dragging || collecting || showingVictory || pendingWin || skin.Future && futurePulses.Count>0);
     private void RenderNextFrame()
     {
         var previous=frameTime;frameTime=MotionNow;
@@ -101,11 +102,11 @@ public sealed partial class GameWindow
     }
     private void PaintDropTarget(Graphics g)
     {
-        if(!dragging || selection is not {} source || !skin.Vista && !Preferences.OutlineDragging)return;
+        if(!dragging || selection is not {} source || !skin.Modern && !Preferences.OutlineDragging)return;
         var to=FindDropTarget(source,mouse);if(to==null)return;
         var r=to.Value.Kind==PileKind.Tableau?TableauCard(to.Value.Pile,Math.Max(0,Game.State.Tableau[to.Value.Pile].Count-1))
             :Kind==GameKind.FreeCell?CellRect(to.Value.Pile,to.Value.Kind==PileKind.Foundation):TopCard(to.Value.Pile+3);
-        if(!skin.Vista)
+        if(!skin.Modern)
         {
             var pile=Game.Pile(to.Value);
             if(pile is {Count:>0})art.Draw(g,pile[^1],r,Preferences.Era,Preferences.CardBack,invert:true);

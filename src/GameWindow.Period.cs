@@ -20,7 +20,8 @@ public sealed partial class GameWindow
     }
     private void PlayVistaSound(string name)
     {
-        if(!skin.Vista || !Preferences.Sound)return;
+        if(skin.Future){PlayFutureSound(name);return;}
+        if(!skin.Modern || !Preferences.Sound)return;
         lastPeriodSound=name;if(ephemeral)return;
         if(!vistaSounds.TryGetValue(name,out var sound))
         {
@@ -37,9 +38,16 @@ public sealed partial class GameWindow
     private readonly Dictionary<int,System.Media.SoundPlayer> periodSounds=[];
     private void ConfigurePeriodIcon()
     {
+        if(skin.Future)
+        {
+            using var bitmap=new Bitmap(64,64);using(var g=Graphics.FromImage(bitmap)){g.SmoothingMode=System.Drawing.Drawing2D.SmoothingMode.AntiAlias;FutureArt.Panel(g,new(1,1,62,62),Color.FromArgb(12,29,43),Color.FromArgb(65,110,120),14);FutureArt.OrbitMark(g,new(9,9,46,46),Color.FromArgb(130,235,219));}
+            using var png=new MemoryStream();bitmap.Save(png,System.Drawing.Imaging.ImageFormat.Png);byte[] bytes=png.ToArray();
+            using var data=new MemoryStream();using(var writer=new BinaryWriter(data,System.Text.Encoding.UTF8,true)){writer.Write((ushort)0);writer.Write((ushort)1);writer.Write((ushort)1);writer.Write((byte)64);writer.Write((byte)64);writer.Write((ushort)0);writer.Write((ushort)1);writer.Write((ushort)32);writer.Write(bytes.Length);writer.Write(22);writer.Write(bytes);}data.Position=0;
+            using var icon=new Icon(data);var previous=Icon;Icon=(Icon)icon.Clone();skin.GameIcon=Icon;previous?.Dispose();return;
+        }
         string name=Kind switch{GameKind.Klondike=>"sol",GameKind.FreeCell=>"freecell",_=>"spider"};
         int pixels=Preferences.Era is Era.WindowsXP or Era.WindowsVista?(int)MathF.Round(16*ScaleFactor):16;
-        if(skin.Vista)
+        if(skin.Modern)
         {
             using var image=typeof(GameWindow).Assembly.GetManifestResourceStream($"Solitude.Assets.Icons.{name}-vista.png")!;
             using var png=new MemoryStream();image.CopyTo(png);byte[] bytes=png.ToArray();
@@ -63,7 +71,7 @@ public sealed partial class GameWindow
     }
     private bool PeriodClosing(FormClosingEventArgs e)
     {
-        if(skin.Vista && !closingDecision && Game.State.Started && !Game.State.Won && !Game.State.Lost && !Preferences.SaveOnExit)
+        if(skin.Modern && !closingDecision && Game.State.Started && !Game.State.Won && !Game.State.Lost && !Preferences.SaveOnExit)
         {
             e.Cancel=true;Confirm("Do you want to save this game before closing it?",()=>{vistaSaveOnce=true;closingDecision=true;Close();},()=>{vistaSaveOnce=false;closingDecision=true;Close();},true);return false;
         }
@@ -75,9 +83,9 @@ public sealed partial class GameWindow
     private Action? confirmYes,confirmNo;
     private string confirmText="";
     private bool confirmCancel;
-    private bool HasHints=>skin.Vista || Kind==GameKind.Spider;
-    private bool ClassicFreeCell=>!skin.Vista && Kind==GameKind.FreeCell;
-    private bool ClassicSpider=>!skin.Vista && Kind==GameKind.Spider;
+    private bool HasHints=>skin.Modern || Kind==GameKind.Spider;
+    private bool ClassicFreeCell=>!skin.Modern && Kind==GameKind.FreeCell;
+    private bool ClassicSpider=>!skin.Modern && Kind==GameKind.Spider;
     private sealed record MenuEntry(string Label,string Key,Action? Action,bool Enabled=true);
     private List<MenuEntry> PeriodMenu()
     {
@@ -87,7 +95,7 @@ public sealed partial class GameWindow
         void Undo(){menu=-1;UndoMove();}
         if(menu==0)
         {
-            if(!skin.Vista && Kind==GameKind.Klondike)
+            if(!skin.Modern && Kind==GameKind.Klondike)
             {
                 Item("&Deal","F2",()=>RequestNew());Sep();Item("&Undo","",Undo,Game.CanUndo);
                 Item("De&ck...","",()=>OpenDialog(DialogPage.Deck));Item("&Options...","",()=>OpenDialog(DialogPage.Options));Sep();
@@ -119,16 +127,16 @@ public sealed partial class GameWindow
         }
         else if(menu==1)
         {
-            Item(skin.Early?"&Index":skin.Vista?"View &Help":"&Contents",skin.Early?"":"F1",()=>OpenHelp(0));
-            if(!skin.Early && !skin.Vista && Kind!=GameKind.Spider){Item("&Search for Help on...","",()=>OpenHelp(3));Item("&How to Use Help","",()=>OpenHelp(4));}
-            Sep();Item("&About "+(ClassicSpider?"Spider":GameCatalog.Name(Kind))+(!skin.Vista && Kind==GameKind.Klondike?"":"..."),"",()=>OpenDialog(DialogPage.About));
+            Item(skin.Early?"&Index":skin.Modern?"View &Help":"&Contents",skin.Early?"":"F1",()=>OpenHelp(0));
+            if(!skin.Early && !skin.Modern && Kind!=GameKind.Spider){Item("&Search for Help on...","",()=>OpenHelp(3));Item("&How to Use Help","",()=>OpenHelp(4));}
+            Sep();Item("&About "+(ClassicSpider?"Spider":GameCatalog.Name(Kind))+(!skin.Modern && Kind==GameKind.Klondike?"":"..."),"",()=>OpenDialog(DialogPage.About));
         }
         else
         {
             Item("&Restore","",()=>{menu=-1;if(maximized)ToggleMaximize();},maximized);
             Item("&Move","",()=>SystemWindowCommand(0xF010),!maximized);Item("&Size","",()=>SystemWindowCommand(0xF000),!maximized);
             Item("Mi&nimize","",()=>{menu=-1;WindowState=FormWindowState.Minimized;});Item("Ma&ximize","",()=>{menu=-1;ToggleMaximize();},!maximized);Sep();
-            Item("&Close","Alt+F4",Close);Sep();Item("Windows &version...","F6",()=>OpenDialog(DialogPage.Settings));
+            Item("&Close","Alt+F4",Close);Sep();Item(skin.Future?"Choose &edition...":"Windows &version...","F6",()=>OpenDialog(DialogPage.Settings));
             if(store.Warning!=null || saves.Error!=null)Item("Exit without saving","",()=>{shutdown=true;Close();});
         }
         return entries;

@@ -1,72 +1,68 @@
-# Verification — Solitude 0.9.1
+# Verification — Solitude 0.10.0
 
-Built and checked locally on 10 September 2026. The [application audit](AUDIT-0.9.1.md) explains the reproduced Vista flicker defects and the broader fixes. Previous results remain in [VERIFICATION-0.9.0.md](VERIFICATION-0.9.0.md).
+Built and checked locally on 10 September 2026. This release adds the fictional [ORBIT / Solitude 2126 edition](ORBIT-2126.md). Previous results remain in [VERIFICATION-0.9.1.md](VERIFICATION-0.9.1.md).
 
 ## Delivered executable
 
 | Item | Verified result |
 |---|---|
-| Normal launch path | `dist/Solitude.exe` |
-| Retained release | `artifacts/release-v091/Solitude.exe` |
-| File version | **0.9.1.0** at both paths |
-| Size | **63,600,483 bytes** |
-| SHA-256 at both paths | `007D308069C93F50075BDDB1B640FD892C8EA1E945AFF4F2EB6C2273DEBF4858` |
-| Package contents | Exactly one self-contained Windows x64 EXE |
-| Included runtime | .NET and WindowsDesktop **10.0.11** |
-| Previous executable | Preserved by atomic replacement; 0.9.0 also retained in `artifacts/release-v090` |
+| Launch path | `dist/Solitude.exe` |
+| Retained release | `artifacts/release-v0100/Solitude.exe` |
+| File version | **0.10.0.0** at both paths |
+| Size | **63,646,565 bytes** |
+| SHA-256 | `EC468CAAF8C19166ADB43B448436EA6C5EE9821D1588FA9C87F23DC6999BB9C7` |
+| Package | Exactly one self-contained Windows x64 EXE |
+| Previous build | Preserved during atomic replacement; 0.9.1 retained under `artifacts/release-v091` |
 
-`build.ps1 -SkipTests` packaged the source after the checks below. Build log: `artifacts/build-final-v091.log`. The delivered and retained copies have identical hashes. No existing game was terminated or visible game window launched. Tests used ephemeral forms and isolated workspace state; personal saves were not read or altered. Native single-file components can extract into Windows temporary storage. Clean-machine portability remains untested.
+The normal and retained copies have identical hashes. The package contains the runtime, artwork and notices. Native runtime components may extract into Windows temporary storage. Build log: `artifacts/build-final-v0100.log`.
 
-## Rules, persistence and interface
+## Rules, input and persistence
 
-- **53 rules/persistence groups passed; 0 failed.** Includes the existing 60,000-action conservation test, malformed nested-save recovery, signed Vegas records, and a new 17-profile rules/restore exploration over 12 seeds per profile.
-- **5,120 production UI checks passed.** All 17 game profiles, 100/125/150/200%, full double-click event sequences, shared compatible preferences, suspended sessions, captions, dialog geometry, keyboard/mouse input, save choices and animation interruption remain covered.
-- The total includes **972 new Vista animation assertions**, **53 immediate-input/checkpoint assertions** and **32 dialog-region reuse assertions**. No visible window or desktop input was used.
-- The animation subset compares full ARGB frames at cache handoff for all four Vista decks. It also compares clipped/full rendering over 45 deal frames and 30 stock-flip/transfer frames for each Vista game and scale, repeats frozen intermediate frames, and checks felt-edge opacity. The deadline/cleanup gap failed before the fix.
-- Immediate `Alt+G`, Down, Enter reproduced a division-by-zero exception before the fix. Menus and dialog acceptance now work without an intervening paint. Tests also cover Enter after focusing a FreeCell Options checkbox and clearing old effects on Spider checkpoint load.
-- Corrupt-save probes exercise ten null nested fields. They verify that loading preserves the bytes and recovery keeps an unreadable copy before writing a fresh state. Existing background write ordering, reporting and flush checks also pass.
+- **53 rules/persistence groups passed; 0 failed.** The existing engine, 60,000-action conservation exercise and 17-profile rules/restore exploration remain intact. The new edition uses the existing modern Klondike rules, with automatic flips and full-session Undo.
+- **5,805 production UI assertions passed.** These cover all 17 historical profiles and ORBIT at 100/125/150/200%, including actual input-handler event sequences, dialog controls, settings, saves and animation.
+- **677 ORBIT-specific assertions** cover three palettes, repeated frames, cache handoff, rounded edges, double-click isolation, stock double-click suppression, reduced motion, idle frame scheduling, palette application, nested settings Apply/Cancel, edition round trips, disk restoration and Undo history, compatibility boundaries, minimum-window controls/dialogs and both win paths. Four of these verify that interrupting a flip with Undo preserves the card's position, width and bank angle and eventually settles it flat.
+- The shared motion suite also exercises ORBIT stock flips and mid-flight Undo. The remaining historical rendering, double-click, input and persistence checks continue to pass.
+- Appearance opened from Experience keeps the uncommitted draft. Cancelling Experience cancels its nested palette as well. Independent F7 appearance changes save directly.
 
-Logs: `artifacts/rules-audit-v091.log`, `ui-final-v091.log`, `render-audit-v091.log`, and `input-audit-v091.log`. Failed-before logs and the precise scope are listed in the [audit](AUDIT-0.9.1.md).
+Logs: `artifacts/orbit-rules.log` and `artifacts/orbit-ui-release.log`. Tests used ephemeral forms and isolated workspace state. No visible game window was launched, desktop input sent, or personal save read or altered.
 
-## Rendering and package parity
+## Rendering, regression boundaries and package parity
 
-The tested source and final packaged EXE each completed **225 application views plus 36 motion samples**. All **261 PNG hashes match**. All **five exported embedded notices match** their source files; export exited 0.
+The final source and packaged EXE each rendered **237 application views and 42 motion samples**. All **279 PNG hashes match**. All **five exported embedded notices match** their source files.
 
-- Source renders: `artifacts/source-final-v091-renders`.
-- Package renders: `artifacts/package-final-v091-renders`.
-- Native-size overview sheets for all 17 profiles: `artifacts/qa-v091/Klondike-overview.png`, `FreeCell-overview.png`, `Spider-overview.png`.
-- Visual review covered those sheets, native 150% Vista Options and XP FreeCell Statistics, plus Vista motion samples. The 972 exact animation assertions provide the continuity checks that still images cannot establish.
-- Notice export: `artifacts/notices-final-v091`.
-- Machine-readable image/notice/package hashes: `artifacts/package-validation-v091.json`.
+Of the previous release's 261 renders, **244 remain byte-identical**. The only differences are the 17 Settings views, which now include the ninth edition. Historical boards, captions, menus, period dialogs and motion samples in this comparison did not change.
 
-Matching source/package images verify packaging, not equality to 261 original Windows screenshots. The existing measured XP palette and historical presentation are retained. No original Microsoft executable was run during this audit.
+ORBIT's continuity checks compare animation frames with a freshly rebuilt static board cache at each frozen time. They exercise the gap between a flight reaching its deadline and the animation loop removing it. Repeated window-edge blending was caught during optimization and fixed by clearing the exposed surface before drawing alpha edges. Existing Vista continuity checks still pass.
+
+Visual review covered the three palettes, constellation and win dialog, plus the packaged 150% Experience and Settings views. Motion previews under `docs/images` were sampled from production render frames; they are not a monitor recording or a frame-rate measurement.
+
+Evidence:
+
+- `artifacts/source-final-v0100-renders`
+- `artifacts/package-final-v0100-renders`
+- `artifacts/orbit-checks` and `artifacts/orbit-demo`
+- `artifacts/notices-final-v0100`
+- `artifacts/package-validation-v0100.json`
 
 ## Performance
 
-Three alternating runs of the retained 0.9.0 benchmark and new 0.9.1 benchmark used the same warm offscreen renderer at 150%. Each run records 120 frames per profile. The table reports the median of the three per-run medians, and the median of their p95 values. Heavy UI/render checks did not run concurrently with these measurements.
+The final benchmark ran without competing UI/render tests. Each size records 180 warm moving frames and 180 warm settled frames. The moving sequence includes staggered cards, bank transforms, flips and light trails. Timed calls replay flight positions through the production renderer; they are not measurements of presentation to a physical display.
 
-| Profile | 0.9.0 median ms | 0.9.1 median ms | 0.9.0 p95 ms | 0.9.1 p95 ms |
-|---|---:|---:|---:|---:|
-| 3.1 Solitaire | 1.88 | 1.77 | 2.34 | 2.30 |
-| 95 Solitaire | 1.83 | 1.83 | 2.69 | 2.23 |
-| 95 FreeCell | 2.03 | 2.05 | 2.55 | 2.54 |
-| XP Solitaire | 0.84 | 0.84 | 1.01 | 0.99 |
-| XP FreeCell | 0.86 | 0.83 | 1.02 | 1.19 |
-| XP Spider | 1.03 | 1.13 | 1.24 | 1.69 |
-| Vista Solitaire | 3.76 | 3.76 | 4.40 | 4.37 |
-| Vista FreeCell | 3.70 | 3.61 | 4.15 | 4.51 |
-| Vista Spider | 3.97 | 3.94 | 4.62 | 4.41 |
+| Display size | Moving median / p95 ms | Settled median / p95 ms |
+|---|---:|---:|
+| 100% | 4.36 / 5.95 | 1.41 / 1.65 |
+| 125% | 6.63 / 12.80 | 2.25 / 3.04 |
+| 150% | 10.66 / 15.69 | 4.65 / 6.62 |
+| 200% | 16.35 / 23.17 | 6.04 / 9.31 |
 
-Vista's typical warm paint cost is effectively unchanged. XP Spider showed a small increase in these samples; this is not a universal speedup claim. Initial single runs had larger variance, so the alternating repetitions are reported instead. These warm costs include cached boards, not an exhaustive cost profile of every active card flight.
+A separate 150% drag probe using the real Windows message queue and production frame clock delivered **60.0 / 120.0 / 144.0 callbacks per second**, with p95 intervals of **17.10 / 8.73 / 7.32 ms**. Its independent heartbeat remained responsive. The application targets 120 updates per second while animating and stops requesting continuous frames when idle.
 
-The updated production message-queue/frame-clock probe delivered **60.0 / 120.0 / 143.1 callbacks per second** for full redraws and **60.0 / 120.0 / 144.0** for partial redraws. The independent message-queue heartbeat remained responsive. These are **offscreen CPU costs and callback rates, not monitor FPS, display latency or a visible smoothness certification**.
+These are CPU costs and offscreen callback rates, not monitor FPS or latency. The more demanding deal animation, particularly at 200%, can exceed a 120 Hz or 60 Hz frame budget. Results vary with hardware and system load. No universal smoothness guarantee is made.
 
-Data: `artifacts/benchmark-comparison-v091.json`, `benchmark-pair-v090-{1,2,3}.json`, `benchmark-pair-v091-{1,2,3}.json`, and `benchmark-v091.json`. The rendering fix removes missing/jumping frames; it does not change the intended historical motion timing.
+The implementation caches the scene, cards and static board, clips card flights to the playing area and rasterizes the rounded scene corners once. This avoids the original full-window complex clip around every moving card. Earlier probes are retained as `artifacts/orbit-performance*.json`; final results are published in [ORBIT-PERFORMANCE-0.10.0.json](ORBIT-PERFORMANCE-0.10.0.json).
 
-## Dependencies and remaining limits
+## Scope and limits
 
-The online NuGet vulnerability query completed successfully against `api.nuget.org` and returned no package findings. There are no third-party PackageReferences. Result: `artifacts/dependency-audit-v091.json`. Early test builds reused a cached NU1900 metadata warning; the final packaging build completed without that warning. This package query does not certify the embedded runtime or host Windows against every security issue.
+ORBIT's art, scene, icon and synthesized audio are original procedural code. No new third-party assets or package dependencies were introduced. It is a fictional Klondike edition, not a prediction or reproduction of a future Windows product. FreeCell and Spider retain their historical editions; Windows 7–11 remain deferred.
 
-The audit remains bounded by the available original-release evidence. Me Spider still uses preserved XP artwork. Vista finish references are RC1 build 5600, not verified RTM. Exact historical font bytes, desktop glass composition, complete original dialog/shortcut coverage, some scoring/focus rules, audio mixing and animation curves remain unverified. Vista negative-number Easter eggs and native Spider save-file compatibility are unsupported. The retained Settings button and isolated double-click behavior are deliberate user requirements.
-
-Live activation/task switching, multi-monitor behavior, monitor-visible animation, audio output and a prolonged visible-session resource soak were not performed. These limits are explicit; local tests establish the recreation's behavior and package consistency, not complete historical identity.
+The historical fidelity limits from 0.9.1 still apply. Matching old renders proves regression stability, not identity to every original Windows build. Monitor-visible animation, audio playback, task switching, multiple monitors, clean-machine portability and a prolonged visible-session resource soak were not tested in this release.

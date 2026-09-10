@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Solitude</AssemblyName>
     <RootNamespace>Solitude</RootNamespace>
-    <Version>0.9.1</Version>
-    <Description>Solitaire, FreeCell and Spider through the Windows eras</Description>
+    <Version>0.10.0</Version>
+    <Description>Windows card games through time, with ORBIT Solitaire for 2126</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/solitude.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>

@@ -27,7 +27,8 @@ internal static class Program
             {
                 Directory.CreateDirectory(render);
                 int count=0;
-                foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))foreach(int scale in new[]{100,125,150,200})
+                var eras=Enum.TryParse<Era>(Arg("--render-era"),out var renderEra) && Enum.IsDefined(renderEra)?new[]{renderEra}:Enum.GetValues<Era>();
+                foreach(var era in eras)foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))foreach(int scale in new[]{100,125,150,200})
                 {
                     using var form=new GameWindow(new Store(data),era,kind==GameKind.FreeCell?1:1989,scale,true,kind);
                     string prefix=kind==GameKind.Klondike?era.ToString():$"{era}-{kind}";
@@ -47,7 +48,7 @@ internal static class Program
                         form.RenderTo(Path.Combine(render,$"{prefix}-menu.png"),openMenu:0);count++;
                         form.RenderTo(Path.Combine(render,$"{prefix}-inactive.png"),inactive:true);count++;
                         form.RenderTo(Path.Combine(render,$"{prefix}-maximized.png"),maximize:true);count++;
-                        if(era is Era.WindowsXP or Era.WindowsVista)form.RenderMotionSequence(Path.Combine(render,"motion"));
+                        if(era is Era.WindowsXP or Era.WindowsVista or Era.Future2126)form.RenderMotionSequence(Path.Combine(render,"motion"));
                     }
                 }
                 File.WriteAllText(Path.Combine(render,"complete.txt"),$"Rendered {count} application views using the production renderer.\n");

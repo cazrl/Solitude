@@ -10,13 +10,13 @@ internal static class VariantChecks
         test("Every era exposes only its bundled card games",()=>
         {
             int count=0;
-            foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>())if(GameCatalog.Available(era,kind))count++;
+            foreach(var era in GameCatalog.HistoricalEras)foreach(var kind in Enum.GetValues<GameKind>())if(GameCatalog.Available(era,kind))count++;
             Assert(count==17);Assert(!GameCatalog.Available(Era.Windows98,GameKind.Spider));Assert(!GameCatalog.Available(Era.Windows2000,GameKind.Spider));
             Assert(GameCatalog.MaxDeal(Era.Windows95)==32000 && GameCatalog.MaxDeal(Era.WindowsXP)==1000000);
         });
         test("Every Klondike preset respects recycle scoring and Vegas pass limits",()=>
         {
-            foreach(var era in Enum.GetValues<Era>())foreach(int draw in new[]{1,3})
+            foreach(var era in GameCatalog.HistoricalEras)foreach(int draw in new[]{1,3})
             {
                 var rules=GameCatalog.Defaults(era,GameKind.Klondike).Rules;rules.DrawCount=draw;rules.Timed=false;
                 var g=new Game(rules,71);g.State.Score=500;
@@ -143,7 +143,7 @@ internal static class VariantChecks
         });
         test("FreeCell chosen-card shortcuts and explicit collection move one card at a time",()=>
         {
-            foreach(var era in Enum.GetValues<Era>().Where(e=>GameCatalog.Available(e,GameKind.FreeCell)))
+            foreach(var era in GameCatalog.HistoricalEras.Where(e=>GameCatalog.Available(e,GameKind.FreeCell)))
             {
                 var rules=GameCatalog.Defaults(era,GameKind.FreeCell).Rules;
                 var g=FreeFixture([[C(Suit.Clubs,1)],[C(Suit.Diamonds,1)],[C(Suit.Spades,6)]],rules:rules);

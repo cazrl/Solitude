@@ -216,7 +216,7 @@ Test("Malformed nested saves recover without overwriting their original data",()
 });
 Test("All 17 era/game policies preserve cards and restore history under repeated actions",()=>
 {
-    foreach(var era in Enum.GetValues<Era>())foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))for(int seed=1;seed<=12;seed++)
+    foreach(var era in GameCatalog.HistoricalEras)foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(era,k)))for(int seed=1;seed<=12;seed++)
     {
         var rules=GameCatalog.Defaults(era,kind).Rules;
         if(kind==GameKind.Spider)rules.SpiderSuits=new[]{1,2,4}[seed%3];

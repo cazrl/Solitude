@@ -46,6 +46,7 @@ public sealed partial class GameWindow
     }
     private void PaintGame(Graphics g)
     {
+        if(skin.Future){PaintFutureGame(g);return;}
         hotspots.Clear();cardAreas.Clear();skin.Configure(g);art.VistaDeck=Preferences.VistaDeck;art.Kind=Kind;art.VistaBackground=Preferences.VistaBackground;
         art.RenderScale=skin.DeviceText?ScaleFactor:1;EnsureLayout();
         art.TimedBacks=Game.Rules.Timed && dialog==DialogPage.None && windowActive;art.GameElapsed=Game.State.Elapsed;art.AnimationFrame=(int)(activeTime.ElapsedMilliseconds/250);
@@ -59,16 +60,16 @@ public sealed partial class GameWindow
         }
         var menuRect=new RectangleF(WindowBorder,WindowHeader,WorldWidth-2*WindowBorder,skin.MenuHeight);
         skin.MenuBar(g,menuRect);
-        bool spiderMenu=Kind==GameKind.Spider && !skin.Vista;
+        bool spiderMenu=Kind==GameKind.Spider && !skin.Modern;
         float menuX=menuRect.X+2;
         foreach(var entry in spiderMenu?new[]{(0,"Game"),(3,"Deal!"),(1,"Help")}:new[]{(0,"Game"),(1,"Help")})
         {
             var r=new RectangleF(menuX,menuRect.Y,skin.Measure(g,entry.Item2)+12,menuRect.Height-1);menuX=r.Right;
-            bool chosen=menu==entry.Item1,hover=r.Contains(mouse) && dialog==DialogPage.None && (skin.Xp || skin.Vista);
+            bool chosen=menu==entry.Item1,hover=r.Contains(mouse) && dialog==DialogPage.None && (skin.Xp || skin.Modern);
             skin.MenuItem(g,r,chosen || hover,true);
             skin.Text(g,entry.Item2,new(r.X+4,r.Y,r.Width-8,r.Height),chosen && skin.Early?Color.White:Color.Black);
             // Classic menus expose mnemonic underlines even before Alt is pressed.
-            if(!skin.Xp && !skin.Vista){float tx=r.X+4;Skin.Line(g,chosen && skin.Early?Color.White:Color.Black,tx,r.Y+(skin.Early?16:14),tx+skin.Measure(g,entry.Item2[..1])-1,r.Y+(skin.Early?16:14));}
+            if(!skin.Xp && !skin.Modern){float tx=r.X+4;Skin.Line(g,chosen && skin.Early?Color.White:Color.Black,tx,r.Y+(skin.Early?16:14),tx+skin.Measure(g,entry.Item2[..1])-1,r.Y+(skin.Early?16:14));}
             if(dialog==DialogPage.None)Add("bar-"+entry.Item1,r,()=>{if(entry.Item1==3)DrawCards();else{menu=entry.Item1;menuFocus=-1;Invalidate();}});
         }
         float settingsWidth=Math.Max(82,skin.Measure(g,"Settings...")+18);
@@ -100,7 +101,7 @@ public sealed partial class GameWindow
     {
         if(Kind!=GameKind.Klondike){PaintVariantTable(g);return;}
         var table=Table;
-        if(!skin.Vista)Skin.Fill(g,Color.FromArgb(0,128,0),table);
+        if(!skin.Modern)Skin.Fill(g,Color.FromArgb(0,128,0),table);
         else art.DrawFelt(g,table);
         var clip=g.Save();g.SetClip(table,CombineMode.Intersect);
         var stock=TopCard(0);
@@ -110,7 +111,7 @@ public sealed partial class GameWindow
             Empty(g,stock,false);
             if(Game.CanRecycle)
             {
-                using var pen=new Pen(skin.Vista?Color.FromArgb(170,255,255,255):Color.Lime,6);
+                using var pen=new Pen(skin.Modern?Color.FromArgb(170,255,255,255):Color.Lime,6);
                 g.DrawArc(pen,stock.X+18,stock.Y+27,34,34,40,285);
                 using var brush=new SolidBrush(pen.Color);g.FillPolygon(brush,new PointF[]{new(stock.X+48,stock.Y+25),new(stock.X+59,stock.Y+37),new(stock.X+42,stock.Y+37)});
             }
@@ -124,7 +125,7 @@ public sealed partial class GameWindow
             int count=Math.Max(1,Math.Min(Game.State.WasteFan,Game.State.Waste.Count));
             for(int i=0;i<count;i++)
             {
-                int index=Game.State.Waste.Count-count+i;var r=TopCard(1);r.X+=i*(skin.Vista?19:16);
+                int index=Game.State.Waste.Count-count+i;var r=TopCard(1);r.X+=i*(skin.Modern?19:16);
                 var pos=new Position(PileKind.Waste,0,index);
                 if(!(dragging && IsSelected(pos)))DrawGameCard(g,Game.State.Waste[index],r);
                 if(i==count-1){cardAreas.Add((pos,r));Highlight(g,pos,r);}
@@ -133,7 +134,7 @@ public sealed partial class GameWindow
         for(int i=0;i<4;i++)
         {
             var r=TopCard(i+3);var pile=Game.State.Foundations[i];var pos=new Position(PileKind.Foundation,i);
-            if(pile.Count==0 || (skin.Vista && victoryTrail!=null && (showingVictory || dialog==DialogPage.Won)) || (dragging && IsSelected(pos) && pile.Count==1))Empty(g,r,true);
+            if(pile.Count==0 || (skin.Modern && victoryTrail!=null && (showingVictory || dialog==DialogPage.Won)) || (dragging && IsSelected(pos) && pile.Count==1))Empty(g,r,true);
             else
             {
                 int index=pile.Count-1-(dragging && IsSelected(pos)?1:0);
@@ -159,14 +160,14 @@ public sealed partial class GameWindow
                 }
                 else if(i==pile.Count-1)Highlight(g,pos,r);
             }
-            if(pile.Count==0){if(skin.Vista)Empty(g,TableauCard(col,0),false);Highlight(g,new(PileKind.Tableau,col),TableauCard(col,0));}
+            if(pile.Count==0){if(skin.Modern)Empty(g,TableauCard(col,0),false);Highlight(g,new(PileKind.Tableau,col),TableauCard(col,0));}
         }
         g.Restore(clip);
     }
     private bool IsSelected(Position pos)=>selection.HasValue && pos.Kind==selection.Value.Kind && pos.Pile==selection.Value.Pile && Game.Index(pos)==Game.Index(selection.Value);
     private void Empty(Graphics g,RectangleF r,bool foundation)
     {
-        if(skin.Vista)
+        if(skin.Modern)
         {
             var smooth=g.SmoothingMode;g.SmoothingMode=SmoothingMode.AntiAlias;
             using var outline=Skin.Rounded(r,6);using var p=new Pen(Color.FromArgb(155,223,231,219),2);g.DrawPath(p,outline);g.SmoothingMode=smooth;
@@ -180,7 +181,7 @@ public sealed partial class GameWindow
     }
     private void Highlight(Graphics g,Position pos,RectangleF r)
     {
-        bool selected=skin.Vista && IsSelected(pos) && !dragging;
+        bool selected=skin.Modern && IsSelected(pos) && !dragging;
         bool hinted=hint.HasValue && (SamePile(hint.Value.From,pos) || SamePile(hint.Value.To,pos));
         if(!selected && !hinted)return;
         r.Inflate(2,2);using var pen=new Pen(hinted?Color.FromArgb(255,233,107):Color.White,2){DashStyle=selected?DashStyle.Dot:DashStyle.Solid};g.DrawRectangle(pen,r.X,r.Y,r.Width,r.Height);
@@ -191,7 +192,7 @@ public sealed partial class GameWindow
         var pos=selection!.Value;var pile=Game.Pile(pos)!;int index=Game.Index(pos);
         float x=mouse.X-dragOffset.X,y=mouse.Y-dragOffset.Y;
         var clip=g.Save();g.SetClip(Table,CombineMode.Intersect);
-        if(skin.Vista && !Preferences.OutlineDragging)
+        if(skin.Modern && !Preferences.OutlineDragging)
         {using var shadow=new SolidBrush(Color.FromArgb(48,0,0,0));g.FillRectangle(shadow,x+4,y+5,CardWidth,CardHeight+(pile.Count-index-1)*(pos.Kind==PileKind.Tableau?StackStep(pos.Pile):18));}
         for(int i=index;i<pile.Count;i++)
         {
@@ -201,22 +202,22 @@ public sealed partial class GameWindow
         }
         g.Restore(clip);
     }
-    private int DisplayScore=>Game.State.Score-(skin.Vista?Game.State.TimeBonus:0);
+    private int DisplayScore=>Game.State.Score-(skin.Modern?Game.State.TimeBonus:0);
     private void PaintStatus(Graphics g)
     {
         var r=new RectangleF(WindowBorder,WorldHeight-WindowBorder-skin.StatusHeight,WorldWidth-2*WindowBorder,skin.StatusHeight);
-        Skin.Fill(g,skin.Vista?skin.Face:Color.White,r);Skin.Line(g,skin.Early?Color.Black:Color.White,r.Left,r.Top,r.Right,r.Top);
+        Skin.Fill(g,skin.Modern?skin.Face:Color.White,r);Skin.Line(g,skin.Early?Color.Black:Color.White,r.Left,r.Top,r.Right,r.Top);
         bool score=Kind!=GameKind.FreeCell && Game.Rules.Scoring!=Scoring.None,time=Game.Rules.Timed;
         var scoreRect=new RectangleF(r.Right-(time?205:105),r.Top+2,103,17);
         var timeRect=new RectangleF(r.Right-100,r.Top+2,98,17);
-        if(!skin.Vista)
+        if(!skin.Modern)
         {
             string timeText=$"Time: {Game.State.Elapsed}",scoreText=$"Score: {DisplayScore}";
             float timeWidth=time?skin.Measure(g,timeText,skin.Bold)+6:0,scoreWidth=score?skin.Measure(g,scoreText,skin.Bold)+6:0;
             if(score)skin.Text(g,scoreText,new(r.Right-timeWidth-scoreWidth,r.Y+1,scoreWidth,r.Height-2),Game.State.Score<0?Color.Red:Color.Black,skin.Bold);
             if(time)skin.Text(g,timeText,new(r.Right-timeWidth,r.Y+1,timeWidth,r.Height-2),font:skin.Bold);
         }
-        else if(skin.Vista)
+        else if(skin.Modern)
         {
             if(Kind==GameKind.FreeCell)skin.Text(g,$"Game #{Game.State.Seed}    Moves: {Game.State.Moves}",new(r.X+8,r.Y,r.Width-250,r.Height));
             if(Kind==GameKind.Spider)skin.Text(g,$"Moves: {Game.State.Moves}",new(r.X+8,r.Y,r.Width-250,r.Height));
@@ -231,7 +232,7 @@ public sealed partial class GameWindow
         float height=entries.Sum(e=>e.Action==null?7:22)+6;
         var anchor=hotspots.LastOrDefault(h=>h.Id=="bar-"+menu)?.Bounds;
         var r=new RectangleF(anchor?.X??WindowBorder+2,menu==2?WindowHeader:WindowHeader+skin.MenuHeight-1,264,height);
-        float labelInset=skin.Xp || skin.Vista?28:19;
+        float labelInset=skin.Xp || skin.Modern?28:19;
         float shortcutWidth=entries.Max(e=>skin.Measure(g,e.Key))+4;
         r.Width=Math.Max(skin.Early?178:164,entries.Max(e=>skin.Measure(g,e.Label.Replace("&","")))+labelInset+shortcutWidth+42);
         skin.Popup(g,r);
@@ -241,7 +242,7 @@ public sealed partial class GameWindow
             if(entry.Action==null){Skin.Line(g,Color.Gray,r.X+4,y+3,r.Right-4,y+3);Skin.Line(g,Color.White,r.X+4,y+4,r.Right-4,y+4);y+=7;continue;}
             var item=new RectangleF(r.X+3,y,r.Width-6,22);bool hover=item.Contains(mouse) || (entry.Enabled && menuFocus==activeIndex);
             skin.MenuItem(g,item,hover);
-            var color=entry.Enabled?(hover && !skin.Vista?Color.White:Color.Black):Color.Gray;
+            var color=entry.Enabled?(hover && !skin.Modern?Color.White:Color.Black):Color.Gray;
             var labelRect=new RectangleF(item.X+labelInset,item.Y,item.Width-labelInset-shortcutWidth-28,item.Height);
             skin.Mnemonic(g,entry.Label,labelRect,color);
             skin.Text(g,entry.Key,new(item.Right-shortcutWidth-8,item.Y,shortcutWidth,item.Height),color);
