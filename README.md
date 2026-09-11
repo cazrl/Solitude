@@ -32,6 +32,22 @@ Version 0.11.8 fixes the six confirmed issues in the program audit: competing sa
 
 The normal application allows one instance per data folder. Opening the EXE again activates that window. A stale writer is rejected if another process changes its save, preserving the newer file. All editions fit the monitor's work area while remembering the selected display size for larger screens.
 
+## Screenshots
+
+Every available edition and game, captured from Solitude **0.11.8**. Click any screenshot to view it at full size. These show Solitude's recreations; ORBIT is its original futuristic edition.
+
+| Edition | Solitaire | FreeCell | Spider |
+|---|---|---|---|
+| Windows 3.0 | [![Windows 3.0 Solitaire](docs/images/editions/windows-3.0-solitaire.png)](docs/images/editions/windows-3.0-solitaire.png) | — | — |
+| Windows 3.1 / 3.11 | [![Windows 3.1 / 3.11 Solitaire](docs/images/editions/windows-3.1-solitaire.png)](docs/images/editions/windows-3.1-solitaire.png) | — | — |
+| Windows 95 | [![Windows 95 Solitaire](docs/images/editions/windows-95-solitaire.png)](docs/images/editions/windows-95-solitaire.png) | [![Windows 95 FreeCell](docs/images/editions/windows-95-freecell.png)](docs/images/editions/windows-95-freecell.png) | — |
+| Windows 98 | [![Windows 98 Solitaire](docs/images/editions/windows-98-solitaire.png)](docs/images/editions/windows-98-solitaire.png) | [![Windows 98 FreeCell](docs/images/editions/windows-98-freecell.png)](docs/images/editions/windows-98-freecell.png) | — |
+| Windows Me | [![Windows Me Solitaire](docs/images/editions/windows-me-solitaire.png)](docs/images/editions/windows-me-solitaire.png) | [![Windows Me FreeCell](docs/images/editions/windows-me-freecell.png)](docs/images/editions/windows-me-freecell.png) | [![Windows Me Spider](docs/images/editions/windows-me-spider.png)](docs/images/editions/windows-me-spider.png) |
+| Windows 2000 | [![Windows 2000 Solitaire](docs/images/editions/windows-2000-solitaire.png)](docs/images/editions/windows-2000-solitaire.png) | [![Windows 2000 FreeCell](docs/images/editions/windows-2000-freecell.png)](docs/images/editions/windows-2000-freecell.png) | — |
+| Windows XP | [![Windows XP Solitaire](docs/images/editions/windows-xp-solitaire.png)](docs/images/editions/windows-xp-solitaire.png) | [![Windows XP FreeCell](docs/images/editions/windows-xp-freecell.png)](docs/images/editions/windows-xp-freecell.png) | [![Windows XP Spider](docs/images/editions/windows-xp-spider.png)](docs/images/editions/windows-xp-spider.png) |
+| Windows Vista | [![Windows Vista Solitaire](docs/images/editions/windows-vista-solitaire.png)](docs/images/editions/windows-vista-solitaire.png) | [![Windows Vista FreeCell](docs/images/editions/windows-vista-freecell.png)](docs/images/editions/windows-vista-freecell.png) | [![Windows Vista Spider](docs/images/editions/windows-vista-spider.png)](docs/images/editions/windows-vista-spider.png) |
+| ORBIT / 2126 | [![ORBIT / 2126 Solitaire](docs/images/editions/orbit-2126-solitaire.png)](docs/images/editions/orbit-2126-solitaire.png) | — | — |
+
 ## ORBIT / 2126
 
 Choose **Settings → ORBIT / Solitude 2126 → OK**. A dark orbital observatory, original porcelain-style cards and geometric court figures replace the historical game surface and window frame. Aurora, Solstice and Nebula provide three lighting palettes. The board stays still when idle.
