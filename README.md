@@ -1,4 +1,4 @@
-# Solitude 0.10.1
+# Solitude 0.11.8
 
 Solitaire, FreeCell and Spider in one portable Windows EXE, now with **ORBIT / Solitude 2126**: a fictional Solitaire edition imagined one century ahead. Click **Settings** at the top right to choose an edition and game. **F6** and the window icon menu remain available too. Windows 7–11 remain deferred.
 
@@ -18,9 +18,9 @@ Windows 98's Spider belonged to the separate Plus! 98 add-on and is not offered 
 
 ## Run
 
-**[Download Solitude.exe for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.10.1/Solitude.exe)** from the [0.10.1 release](https://github.com/cazrl/Solitude/releases/tag/v0.10.1).
+Download **[Solitude 0.11.8 for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.11.8/Solitude.exe)**. See the [release notes and checksum](https://github.com/cazrl/Solitude/releases/tag/v0.11.8).
 
-The **0.10.1** package is [`dist/Solitude.exe`](dist/Solitude.exe), with an identical retained copy at [`artifacts/release-v0101/Solitude.exe`](artifacts/release-v0101/Solitude.exe). Older packages are preserved under `artifacts`.
+The local delivery is `dist/Solitude.exe`, with an identical retained copy under `artifacts/release-v0118/`. These build folders are excluded from the source repository; use the release download above.
 
 Run the EXE on 64-bit Windows 10 or 11. It contains the runtime, artwork and notices. No installer, account, network connection or separate .NET installation is required. Native runtime components may extract into the temporary directory.
 
@@ -28,15 +28,33 @@ Settings selects the Windows version, game and display size. Compatible choices 
 
 Each Windows/game combination retains its own suspended deal, undo history and records. Existing deals keep their original rules until you choose a new deal; Restart Game replays the same deal with those rules. Sharing a setting never copies Vista mechanics into a classic game. The visible Settings button is always present in the menu strip; **Records** and **About Solitude** are inside the selector.
 
+Version 0.11.8 fixes the six confirmed issues in the program audit: competing saves, active-rule Options, Vista foundation underlays, monitor fitting, historical accessibility, and ORBIT victory input. It also caches hint history, limits logo repaints, stops frames during the still victory hold, and removes obsolete scrolling code. See the [fix report](docs/PROGRAM-FIXES-0.11.8.md).
+
+The normal application allows one instance per data folder. Opening the EXE again activates that window. A stale writer is rejected if another process changes its save, preserving the newer file. All editions fit the monitor's work area while remembering the selected display size for larger screens.
+
 ## ORBIT / 2126
 
 Choose **Settings → ORBIT / Solitude 2126 → OK**. A dark orbital observatory, original porcelain-style cards and geometric court figures replace the historical game surface and window frame. Aurora, Solstice and Nebula provide three lighting palettes. The board stays still when idle.
 
 ![ORBIT Solitaire in the Aurora observatory](docs/images/orbit-2126.png)
 
-Cards lift, bank and flip into position. Foundation arrivals send out docking waves; a win gathers 52 lights into an orbital constellation. Hint traces a possible move. Undo can reverse a card during its flight, and double-click sends only the chosen card home. A finish button appears when the remaining face-up deal is ready for collection.
+Cards lift, bank and flip into position. Foundation arrivals send out docking waves; a win lifts all 52 cards from the foundations into a rotating formation, ripples flips through them, and settles them into four suit fans. Hint traces a possible move. Undo can reverse a card during its flight. Double-click auto-places the chosen card on its foundation first, or otherwise moves it and its valid sequence to another column, without chaining unrelated moves. A finish button appears when the remaining face-up deal is ready for collection.
 
 **Experience** controls draw count, scoring, spatial motion, light trails/waves and synthesized sound. **Atmosphere** chooses the palette, also available with F7. Turn spatial motion off for instant play and immediate win results. ORBIT saves its deal and preferences automatically; compatible draw/scoring choices travel across editions. These controls and effects belong only to the fictional edition.
+
+Version 0.11.7 replaces the light-dot win effect with a 7.6-second card choreography. Click or Escape skips to results; reduced motion goes straight there. Opening deals now show the entire flight from the stock, fixing a destination-column clip that hid cards above the tableau. See the [card motion update](docs/ORBIT-CARD-MOTION-0.11.7.md).
+
+Version 0.11.6 fits the logo button flush into the window corner, restores the full curved rim, centers button labels by their visible glyphs, and keeps settled foundation cards visible under incoming animations. Long columns fit in full without scrollbars; card sizing follows the window height and stays stable during play. See the [polish and crash investigation](docs/ORBIT-POLISH-0.11.6.md).
+
+Version 0.11.5 replaces the separate Game button with an outlined logo button in the top-left corner. Its orbital mark moves while hovered or while the menu is open, and rests when idle. Switching both into and out of ORBIT morphs the window into its centered destination, with a reversed light sweep when leaving. Escape settles immediately, and ORBIT's reduced-motion setting skips both directions. See the [update report](docs/ORBIT-UPDATE-0.11.5.md).
+
+Version 0.11.3 also centers a direct ORBIT launch after its final window size is established. The startup lifecycle fix covers the case missed in 0.11.2; see the [startup report](docs/ORBIT-STARTUP-0.11.3.md).
+
+Version 0.11.2 centers the application window on its current monitor when ORBIT is selected. Gameplay time uses a monotonic millisecond clock independent of animation timing, with a fresh baseline when the window regains focus.
+
+Version 0.11.1 centers the ORBIT playing grid and reduces the horizontal gaps to 16% of card width while retaining card size and readable stack overlaps. See the [spacing comparison](docs/ORBIT-SPACING-0.11.1.md).
+
+Version 0.11.0 implements the [ORBIT audit follow-up](docs/ORBIT-FIXES-0.11.0.md): readable scrolling columns, improved text and card corners, hints that avoid previously visited layouts, verified completion availability, accessible cards/controls, accurate active/shared rules, volume controls, full palette hit targets, a visible Game menu, adaptive frame scheduling and smaller save snapshots. The historical hint policy and card artwork are preserved.
 
 See the [design and controls](docs/ORBIT-2126.md) and [verification results](docs/VERIFICATION.md). The historic presets retain their period presentation, including the Vista rendering fixes from 0.9.1.
 
@@ -104,7 +122,7 @@ This is a recreation, not original Windows running inside the EXE. Exact pixel i
 
 ## Build and diagnostics
 
-With the .NET 10 SDK on Windows, run `./build.ps1`. It tests and packages the single EXE. Included assets do not require network downloads; missing SDK/runtime packages do.
+With the .NET 10 SDK on Windows, run `./build.ps1`. It tests and packages the single EXE. Run `./tools/verify-program.ps1` for the full rules, UI, native-message and source/package parity gate; its package remains isolated under `artifacts/verification`. The GitHub Actions workflow uses this same verification script. Included assets do not require network downloads; missing SDK/runtime packages do.
 
 ```powershell
 # Offscreen renders, with no game window shown.

@@ -1,0 +1,109 @@
+{
+  "description": "Offscreen production ORBIT renderer, cached deck, three-dimensional card-bank and flip frames. CPU costs and callback pacing, not measured monitor FPS.",
+  "results": [
+    {
+      "scale": 100,
+      "moving": true,
+      "width": 1120,
+      "height": 720,
+      "medianMs": 6.7307,
+      "p95Ms": 8.9009,
+      "allocatedBytesPerFrame": 13821
+    },
+    {
+      "scale": 100,
+      "moving": false,
+      "width": 1120,
+      "height": 720,
+      "medianMs": 2.5705,
+      "p95Ms": 3.6051,
+      "allocatedBytesPerFrame": 6457
+    },
+    {
+      "scale": 125,
+      "moving": true,
+      "width": 1400,
+      "height": 900,
+      "medianMs": 10.9817,
+      "p95Ms": 15.4334,
+      "allocatedBytesPerFrame": 13731
+    },
+    {
+      "scale": 125,
+      "moving": false,
+      "width": 1400,
+      "height": 900,
+      "medianMs": 4.5281,
+      "p95Ms": 5.9146,
+      "allocatedBytesPerFrame": 6457
+    },
+    {
+      "scale": 150,
+      "moving": true,
+      "width": 1680,
+      "height": 1080,
+      "medianMs": 16.7324,
+      "p95Ms": 23.7819,
+      "allocatedBytesPerFrame": 13734
+    },
+    {
+      "scale": 150,
+      "moving": false,
+      "width": 1680,
+      "height": 1080,
+      "medianMs": 7.4183,
+      "p95Ms": 9.2177,
+      "allocatedBytesPerFrame": 6457
+    },
+    {
+      "scale": 200,
+      "moving": true,
+      "width": 2240,
+      "height": 1392,
+      "medianMs": 27.5777,
+      "p95Ms": 37.2547,
+      "allocatedBytesPerFrame": 13731
+    },
+    {
+      "scale": 200,
+      "moving": false,
+      "width": 2240,
+      "height": 1392,
+      "medianMs": 12.7603,
+      "p95Ms": 15.0673,
+      "allocatedBytesPerFrame": 6457
+    }
+  ],
+  "pacing": [
+    {
+      "redraw": "full",
+      "target": 60,
+      "deliveredFps": 60.05537931160947,
+      "p95IntervalMs": 17.075600000000023,
+      "frames": 131,
+      "heartbeatTicks": 35,
+      "elapsedSeconds": 2.2236171,
+      "highResolution": true
+    },
+    {
+      "redraw": "full",
+      "target": 120,
+      "deliveredFps": 111.95777790025377,
+      "p95IntervalMs": 10.700099999999999,
+      "frames": 246,
+      "heartbeatTicks": 35,
+      "elapsedSeconds": 2.2150093,
+      "highResolution": true
+    },
+    {
+      "redraw": "full",
+      "target": 144,
+      "deliveredFps": 117.82095352497694,
+      "p95IntervalMs": 9.708800000000073,
+      "frames": 258,
+      "heartbeatTicks": 35,
+      "elapsedSeconds": 2.2073465,
+      "highResolution": true
+    }
+  ]
+}

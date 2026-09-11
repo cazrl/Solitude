@@ -1,0 +1,163 @@
+{
+  "long-column": [
+    {
+      "Width": 800,
+      "Height": 540,
+      "faceUpStripPixels": 24,
+      "rankFontPixels": 12.792938
+    },
+    {
+      "Width": 1120,
+      "Height": 720,
+      "faceUpStripPixels": 26.261818,
+      "rankFontPixels": 17.922937
+    }
+  ],
+  "shared-options-active-rule-mismatch": {
+    "returned": {
+      "preference": 1,
+      "active": 3,
+      "Seed": 1989
+    },
+    "displayedDraw": 3,
+    "applied": {
+      "preference": 1,
+      "active": 3,
+      "sameDeal": true
+    },
+    "reselectActualRuleResetsDeal": false,
+    "movesAfterReselect": 1
+  },
+  "undo-arrival-wave": {
+    "foundationCards": 0,
+    "waves": 0
+  },
+  "complete-button-can-stall": {
+    "valid52CardFixture": true,
+    "offered": false,
+    "Moves": 0,
+    "collecting": false,
+    "Won": false
+  },
+  "hint-cycles": {
+    "seeds": 40,
+    "wins": 1,
+    "noMove": 28,
+    "cycleCount": 0,
+    "examples": []
+  },
+  "accessibility-tree": {
+    "nativeControls": 0,
+    "accessibleChildren": 30,
+    "AccessibleName": "Solitude Solitaire",
+    "drawnHotspots": 10
+  },
+  "palette-hit-target": [
+    {
+      "Location": {
+        "IsEmpty": false,
+        "X": 325,
+        "Y": 310
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 148.66667,
+        "Height": 96
+      },
+      "X": 325,
+      "Y": 310,
+      "Width": 148.66667,
+      "Height": 96,
+      "Left": 325,
+      "Top": 310,
+      "Right": 473.6667,
+      "Bottom": 406,
+      "IsEmpty": false
+    },
+    {
+      "Location": {
+        "IsEmpty": false,
+        "X": 485.6667,
+        "Y": 310
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 148.66667,
+        "Height": 96
+      },
+      "X": 485.6667,
+      "Y": 310,
+      "Width": 148.66667,
+      "Height": 96,
+      "Left": 485.6667,
+      "Top": 310,
+      "Right": 634.3334,
+      "Bottom": 406,
+      "IsEmpty": false
+    },
+    {
+      "Location": {
+        "IsEmpty": false,
+        "X": 646.3334,
+        "Y": 310
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 148.66667,
+        "Height": 96
+      },
+      "X": 646.3334,
+      "Y": 310,
+      "Width": 148.66667,
+      "Height": 96,
+      "Left": 646.3334,
+      "Top": 310,
+      "Right": 795.00006,
+      "Bottom": 406,
+      "IsEmpty": false
+    }
+  ],
+  "minimum-window-and-screen": {
+    "logicalMinimum": {
+      "IsEmpty": false,
+      "Width": 800,
+      "Height": 540
+    },
+    "at200Percent": {
+      "IsEmpty": false,
+      "Width": 1600,
+      "Height": 1080
+    },
+    "currentScreen": {
+      "Location": {
+        "IsEmpty": true,
+        "X": 0,
+        "Y": 0
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 2560,
+        "Height": 1392
+      },
+      "X": 0,
+      "Y": 0,
+      "Width": 2560,
+      "Height": 1392,
+      "Left": 0,
+      "Top": 0,
+      "Right": 2560,
+      "Bottom": 1392,
+      "IsEmpty": false
+    }
+  },
+  "keyboard-stock-selection": {
+    "chosen": true,
+    "selectionSurvivesStockDraw": false
+  },
+  "long-history-snapshot": {
+    "history": 5000,
+    "uiThreadCloneMs": 6.5985,
+    "cloneAllocatedBytes": 46624,
+    "jsonBytes": 10087913
+  }
+}

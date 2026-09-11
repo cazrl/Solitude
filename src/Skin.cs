@@ -52,9 +52,9 @@ public sealed partial class Skin : IDisposable
     {
         Era=era;
         string family=Modern?"Segoe UI":era is Era.Windows2000 or Era.WindowsXP?"Tahoma":"Microsoft Sans Serif";
-        Ui=new(family,Modern?12:Early?13:11,Early?FontStyle.Bold:FontStyle.Regular,GraphicsUnit.Pixel);
-        Bold=new(family,Vista?12:Early?13:11,FontStyle.Bold,GraphicsUnit.Pixel);
-        CaptionFont=new(Xp?"Trebuchet MS":family,Xp?13:Vista?12:Early?13:11,Vista?FontStyle.Regular:FontStyle.Bold,GraphicsUnit.Pixel);
+        Ui=new(family,Future?13:Modern?12:Early?13:11,Early?FontStyle.Bold:FontStyle.Regular,GraphicsUnit.Pixel);
+        Bold=new(family,Future?13:Vista?12:Early?13:11,FontStyle.Bold,GraphicsUnit.Pixel);
+        CaptionFont=new(Xp?"Trebuchet MS":family,Xp?13:Modern?12:Early?13:11,Modern?FontStyle.Regular:FontStyle.Bold,GraphicsUnit.Pixel);
         if(Early)raster=RasterFont.Embedded("system-10.fnt");
         else if(era is Era.Windows95 or Era.Windows98 or Era.WindowsMe)raster=RasterFont.Embedded("ms-sans-serif-8.fnt");
     }
@@ -139,9 +139,9 @@ public sealed partial class Skin : IDisposable
         if(Future)
         {
             var saved=g.Save();g.SmoothingMode=SmoothingMode.AntiAlias;var futureBox=new RectangleF(r.X,r.Y+(r.Height-14)/2,14,14);
-            using var edge=new Pen(hover?Color.FromArgb(147,245,228):Color.FromArgb(103,136,151));using var fill=new SolidBrush(Color.FromArgb(21,40,55));
-            if(radio){g.FillEllipse(fill,futureBox);g.DrawEllipse(edge,futureBox);if(selected){using var b=new SolidBrush(Color.FromArgb(130,235,219));g.FillEllipse(b,futureBox.X+4,futureBox.Y+4,6,6);}}
-            else {FutureArt.Panel(g,futureBox,selected?Color.FromArgb(130,235,219):Color.FromArgb(21,40,55),edge.Color,3);if(selected){using var p=new Pen(Color.FromArgb(8,38,40),1.8f);g.DrawLines(p,new PointF[]{new(futureBox.X+3,futureBox.Y+7),new(futureBox.X+6,futureBox.Y+10),new(futureBox.X+11,futureBox.Y+4)});}}
+            using var edge=new Pen(hover?FutureAccent:Color.FromArgb(103,136,151));using var fill=new SolidBrush(Color.FromArgb(21,40,55));
+            if(radio){g.FillEllipse(fill,futureBox);g.DrawEllipse(edge,futureBox);if(selected){using var b=new SolidBrush(FutureAccent);g.FillEllipse(b,futureBox.X+4,futureBox.Y+4,6,6);}}
+            else {FutureArt.Panel(g,futureBox,selected?FutureAccent:Color.FromArgb(21,40,55),edge.Color,3);if(selected){using var p=new Pen(Color.FromArgb(8,38,40),1.8f);g.DrawLines(p,new PointF[]{new(futureBox.X+3,futureBox.Y+7),new(futureBox.X+6,futureBox.Y+10),new(futureBox.X+11,futureBox.Y+4)});}}
             Mnemonic(g,label,new(r.X+23,r.Y,r.Width-23,r.Height),enabled?FutureArt.Ink:FutureArt.Muted);g.Restore(saved);return;
         }
         var box=new RectangleF(r.X,MathF.Round(r.Y+(r.Height-13)/2),13,13);

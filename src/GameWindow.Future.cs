@@ -10,28 +10,50 @@ public sealed partial class GameWindow
     private string? futureMessage;
     private double futureMessageUntil;
     private FutureArt Orbit=>art.Future;
+    private RectangleF OrbitLogoButton=>new(0,0,36,36);
+    private double? orbitLogoAnimationStart;
+    private bool OrbitLogoAnimating=>skin!=null && skin.Future && OrbitMotionEnabled && windowActive && editionMorph==null && dialog==DialogPage.None && !showingVictory && (menu>=0 || OrbitLogoButton.Contains(mouse));
+    private void PaintOrbitLogoButton(Graphics g)
+    {
+        var r=OrbitLogoButton;bool usable=dialog==DialogPage.None && !showingVictory;
+        bool active=usable && (r.Contains(mouse) || menu>=0),pressed=usable && (pressedHotspot=="future-menu" || menu>=0);
+        var buttonState=g.Save();using var window=skin.WindowShape(new(0,0,WorldWidth,WorldHeight),maximized);g.SetClip(window,CombineMode.Intersect);
+        Skin.Fill(g,pressed?Color.FromArgb(22,65,74):active?Color.FromArgb(28,55,70):Color.FromArgb(20,37,51),r);
+        Color edge=active?Orbit.Accent:Color.FromArgb(83,126,144);
+        Skin.Line(g,edge,r.Right-.5f,r.Top,r.Right-.5f,r.Bottom-.5f);Skin.Line(g,edge,r.Left,r.Bottom-.5f,r.Right-.5f,r.Bottom-.5f);
+        g.Restore(buttonState);
+        var saved=g.Save();g.TranslateTransform(r.X+r.Width/2,r.Y+r.Height/2);
+        float angle=orbitLogoAnimationStart is {} start?(float)((MotionNow-start)*55%360):0;
+        g.RotateTransform(angle);FutureArt.OrbitMark(g,new(-10,-10,20,20),usable?Orbit.Accent:FutureArt.Muted);
+        if(active)
+        {
+            using var dot=new SolidBrush(Orbit.Accent);g.FillEllipse(dot,8,-2,3,3);
+        }
+        g.Restore(saved);
+        if(dialog==DialogPage.None)hotspots.Add(new("future-menu",r,()=>{menu=menu>=0?-1:0;menuFocus=-1;ScheduleFrames();Invalidate();},usable,"Game menu",AccessibleRole.ButtonMenu,menu>=0));
+    }
     private void PaintFutureGame(Graphics g)
     {
         hotspots.Clear();cardAreas.Clear();skin.Configure(g);g.SmoothingMode=SmoothingMode.AntiAlias;g.TextRenderingHint=TextRenderingHint.AntiAliasGridFit;
         // Clear the exposed surface before alpha edges are drawn; repeated
         // paints must not accumulate the antialiased window outline.
         g.CompositingMode=CompositingMode.SourceCopy;Skin.Fill(g,Color.Transparent,new(0,0,WorldWidth,WorldHeight));g.CompositingMode=CompositingMode.SourceOver;
-        art.RenderScale=ScaleFactor;Orbit.Palette=Preferences.FuturePalette;EnsureLayout();
+        art.RenderScale=ScaleFactor;Orbit.Palette=Preferences.FuturePalette;skin.FutureAccent=Orbit.Accent;EnsureLayout();
         var buttons=skin.Frame(g,new(0,0,WorldWidth,WorldHeight),"SOLITUDE     /     2126",active:windowActive,pointer:dialog==DialogPage.None?mouse:null,down:pressedHotspot!=null,maximized:maximized);
         Orbit.DrawScene(g,new(1,WindowHeader,WorldWidth-2,WorldHeight-WindowHeader-1),ScaleFactor,maximized);
         if(dialog==DialogPage.None)
         {
             Add("minimize",buttons[0],()=>WindowState=FormWindowState.Minimized);Add("maximize",buttons[1],ToggleMaximize);Add("close",buttons[2],Close);
-            Add("system",skin.CaptionLayout(new(0,0,WorldWidth,WorldHeight)).Icon,()=>{menu=2;menuFocus=-1;Invalidate();});
         }
+        PaintOrbitLogoButton(g);
         float left=Table.Left+TableMargin;
-        Orbit.Text(g,"O R B I T",new(left,WindowHeader+12,245,40),29,FutureArt.Ink);
-        Orbit.Text(g,"THE OBSERVATORY  /  KLONDIKE",new(left+2,WindowHeader+50,310,17),9,FutureArt.Muted);
+        Orbit.Text(g,"O R B I T",new(left,WindowHeader+4+8*OrbitRoom,245,34+6*OrbitRoom),25+4*OrbitRoom,FutureArt.Ink);
         float right=WorldWidth-TableMargin;
-        FutureControl(g,"settings",new(right-104,WindowHeader+22,104,32),"Settings",()=>OpenDialog(DialogPage.Settings));
-        FutureControl(g,"future-experience",new(right-226,WindowHeader+22,110,32),"Experience",()=>OpenDialog(DialogPage.Options));
-        Orbit.Text(g,"SCORE",new(right-332,WindowHeader+17,86,15),9,FutureArt.Muted,true);
-        Orbit.Text(g,Game.Rules.Scoring==Scoring.None?"—":Game.State.Score.ToString(),new(right-332,WindowHeader+31,86,28),22,FutureArt.Ink,true);
+        float controlsY=WindowHeader+6+16*OrbitRoom;
+        FutureControl(g,"settings",new(right-104,controlsY,104,32),"Settings",()=>OpenDialog(DialogPage.Settings));
+        FutureControl(g,"future-experience",new(right-226,controlsY,110,32),"Experience",()=>OpenDialog(DialogPage.Options));
+        Orbit.Text(g,"SCORE",new(right-332,controlsY-5,86,15),9,FutureArt.Muted,true);
+        Orbit.Text(g,Game.Rules.Scoring==Scoring.None?"—":Game.State.Score.ToString(),new(right-332,controlsY+9,86,28),22,FutureArt.Ink,true);
         Skin.Line(g,Color.FromArgb(36,64,82),left,Table.Top-2,right,Table.Top-2);
         PaintCachedTable(g);
         PaintFutureGuidance(g);
@@ -39,6 +61,7 @@ public sealed partial class GameWindow
         if(dragging && selection.HasValue)PaintDrag(g);
         PaintFutureEffects(g);
         PaintFutureDock(g);
+        PaintOrbitAccessibleFocus(g);
         if(showingVictory)PaintFutureVictory(g);
         if(menu>=0)PaintFutureMenu(g);
         if(dialog!=DialogPage.None)
@@ -46,17 +69,20 @@ public sealed partial class GameWindow
             Skin.Fill(g,Color.FromArgb(115,2,7,14),new(1,WindowHeader,WorldWidth-2,WorldHeight-WindowHeader-1));
             if(dialogHost==null)PaintDialog(g);else dialogHost.RefreshSurface();
         }
+        // Paint the rim last: scene/table caches use SourceCopy and would
+        // otherwise erase the inside half of the window's curved outline.
+        skin.FutureWindowOutline(g,new(0,0,WorldWidth,WorldHeight),ScaleFactor,maximized);
     }
     private void FutureControl(Graphics g,string id,RectangleF r,string label,Action action,bool primary=false,bool enabled=true)
     {
         bool usable=enabled && dialog==DialogPage.None && !showingVictory,hover=usable && r.Contains(mouse);
         if(primary)
         {
-            FutureArt.Panel(g,r,usable?(hover?Color.FromArgb(204,251,239):Orbit.Accent):Color.FromArgb(27,45,56),Color.Transparent,8);
-            Orbit.Text(g,label,r,12,usable?Color.FromArgb(7,33,39):FutureArt.Muted,true,FontStyle.Bold);
+            FutureArt.Panel(g,r,usable?(hover?ControlPaint.Light(Orbit.Accent):Orbit.Accent):Color.FromArgb(27,45,56),Color.Transparent,8);
+            skin.FutureButtonLabel(g,label,r,usable?Color.FromArgb(7,33,39):FutureArt.Muted,skin.Bold);
         }
         else skin.Button(g,r,label,hover,enabled:usable,pressed:pressedHotspot==id && hover);
-        if(dialog==DialogPage.None)Add(id,r,action,usable);
+        if(dialog==DialogPage.None){Add(id,r,action,usable);hotspots[^1]=hotspots[^1] with{Label=label};}
     }
     private void FutureBay(Graphics g,RectangleF r,int foundation=-1)
     {
@@ -73,6 +99,7 @@ public sealed partial class GameWindow
     }
     private void PaintFutureTable(Graphics g)
     {
+        if(showingVictory)return;
         var saved=g.Save();g.SetClip(Table,CombineMode.Intersect);
         var stock=StockRect;Orbit.Text(g,Game.State.Stock.Count>0?"DRAW  /  "+Game.State.Stock.Count:Game.CanRecycle?"RECYCLE":"STOCK EMPTY",new(stock.X,stock.Y-24,CardWidth+80,19),9,FutureArt.Muted);
         Orbit.Text(g,"FOUNDATIONS",new(TopCard(3).X,stock.Y-24,300,19),9,FutureArt.Muted);
@@ -96,20 +123,24 @@ public sealed partial class GameWindow
             var r=TopCard(col+3);var pile=Game.State.Foundations[col];var pos=new Position(PileKind.Foundation,col);FutureBay(g,r,col);
             if(!showingVictory && pile.Count>0)
             {
-                int index=pile.Count-1-(dragging && IsSelected(pos)?1:0);if(index>=0)DrawGameCard(g,pile[index],r);cardAreas.Add((pos,r));
+                int index=SettledTop(pile,pos);
+                if(index>=0)DrawGameCard(g,pile[index],r);cardAreas.Add((pos,r));
             }
             float progress=pile.Count/13f;Skin.Line(g,Color.FromArgb(43,63,77),r.X,r.Bottom+12,r.Right,r.Bottom+12);
             if(progress>0)Skin.Line(g,Orbit.Accent,r.X,r.Bottom+12,r.X+r.Width*progress,r.Bottom+12);
         }
         for(int col=0;col<7;col++)
         {
+            var columnClip=g.Save();g.SetClip(OrbitColumnViewport(col),CombineMode.Intersect);
             var pile=Game.State.Tableau[col];if(pile.Count==0 && !showingVictory)FutureBay(g,TableauCard(col,0));
             for(int i=0;i<pile.Count;i++)
             {
                 var pos=new Position(PileKind.Tableau,col,i);var r=TableauCard(col,i);
                 if(dragging && selection is {} selected && selected.Kind==PileKind.Tableau && selected.Pile==col && i>=Game.Index(selected))break;
-                DrawGameCard(g,pile[i],r);var hit=r;if(i<pile.Count-1)hit.Height=TableauCard(col,i+1).Y-r.Y;cardAreas.Add((pos,hit));
+                DrawGameCard(g,pile[i],r);var hit=r;if(i<pile.Count-1)hit.Height=TableauCard(col,i+1).Y-r.Y;
+                hit=RectangleF.Intersect(hit,OrbitColumnViewport(col));if(hit.Width>0 && hit.Height>0)cardAreas.Add((pos,hit));
             }
+            g.Restore(columnClip);
         }
         g.Restore(saved);
     }
@@ -148,18 +179,19 @@ public sealed partial class GameWindow
         FutureArt.Panel(g,new(WorldWidth/2-189,y-5,378,47),Color.FromArgb(220,15,29,43),Color.FromArgb(47,77,95),13);
         FutureControl(g,"future-undo",new(WorldWidth/2-181,y+1,96,34),"Undo",UndoMove,enabled:Game.CanUndo);
         FutureControl(g,"future-hint",new(WorldWidth/2-77,y+1,91,34),"Hint",ShowHint,enabled:!Game.State.Won);
-        FutureControl(g,"future-new",new(WorldWidth/2+22,y+1,159,34),"New deal",()=>RequestNew(),true);
+        if(CanFinish && !collecting && !showingVictory)
+            FutureControl(g,"future-finish",new(WorldWidth/2+22,y+1,159,34),"Complete the orbit",CollectCards,true);
+        else FutureControl(g,"future-new",new(WorldWidth/2+22,y+1,159,34),"New deal",()=>RequestNew(),true);
         int home=Game.State.Foundations.Sum(p=>p.Count);Orbit.Text(g,$"{home:00} / 52",new(left,y,136,24),18,Orbit.Accent);
-        Orbit.Text(g,"CARDS ALIGNED",new(left,y+24,150,17),8,FutureArt.Muted);
+        Orbit.Text(g,"CARDS ALIGNED",new(left,y+24,150,17),10,FutureArt.Muted);
         Orbit.Text(g,$"{Game.State.Elapsed/60:00}:{Game.State.Elapsed%60:00}",new(right-100,y,100,24),18,FutureArt.Ink,true);
-        Orbit.Text(g,$"{Game.State.Moves} MOVES",new(right-100,y+24,100,17),8,FutureArt.Muted,true);
-        if(CanFinish && !collecting && !showingVictory)FutureControl(g,"future-finish",new(WorldWidth/2-86,y-52,172,30),"Complete the orbit",CollectCards,true);
-        string? message=collecting?"Aligning the remaining cards…":futureMessage!=null && MotionNow<futureMessageUntil?futureMessage:hint.HasValue?"Follow the light.  H to hint · Ctrl+Z to undo":null;
-        if(message!=null)Orbit.Text(g,message,new(left,Table.Bottom-29,Table.Width-2*TableMargin,23),11,FutureArt.Ink,true);
+        Orbit.Text(g,$"{Game.State.Moves} MOVES",new(right-100,y+24,100,17),10,FutureArt.Muted,true);
+        string? message=collecting?"Aligning the remaining cards…":futureMessage!=null && MotionNow<futureMessageUntil?futureMessage:hint.HasValue?futureHintText:null;
+        if(message!=null)Orbit.Text(g,message,new(left,WorldHeight-22,WorldWidth-2*TableMargin,20),11,FutureArt.Ink,true);
     }
     private void FutureMoveFeedback()
     {
-        futureMessage=null;if(!Preferences.Animate || !Preferences.FutureAtmosphere)return;
+        futureMessage=null;if(futureActionSound=="SHARED_UNDO" || !OrbitMotionEnabled || !Preferences.FutureAtmosphere)return;
         var before=Game.History.LastOrDefault();if(before==null)return;
         for(int i=0;i<4;i++)if(Game.State.Foundations[i].Count>before.Foundations[i].Count)futurePulses.Add(new(i,MotionNow+.30));
         if(futurePulses.Count>12)futurePulses.RemoveRange(0,futurePulses.Count-12);
@@ -167,7 +199,7 @@ public sealed partial class GameWindow
     private void UpdateFutureEffects()=>futurePulses.RemoveAll(p=>MotionNow-p.Start>1.05 || !Preferences.Animate || !Preferences.FutureAtmosphere);
     private void PaintFutureEffects(Graphics g)
     {
-        if(!Preferences.Animate || !Preferences.FutureAtmosphere)return;
+        if(!OrbitMotionEnabled || !Preferences.FutureAtmosphere)return;
         foreach(var pulse in futurePulses)
         {
             if(MotionNow<pulse.Start)continue;
@@ -177,39 +209,9 @@ public sealed partial class GameWindow
             for(int i=0;i<8;i++){float a=i*MathF.Tau/8+t*.4f;using var b=new SolidBrush(Color.FromArgb((int)((1-t)*170),Orbit.Accent));g.FillEllipse(b,x+MathF.Cos(a)*radius-1,y+MathF.Sin(a)*radius-1,2,2);}
         }
     }
-    private void StartFutureVictory()
-    {
-        collecting=false;selection=null;futurePulses.Clear();victoryStart=MotionNow;PlayFutureSound("ORBIT_WIN");
-        if(!Preferences.Animate){OpenDialog(DialogPage.Won);return;}
-        showingVictory=true;ScheduleFrames();
-    }
-    private void PaintFutureVictory(Graphics g)
-    {
-        double elapsed=MotionNow-victoryStart;float t=(float)Math.Clamp(elapsed/2.3,0,1),ease=1-MathF.Pow(1-t,4);
-        float x=WorldWidth/2,y=Table.Top+Table.Height*.46f,radius=Math.Min(Table.Width*.3f,Table.Height*.4f);
-        FutureArt.Glow(g,new(x,y),radius*1.25f,Color.FromArgb(40,Orbit.Accent));
-        var points=new List<PointF>();
-        for(int i=0;i<52;i++)
-        {
-            var origin=TopCard(3+i%4);float a=i*MathF.Tau/52-.6f+(float)elapsed*.06f;
-            float ring=radius*(.8f+.15f*MathF.Sin(i*2.4f));
-            var end=new PointF(x+MathF.Cos(a)*ring,y+MathF.Sin(a)*ring*.68f);var start=new PointF(origin.X+origin.Width/2,origin.Y+origin.Height/2);
-            var point=new PointF(start.X+(end.X-start.X)*ease,start.Y+(end.Y-start.Y)*ease);points.Add(point);
-            FutureArt.Glow(g,point,8,Color.FromArgb(150,Orbit.Accent));using var b=new SolidBrush(Color.FromArgb(244,252,246));g.FillEllipse(b,point.X-1.4f,point.Y-1.4f,2.8f,2.8f);
-        }
-        if(t>.35)
-        {
-            using var p=new Pen(Color.FromArgb((int)(55*ease),Orbit.Accent),.7f);
-            for(int i=0;i<52;i++)g.DrawLine(p,points[i],points[(i+13)%52]);
-        }
-        int alpha=(int)(255*Math.Clamp((elapsed-.75)/1.2,0,1));
-        Orbit.Text(g,"ALL IN ALIGNMENT",new(x-radius,y-23,radius*2,34),22,Color.FromArgb(alpha,FutureArt.Ink),true);
-        Orbit.Text(g,"52 cards. One perfect orbit.",new(x-radius,y+14,radius*2,25),12,Color.FromArgb(alpha,Orbit.Accent),true);
-        Orbit.Text(g,"Click anywhere to continue",new(x-180,Table.Bottom-37,360,22),10,FutureArt.Muted,true);
-    }
     private void PaintFutureMenu(Graphics g)
     {
-        var entries=PeriodMenu();float width=288,x=TableMargin,y=WindowHeader+3;
+        var entries=PeriodMenu();float width=288,x=OrbitLogoButton.Left,y=WindowHeader+4;
         FutureArt.Panel(g,new(x,y,width,entries.Sum(e=>e.Action==null?10:31)+12),Color.FromArgb(19,33,47),Color.FromArgb(65,91,110),9);float rowY=y+6;int index=0;
         foreach(var entry in entries)
         {
@@ -219,6 +221,7 @@ public sealed partial class GameWindow
             skin.Mnemonic(g,entry.Label,new(r.X+10,r.Y,r.Width-68,r.Height),entry.Enabled?FutureArt.Ink:FutureArt.Muted);
             Orbit.Text(g,entry.Key,new(r.Right-63,r.Y,57,r.Height),9,FutureArt.Muted,true);
             Add("menu-item-"+index,r,entry.Action,entry.Enabled);if(entry.Enabled)index++;rowY+=31;
+            hotspots[^1]=hotspots[^1] with{Label=entry.Label.Replace("&",""),Role=AccessibleRole.MenuItem};
         }
     }
 }

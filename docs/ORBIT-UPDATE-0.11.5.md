@@ -1,0 +1,9 @@
+# ORBIT update — 0.11.5
+
+The separate Game button below the heading has been removed. The top-left logo is now an outlined, filled button that opens the Game menu directly beneath it. Hovering or opening the menu rotates the orbital mark and lights the button. Clicking again closes the menu. Leaving it idle stops animation scheduling. Reduced motion retains the visual hover/open state without rotation. Alt+G opens the Game menu; Alt+Space retains the window menu. The accessible button is named Game menu and stays available while the menu is open.
+
+Leaving ORBIT now mirrors the entering transition: the window smoothly changes to the centered historical size, the reveal sweeps in reverse, and the orbital arcs contract. The departing palette and ORBIT motion preference apply throughout, even when the historical destination disables its own card animation. Suspended games remain intact. Escape or focus loss settles the transition; reduced motion skips it.
+
+In ORBIT, double-click first tries the selected card's foundation. If that is unavailable, it moves the card and any valid attached sequence to a legal tableau column. Occupied columns take priority, then the leftmost legal target. A complete King-led column is not shuffled to an empty column without progress. One double-click performs one move, with normal Undo and automatic exposed-card flipping; it does not collect unrelated cards. Historical editions keep their existing behavior.
+
+The full offscreen suite passed **21,682 checks**. Focused runs passed 56 logo-menu checks, 98 auto-placement checks and 1,260 transition checks. All 18 source/package ORBIT renders match. Logo hover/open and transition frames were inspected. Physical monitor animation has not been verified in this release. Package details and evidence are in [Verification](VERIFICATION.md).

@@ -32,8 +32,20 @@ internal static partial class UiProgram
     private static int Main(string[] args)
     {
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+        if(args.Length==2 && args[0]=="--instance-probe"){using var lease=SingleInstanceLease.TryAcquire(args[1]);return lease!=null?10:11;}
         try
         {
+            if(args.Contains("--program-fixes-only")){CheckProgramFixes();Console.WriteLine($"{checks} program audit regression checks passed.");return 0;}
+            if(args.Contains("--orbit-motion-profile")){ProfileOrbitVictory();return 0;}
+            if(args.Contains("--orbit-cards-only")){CheckOrbitCardMotion();Console.WriteLine($"{checks} ORBIT card motion checks passed without showing windows.");return 0;}
+            if(args.Contains("--orbit-native-only")){CheckOrbitNativeEndgame();Console.WriteLine($"{checks} native endgame checks passed.");return 0;}
+            if(args.Contains("--orbit-polish-only")){CheckOrbitPolish();Console.WriteLine($"{checks} ORBIT polish checks passed.");return 0;}
+            if(args.Contains("--orbit-logo-only")){CheckOrbitLogoMenu();Console.WriteLine($"{checks} ORBIT logo checks passed.");return 0;}
+            if(args.Contains("--orbit-auto-place-only")){CheckOrbitAutoPlacement();Console.WriteLine($"{checks} ORBIT auto-placement checks passed.");return 0;}
+            if(args.Contains("--edition-morph-only")){CheckEditionMorph();Console.WriteLine($"{checks} edition morph checks passed.");return 0;}
+            if(args.Contains("--orbit-placement-only")){CheckOrbitStartupPlacement();Console.WriteLine($"{checks} ORBIT startup placement checks passed.");return 0;}
+            if(args.Contains("--clock-only")){CheckGameClock();Console.WriteLine($"{checks} game clock checks passed.");return 0;}
+            if(args.Contains("--orbit-audit-only")){CheckOrbitAuditFixes();Console.WriteLine($"{checks} ORBIT audit regression checks passed.");return 0;}
             if(args.Contains("--future-only")){CheckFutureEdition();Console.WriteLine($"{checks} ORBIT checks passed without showing windows.");return 0;}
             if(args.Contains("--render-audit-only")){CheckAnimationContinuity();Console.WriteLine($"{checks} animation audit checks passed, without showing windows.");return 0;}
             if(args.Contains("--input-audit-only")){CheckImmediateInput();Console.WriteLine($"{checks} immediate-input checks passed, without showing windows.");return 0;}
@@ -92,7 +104,7 @@ internal static partial class UiProgram
                 Call(form,"ToggleMaximize");Check(!(bool)Field(form,"maximized")!,"Restore failed");
                 Console.WriteLine("PASS "+era+" frame, typography, inactive state, input, era switch, dialog drag, maximize/restore");
             }
-            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();CheckFutureEdition();
+            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();CheckFutureEdition();CheckProgramFixes();
             Console.WriteLine($"{checks} UI checks passed. No windows were shown and no desktop input was sent.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine(ex);return 1;}

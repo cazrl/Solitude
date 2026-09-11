@@ -1,0 +1,15 @@
+{
+  "version": "0.11.8.0",
+  "bytes": 63710565,
+  "sha256": "C2D09B89F40C765AD5ECF76A5C31E9D7E2F0C9C1E20BEEC40C14C92E81952B36",
+  "exe": "dist/Solitude.exe",
+  "retained": "artifacts/release-v0118/Solitude.exe",
+  "previousExe": "artifacts/Solitude-before-v0118-20260911-134106.exe",
+  "engineGroups": 53,
+  "uiChecks": 25979,
+  "nativeChecks": 384,
+  "newRegressionChecks": 1295,
+  "matchingImages": 290,
+  "runtime": "10.0.11",
+  "personalSaveUnchanged": true
+}

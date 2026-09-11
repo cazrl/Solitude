@@ -31,7 +31,7 @@ public sealed partial class GameWindow
             {
                 int page=i+1;var link=new RectangleF(tx,ty+42+i*36,tw,27);skin.Text(g,links[i],link,Color.FromArgb(0,128,0));
                 Skin.Line(g,Color.FromArgb(0,128,0),link.X,link.Bottom-4,link.X+skin.Measure(g,links[i]),link.Bottom-4);
-                Add("dialog-topic-"+page,link,()=>{helpPage=page;Invalidate();});dialogControl++;
+                Add("dialog-topic-"+page,link,()=>{helpPage=page;Invalidate();});hotspots[^1]=hotspots[^1] with{Label=links[i],Role=AccessibleRole.Link};dialogControl++;
             }
         }
         else if(helpPage==3)
@@ -42,7 +42,7 @@ public sealed partial class GameWindow
             int row=0;foreach(var entry in HelpEntries.Where(e=>e.Text.Contains(helpKeyword,StringComparison.OrdinalIgnoreCase)))
             {
                 var item=entry;var r=new RectangleF(tx,ty+88+row++*19,tw,19);skin.Text(g,item.Text,r,Color.FromArgb(0,128,0));
-                Add("dialog-index-"+row,r,()=>{helpPage=item.Page;Invalidate();});dialogControl++;
+                Add("dialog-index-"+row,r,()=>{helpPage=item.Page;Invalidate();});hotspots[^1]=hotspots[^1] with{Label=item.Text,Role=AccessibleRole.Link};dialogControl++;
             }
             if(row==0)skin.Text(g,"No matching topics.",new(tx,ty+94,tw,24));
         }

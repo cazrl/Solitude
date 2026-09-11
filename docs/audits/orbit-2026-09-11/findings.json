@@ -1,0 +1,194 @@
+{
+  "long-column": [
+    {
+      "Width": 800,
+      "Height": 540,
+      "faceUpStripPixels": 3.8311164,
+      "rankFontPixels": 12.792938
+    },
+    {
+      "Width": 1120,
+      "Height": 720,
+      "faceUpStripPixels": 12.915441,
+      "rankFontPixels": 17.922937
+    }
+  ],
+  "shared-options-active-rule-mismatch": {
+    "returned": {
+      "preference": 1,
+      "active": 3,
+      "Seed": 1989
+    },
+    "applied": {
+      "preference": 1,
+      "active": 3,
+      "sameDeal": true
+    },
+    "reselectActualRuleResetsDeal": true,
+    "movesAfterReselect": 0
+  },
+  "undo-arrival-wave": {
+    "foundationCards": 0,
+    "waves": 1
+  },
+  "complete-button-can-stall": {
+    "valid52CardFixture": true,
+    "offered": true,
+    "Moves": 0,
+    "collecting": false,
+    "Won": false
+  },
+  "hint-cycles": {
+    "seeds": 40,
+    "wins": 0,
+    "noMove": 0,
+    "cycleCount": 40,
+    "examples": [
+      {
+        "seed": 1,
+        "at": 28,
+        "step": 34,
+        "cycle": [
+          "Turn the waste over to use the stock again.",
+          "Draw from the stock.",
+          "Draw from the stock.",
+          "Draw from the stock.",
+          "Draw from the stock.",
+          "Draw from the stock."
+        ]
+      },
+      {
+        "seed": 2,
+        "at": 41,
+        "step": 43,
+        "cycle": [
+          "Move the 3 of Hearts to column 3.",
+          "Move the 3 of Hearts to column 6."
+        ]
+      },
+      {
+        "seed": 3,
+        "at": 22,
+        "step": 24,
+        "cycle": [
+          "Move the 7 of Hearts to column 6.",
+          "Move the 7 of Hearts to column 5."
+        ]
+      }
+    ]
+  },
+  "accessibility-tree": {
+    "nativeControls": 0,
+    "accessibleChildren": -1,
+    "AccessibleName": "Solitude Solitaire",
+    "drawnHotspots": 9
+  },
+  "palette-hit-target": [
+    {
+      "Location": {
+        "IsEmpty": false,
+        "X": 336,
+        "Y": 374
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 132.66667,
+        "Height": 26
+      },
+      "X": 336,
+      "Y": 374,
+      "Width": 132.66667,
+      "Height": 26,
+      "Left": 336,
+      "Top": 374,
+      "Right": 468.6667,
+      "Bottom": 400,
+      "IsEmpty": false
+    },
+    {
+      "Location": {
+        "IsEmpty": false,
+        "X": 496.6667,
+        "Y": 374
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 132.66667,
+        "Height": 26
+      },
+      "X": 496.6667,
+      "Y": 374,
+      "Width": 132.66667,
+      "Height": 26,
+      "Left": 496.6667,
+      "Top": 374,
+      "Right": 629.3334,
+      "Bottom": 400,
+      "IsEmpty": false
+    },
+    {
+      "Location": {
+        "IsEmpty": false,
+        "X": 657.3334,
+        "Y": 374
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 132.66667,
+        "Height": 26
+      },
+      "X": 657.3334,
+      "Y": 374,
+      "Width": 132.66667,
+      "Height": 26,
+      "Left": 657.3334,
+      "Top": 374,
+      "Right": 790.00006,
+      "Bottom": 400,
+      "IsEmpty": false
+    }
+  ],
+  "minimum-window-and-screen": {
+    "logicalMinimum": {
+      "IsEmpty": false,
+      "Width": 800,
+      "Height": 540
+    },
+    "at200Percent": {
+      "IsEmpty": false,
+      "Width": 1600,
+      "Height": 1080
+    },
+    "currentScreen": {
+      "Location": {
+        "IsEmpty": true,
+        "X": 0,
+        "Y": 0
+      },
+      "Size": {
+        "IsEmpty": false,
+        "Width": 2560,
+        "Height": 1392
+      },
+      "X": 0,
+      "Y": 0,
+      "Width": 2560,
+      "Height": 1392,
+      "Left": 0,
+      "Top": 0,
+      "Right": 2560,
+      "Bottom": 1392,
+      "IsEmpty": false
+    }
+  },
+  "keyboard-stock-selection": {
+    "chosen": true,
+    "selectionSurvivesStockDraw": false
+  },
+  "long-history-snapshot": {
+    "history": 5000,
+    "uiThreadCloneMs": 24.2918,
+    "cloneAllocatedBytes": 14237648,
+    "jsonBytes": 10087875
+  }
+}

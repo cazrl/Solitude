@@ -19,6 +19,7 @@ public sealed partial class GameWindow
     }
     private void PaintScaledFrame(Graphics target)
     {
+        if(editionMorph!=null){PaintEditionMorph(target);return;}
         if(skin.DeviceText)
         {
             var state=target.Save();target.ScaleTransform(ScaleFactor,ScaleFactor);PaintGame(target);target.Restore(state);return;
@@ -92,6 +93,7 @@ public sealed partial class GameWindow
         if(victoryTrail!=null && (showingVictory || dialog==DialogPage.Won))g.DrawImageUnscaled(victoryTrail,0,0);
         if(dragging && selection.HasValue)PaintDrag(g);
         PaintVistaTip(g);
+        PaintOrbitAccessibleFocus(g);
         if(menu>=0)PaintMenu(g);
         if(dialog!=DialogPage.None){if(dialogHost==null)PaintDialog(g);else dialogHost.RefreshSurface();}
     }
@@ -134,10 +136,10 @@ public sealed partial class GameWindow
         for(int i=0;i<4;i++)
         {
             var r=TopCard(i+3);var pile=Game.State.Foundations[i];var pos=new Position(PileKind.Foundation,i);
-            if(pile.Count==0 || (skin.Modern && victoryTrail!=null && (showingVictory || dialog==DialogPage.Won)) || (dragging && IsSelected(pos) && pile.Count==1))Empty(g,r,true);
+            int index=SettledTop(pile,pos);
+            if(index<0 || (skin.Modern && victoryTrail!=null && (showingVictory || dialog==DialogPage.Won)))Empty(g,r,true);
             else
             {
-                int index=pile.Count-1-(dragging && IsSelected(pos)?1:0);
                 DrawGameCard(g,pile[index],r);
                 cardAreas.Add((pos,r));
             }
@@ -246,7 +248,9 @@ public sealed partial class GameWindow
             var labelRect=new RectangleF(item.X+labelInset,item.Y,item.Width-labelInset-shortcutWidth-28,item.Height);
             skin.Mnemonic(g,entry.Label,labelRect,color);
             skin.Text(g,entry.Key,new(item.Right-shortcutWidth-8,item.Y,shortcutWidth,item.Height),color);
-            Add("menu-item-"+y,item,entry.Action,entry.Enabled);if(entry.Enabled)activeIndex++;y+=22;
+            Add("menu-item-"+y,item,entry.Action,entry.Enabled);
+            hotspots[^1]=hotspots[^1] with{Label=entry.Label.Replace("&",""),Role=AccessibleRole.MenuItem};
+            if(entry.Enabled)activeIndex++;y+=22;
         }
     }
     public void RenderTo(string path,DialogPage page=DialogPage.None,int openMenu=-1,bool inactive=false,bool maximize=false)

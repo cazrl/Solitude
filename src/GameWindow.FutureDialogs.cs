@@ -18,7 +18,7 @@ public sealed partial class GameWindow
     private void ApplyFuturePalette()
     {
         if(futureOptionsParent!=null){futureOptionsParent.FuturePalette=draft!.FuturePalette;CloseDialog();return;}
-        Preferences.FuturePalette=draft!.FuturePalette;shared.Capture(Preferences);CloseDialog();Save();Invalidate();
+        Preferences.FuturePalette=draft!.FuturePalette;shared.Capture(Preferences);CloseDialog();QueueSaveNow();Invalidate();
     }
     private void PaintFutureDialog(Graphics g)
     {
@@ -39,8 +39,14 @@ public sealed partial class GameWindow
             Check(g,"animations",new(x,y+123,w,30),"Spatial card &motion",draft.Animate,()=>{draft.Animate=!draft.Animate;Invalidate();});
             Orbit.Text(g,"Switch off for instant, reduced-motion play.",new(x+23,y+154,w-23,19),10,FutureArt.Muted);
             Check(g,"future-lights",new(x,y+188,w,30),"Light trails and docking &waves",draft.FutureAtmosphere,()=>{draft.FutureAtmosphere=!draft.FutureAtmosphere;Invalidate();});
-            Check(g,"sound",new(x,y+230,w,30),"Synthesized &sound",draft.Sound,()=>{draft.Sound=!draft.Sound;Invalidate();});
-            Orbit.Text(g,"Auto-save is on. Changing draw or scoring starts a new deal.",new(x,y+278,w,21),10,FutureArt.Muted);
+            Check(g,"sound",new(x,y+230,215,30),"Synthesized &sound",draft.Sound,()=>{draft.Sound=!draft.Sound;Invalidate();});
+            Orbit.Text(g,$"Volume {draft.FutureVolume}%",new(x+218,y+232,128,26),12,FutureArt.Ink);
+            DialogButton(g,"volume-down",new(x+w-80,y+230,34,30),"−",()=>{draft.FutureVolume=Math.Max(0,draft.FutureVolume-10);Invalidate();});
+            DialogButton(g,"volume-up",new(x+w-38,y+230,34,30),"+",()=>{draft.FutureVolume=Math.Min(100,draft.FutureVolume+10);Invalidate();});
+            Orbit.Text(g,"Current deal rules above. Changing them starts a new deal.",new(x,y+278,w,21),11,FutureArt.Muted);
+            if(Preferences.Rules.DrawCount!=Game.Rules.DrawCount || Preferences.Rules.Scoring!=Game.Rules.Scoring)
+                DialogButton(g,"shared-rules",new(x,y+307,w,27),$"Use shared next-deal rules: draw {Preferences.Rules.DrawCount}, {Preferences.Rules.Scoring}",()=>{draft.Rules=Preferences.Rules.Clone();Invalidate();});
+            else Orbit.Text(g,"Rules are shared across compatible editions. Auto-save is on.",new(x,y+307,w,23),11,FutureArt.Muted);
             DialogButton(g,"ok",new(x+w-190,bottom-48,90,31),"Apply",()=>{GameCatalog.ApplyPeriodPresentation(draft!);ApplyOptions();if(!Preferences.Animate){StopCardMotion();futurePulses.Clear();}ScheduleFrames();},true);
             DialogButton(g,"cancel",new(x+w-90,bottom-48,90,31),"Cancel",CloseDialog);
             DialogButton(g,"appearance",new(x,bottom-48,118,31),"Atmosphere…",OpenFutureAtmosphere);
@@ -55,6 +61,8 @@ public sealed partial class GameWindow
                 FutureArt.Panel(g,r,Color.FromArgb(9,22,34),draft!.FuturePalette==i?colors[i]:Color.FromArgb(55,74,92),9);
                 FutureArt.Glow(g,new(r.X+r.Width/2,r.Y+40),39,Color.FromArgb(95,colors[i]));FutureArt.OrbitMark(g,new(r.X+r.Width/2-18,r.Y+14,36,36),colors[i]);
                 Check(g,"futurepalette"+i,new(r.X+11,r.Bottom-32,r.Width-16,26),names[i],draft.FuturePalette==i,()=>{draft.FuturePalette=choice;Invalidate();},true);
+                var tile=hotspots[^1];hotspots[^1]=tile with{Bounds=r};
+                if(keyboardFocus==dialogControl-1){using var focus=new Pen(Color.White,2);g.DrawRectangle(focus,r.X+2,r.Y+2,r.Width-4,r.Height-4);}
             }
             DialogButton(g,"ok",new(x+w-190,bottom-47,90,31),"Apply",ApplyFuturePalette,true);
             DialogButton(g,"cancel",new(x+w-90,bottom-47,90,31),"Cancel",CloseDialog);
@@ -64,6 +72,7 @@ public sealed partial class GameWindow
             FutureArt.OrbitMark(g,new(x+w/2-27,y,54,54),Orbit.Accent);
             Orbit.Text(g,"All in alignment.",new(x,y+65,w,39),28,FutureArt.Ink,true);
             Orbit.Text(g,$"{Game.State.Moves} moves   /   {Game.State.Elapsed/60:00}:{Game.State.Elapsed%60:00}   /   Score {Game.State.Score}",new(x,y+112,w,24),13,Orbit.Accent,true);
+            dialogReadText.Add(($"Game won. {Game.State.Moves} moves. {Game.State.Elapsed} seconds. Score {Game.State.Score}.",new(x,y+65,w,71)));
             Orbit.Text(g,"A small moment of order in an infinite universe.",new(x,y+151,w,23),11,FutureArt.Muted,true);
             DialogButton(g,"ok",new(x+w/2-141,bottom-49,160,32),"Another orbit",()=>NewGame(),true);
             DialogButton(g,"cancel",new(x+w/2+31,bottom-49,110,32),"Stay here",CloseDialog);
@@ -71,25 +80,28 @@ public sealed partial class GameWindow
         else if(dialog==DialogPage.Help)
         {
             Orbit.Text(g,"A familiar game. A different horizon.",new(x,y,w,33),20);
-            string[] lines=["Build descending columns in alternating red and black suits.","Move Aces home, then build each foundation up to King.","Only Kings may enter empty columns. Draw from the left stack.","Drag cards, or select a card and click its destination.","Double-click sends just that card home. Right-click collects.","H: hint   ·   Ctrl+Z: undo   ·   F2: new deal   ·   F6: editions"];
+            string[] lines=["Build descending columns in alternating red and black suits.","Move Aces home, then build each foundation up to King.","Only Kings may enter empty columns. Draw from the left stack.","Drag or click to move. Every column fits without scrolling.","Double-click auto-places. Right-click collects safely.","H: next hint   ·   Ctrl+Z: undo   ·   F2: new   ·   F6: editions"];
             for(int i=0;i<lines.Length;i++)Orbit.Text(g,lines[i],new(x,y+48+i*25,w,23),12,i==5?Orbit.Accent:FutureArt.Ink);
+            dialogReadText.Add((string.Join("\n",lines),new(x,y+48,w,148)));
             Orbit.Text(g,"Automatic flips. Full-session Undo. A saved place in every era.",new(x,y+212,w,23),10,FutureArt.Muted);
             DialogButton(g,"ok",new(x+w-100,bottom-45,100,30),"Ready",CloseDialog,true);
         }
         else
         {
             FutureArt.OrbitMark(g,new(x,y+4,48,48),Orbit.Accent);Orbit.Text(g,"ORBIT / 2126",new(x+65,y,w-65,36),25);
-            skin.Wrapped(g,"Solitude, imagined one century from now.\n\nOriginal geometric cards, spatial choreography and synthesized sound. The rules remain Klondike.\n\nPart of Solitude 0.10.1.",new(x,y+73,w,156));
+            Wrapped(g,"Solitude, imagined one century from now.\n\nOriginal geometric cards, spatial choreography and synthesized sound. The rules remain Klondike.\n\nPart of Solitude 0.11.8.",new(x,y+73,w,156));
             DialogButton(g,"ok",new(x+w-100,bottom-45,100,30),"Continue",CloseDialog,true);
         }
     }
     private void PlayFutureSound(string name)
     {
-        if(!skin.Future || !Preferences.Sound)return;
+        if(!skin.Future || !Preferences.Sound || Preferences.FutureVolume==0)return;
         string key="orbit/"+name;lastPeriodSound=key;if(ephemeral)return;
+        key+="/"+Preferences.FutureVolume;
+        if(vistaSounds.Count>60){foreach(var old in vistaSounds.Values){old.Stop();old.Stream?.Dispose();old.Dispose();}vistaSounds.Clear();}
         if(!vistaSounds.TryGetValue(key,out var player))
         {
-            double frequency=name switch{"SHARED_LIFTOFF"=>390,"SHARED_MOVETOHOME"=>784,"SHARED_UNDO"=>330,"SHARED_HINTSHOWN"=>587,"SHARED_HINTNOMOVE"=>220,"ORBIT_WIN"=>523.25,_=>440};
+            double frequency=name switch{"SHARED_LIFTOFF"=>390,"SHARED_CARDDEAL"=>466,"SHARED_MOVETOHOME"=>784,"SHARED_UNDO"=>330,"SHARED_HINTSHOWN"=>587,"SHARED_HINTNOMOVE"=>220,"ORBIT_WIN"=>523.25,_=>440};
             bool win=name=="ORBIT_WIN";double duration=win?1.3:.19;const int rate=22050;int count=(int)(rate*duration);
             var stream=new MemoryStream(44+count*2);using(var writer=new BinaryWriter(stream,System.Text.Encoding.ASCII,true))
             {
@@ -98,7 +110,7 @@ public sealed partial class GameWindow
                 {
                     double t=(double)i/rate,envelope=Math.Min(1,t/.012)*Math.Pow(1-t/duration,2.4),wave=Math.Sin(t*frequency*Math.Tau)+.24*Math.Sin(t*frequency*2*Math.Tau);
                     if(win)wave+=.5*Math.Sin(t*frequency*1.25*Math.Tau)+.38*Math.Sin(t*frequency*1.5*Math.Tau);
-                    writer.Write((short)(wave*envelope*2700));
+                    writer.Write((short)(wave*envelope*2700*Preferences.FutureVolume/100.0));
                 }
             }
             stream.Position=0;vistaSounds[key]=player=new SoundPlayer(stream);

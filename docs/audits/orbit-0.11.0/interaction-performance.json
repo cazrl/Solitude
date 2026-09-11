@@ -1,0 +1,29 @@
+[
+  {
+    "scale": 100,
+    "coldPaintMs": 123.5744,
+    "palettePaintMs": 31.0463,
+    "stockMoveMedianMs": 3.4783,
+    "stockMoveP95Ms": 6.3674,
+    "winMedianMs": 5.4237,
+    "winP95Ms": 6.7588
+  },
+  {
+    "scale": 150,
+    "coldPaintMs": 70.7528,
+    "palettePaintMs": 46.141,
+    "stockMoveMedianMs": 6.3416,
+    "stockMoveP95Ms": 8.92,
+    "winMedianMs": 10.4304,
+    "winP95Ms": 12.3481
+  },
+  {
+    "scale": 200,
+    "coldPaintMs": 93.3996,
+    "palettePaintMs": 81.0661,
+    "stockMoveMedianMs": 10.736,
+    "stockMoveP95Ms": 13.8523,
+    "winMedianMs": 16.1417,
+    "winP95Ms": 17.9492
+  }
+]

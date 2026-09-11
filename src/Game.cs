@@ -241,7 +241,7 @@ public sealed partial class Game
         if (!CanUndo) return false;
         if (Rules.Kind == GameKind.Spider) return UndoSpider();
         int elapsed = State.Elapsed;
-        State = History[^1]; History.RemoveAt(History.Count - 1);
+        State = History[^1].Clone(); History.RemoveAt(History.Count - 1);
         int extraPenalties = elapsed / 10 - State.Elapsed / 10;
         State.Elapsed = elapsed; State.Started = true; Score(-2 - (Rules.Timed ? extraPenalties * 2 : 0)); return true;
     }

@@ -11,8 +11,9 @@ public sealed partial class GameWindow
     private string? lastPeriodSound;
     private void UndoMove()
     {
-        collecting=false;CancelDrag();bool changed=Game.Undo();Changed(changed);
-        if(changed)PlayVistaSound("SHARED_UNDO");
+        collecting=false;CancelDrag();futurePulses.Clear();futureActionSound="SHARED_UNDO";
+        bool changed=Game.Undo();Changed(changed);futureActionSound=null;
+        if(changed && !skin.Future)PlayVistaSound("SHARED_UNDO");
     }
     private void SystemWindowCommand(int command)
     {
@@ -118,10 +119,11 @@ public sealed partial class GameWindow
             else
             {
                 Item("&New Game","F2",()=>RequestNew());if(Kind==GameKind.FreeCell)Item("&Select Game...","F3",()=>OpenDialog(DialogPage.SelectGame));
-                Item("&Restart Game","",()=>RequestNew(true),Game.State.Started);
+                Item("&Restart Game",skin.Future?"Ctrl+R":"",()=>RequestNew(true),Game.State.Started);
                 Item("&Undo","Ctrl+Z",Undo,Game.CanUndo);Item("&Hint","H",()=>{menu=-1;ShowHint();},!Game.State.Won);Sep();
                 Item("S&tatistics...","F4",()=>OpenDialog(DialogPage.Statistics));Item("&Options...","F5",()=>OpenDialog(DialogPage.Options));
                 Item("Change &Appearance...","F7",()=>OpenDialog(DialogPage.Deck));Sep();
+                if(skin.Future){Item("Flight &manual","F1",()=>OpenHelp(0));Sep();}
             }
             Item("E&xit","",Close);
         }
@@ -151,6 +153,7 @@ public sealed partial class GameWindow
     }
     private void IllegalMove()
     {
+        if(skin.Future)AnnounceOrbit("That destination is not allowed. Choose another pile.");
         PlayVistaSound("SHARED_ILLEGALMOVE");
         if(ClassicFreeCell && Preferences.FreeCellMessages)
         {notice="That move is not allowed.";OpenDialog(DialogPage.Notice);}
@@ -171,7 +174,7 @@ public sealed partial class GameWindow
             if(!startup)RecordAbandonedGame();var rules=Preferences.Rules.Clone();rules.SpiderSuits=saved.Game.SpiderSuits;
             CancelDrag();Game=Game.Restore(rules,saved.Game,saved.History);selection=null;hint=null;collecting=false;pendingWin=false;
             showingVictory=false;victoryTrail?.Dispose();victoryTrail=null;
-            lastTick=activeTime.Elapsed.TotalSeconds;elapsedFraction=0;lastSavedSecond=Game.State.Elapsed;
+            lastTick=Environment.TickCount64;elapsedMilliseconds=0;lastSavedSecond=Game.State.Elapsed;
             StopCardMotion();RequestSave();Invalidate();
         }
         if(prompt && Preferences.SpiderPromptOpen)Confirm("Do you want to discard the current game and open the last saved game?",LoadCheckpoint);else LoadCheckpoint();

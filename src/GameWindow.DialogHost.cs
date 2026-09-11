@@ -35,6 +35,7 @@ public sealed partial class GameWindow
         private readonly GameWindow game;
         private Bitmap? surface;
         private bool positioned;
+        protected override AccessibleObject CreateAccessibilityInstance()=>new OrbitAccessibleRoot(this,game,true);
         public PeriodDialogHost(GameWindow game)
         {
             this.game=game;Owner=game;FormBorderStyle=FormBorderStyle.None;ShowInTaskbar=false;

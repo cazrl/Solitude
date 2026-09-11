@@ -15,6 +15,7 @@ public sealed class SharedSettings
     public bool? VistaTips { get; set; }
     public bool? FutureAnimate { get; set; }
     public bool? FutureSound { get; set; }
+    public int? FutureVolume { get; set; }
     public bool? FutureAtmosphere { get; set; }
     public int? FuturePalette { get; set; }
     public int? DrawCount { get; set; }
@@ -37,7 +38,7 @@ public sealed class SharedSettings
     public void Capture(Preferences p)
     {
         Scale=p.Scale;
-        if(p.Era==Era.Future2126){FutureAnimate=p.Animate;FutureSound=p.Sound;FutureAtmosphere=p.FutureAtmosphere;FuturePalette=p.FuturePalette;}
+        if(p.Era==Era.Future2126){FutureAnimate=p.Animate;FutureSound=p.Sound;FutureAtmosphere=p.FutureAtmosphere;FuturePalette=p.FuturePalette;FutureVolume=p.FutureVolume;}
         if(p.Era==Era.WindowsVista){VistaDeck=p.VistaDeck;VistaBackground=p.VistaBackground;VistaAnimate=p.Animate;VistaSave=p.SaveOnExit;VistaContinue=p.ContinueSavedGame;VistaSound=p.Sound;VistaTips=p.DisplayTips;}
         if(p.Rules.Kind==GameKind.Klondike)
         {
@@ -54,7 +55,7 @@ public sealed class SharedSettings
     public void Apply(Preferences p)
     {
         p.Scale=Scale;
-        if(p.Era==Era.Future2126){p.Animate=FutureAnimate??p.Animate;p.Sound=FutureSound??p.Sound;p.FutureAtmosphere=FutureAtmosphere??p.FutureAtmosphere;p.FuturePalette=FuturePalette??p.FuturePalette;}
+        if(p.Era==Era.Future2126){p.Animate=FutureAnimate??p.Animate;p.Sound=FutureSound??p.Sound;p.FutureAtmosphere=FutureAtmosphere??p.FutureAtmosphere;p.FuturePalette=FuturePalette??p.FuturePalette;p.FutureVolume=FutureVolume??p.FutureVolume;}
         if(p.Era==Era.WindowsVista){p.VistaDeck=VistaDeck??p.VistaDeck;p.VistaBackground=VistaBackground??p.VistaBackground;p.Animate=VistaAnimate??p.Animate;p.SaveOnExit=VistaSave??p.SaveOnExit;p.ContinueSavedGame=VistaContinue??p.ContinueSavedGame;p.Sound=VistaSound??p.Sound;p.DisplayTips=VistaTips??p.DisplayTips;}
         if(p.Rules.Kind==GameKind.Klondike)
         {
@@ -70,6 +71,7 @@ public sealed class SharedSettings
     }
     public void Validate()
     {
+        if(FutureVolume is <0 or >100)throw new InvalidDataException("Invalid ORBIT volume.");
         if(FuturePalette is <0 or >2)throw new InvalidDataException("Invalid ORBIT settings.");
         if(Scale is not (100 or 125 or 150 or 200) || ClassicBack is <0 or >11 || XpBack is <0 or >11 || VistaDeck is <0 or >3 || VistaBackground is <0 or >4 || DrawCount.HasValue && DrawCount is not (1 or 3) || SpiderSuits.HasValue && SpiderSuits is not (1 or 2 or 4) || Scoring.HasValue && !Enum.IsDefined(Scoring.Value))throw new InvalidDataException("Invalid shared settings.");
     }

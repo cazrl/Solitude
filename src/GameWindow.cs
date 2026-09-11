@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace Solitude;
 
 public enum DialogPage { None, Settings, Options, Deck, Help, About, Statistics, NewGame, Restart, Won, Notice, SelectGame, MoveColumn, Difficulty, Confirm, Records, AppAbout, Lost }
-internal sealed record Hotspot(string Id, RectangleF Bounds, Action Action, bool Enabled = true);
+internal sealed record Hotspot(string Id, RectangleF Bounds, Action Action, bool Enabled = true,string? Label=null,AccessibleRole Role=AccessibleRole.PushButton,bool Checked=false);
 public sealed partial class GameWindow : Form
 {
     public Preferences Preferences { get; private set; }
@@ -19,12 +19,12 @@ public sealed partial class GameWindow : Form
     private readonly System.Windows.Forms.Timer clock = new() { Interval = 250 };
     private readonly System.Windows.Forms.Timer animation = new() { Interval = 25 };
     private readonly Stopwatch activeTime = new();
-    private double lastTick;
-    private double elapsedFraction;
+    private long lastTick=Environment.TickCount64;
+    private long elapsedMilliseconds;
     private int lastSavedSecond;
     private readonly List<Hotspot> hotspots = [];
     private readonly List<(Position Position, RectangleF Rect)> cardAreas = [];
-    private PointF mouse;
+    private PointF mouse=new(-1,-1);
     private Position? selection;
     private PointF mouseDown, dragOffset;
     private bool dragging, pressedCard;
@@ -54,30 +54,35 @@ public sealed partial class GameWindow : Form
     private bool maximized;
     private Rectangle restoreBounds;
     private readonly bool ephemeral;
-    private float ScaleFactor => Preferences.Scale / 100f;
-    private float WorldWidth => ClientSize.Width / ScaleFactor;
-    private float WorldHeight => ClientSize.Height / ScaleFactor;
+    private float windowFitScale=2;
+    private Rectangle? startupWorkingArea;
+    private float ScaleFactor => Math.Min(Preferences.Scale/100f,windowFitScale);
+    private float WorldWidth => (editionRenderSize??ClientSize).Width / ScaleFactor;
+    private float WorldHeight => (editionRenderSize??ClientSize).Height / ScaleFactor;
     private int WindowBorder=>skin.Vista && maximized?0:skin.Border;
     private int WindowHeader=>skin.Vista && maximized?21:skin.Border+skin.Caption;
-    private RectangleF Table => new(WindowBorder, WindowHeader+skin.MenuHeight, WorldWidth - WindowBorder * 2, WorldHeight - WindowHeader-skin.MenuHeight - WindowBorder - (Preferences.ShowStatus ? skin.StatusHeight : 0));
+    private RectangleF Table => new(WindowBorder, WindowHeader+(skin.Future?OrbitMenuHeight:skin.MenuHeight), WorldWidth - WindowBorder * 2, WorldHeight - WindowHeader-(skin.Future?OrbitMenuHeight:skin.MenuHeight) - WindowBorder - (Preferences.ShowStatus ? skin.Future?OrbitStatusHeight:skin.StatusHeight : 0));
     private GameKind Kind => Game.Rules.Kind;
     private string GameTitle => skin.Future?"ORBIT / Solitude 2126":Kind == GameKind.FreeCell && !skin.Modern ? $"FreeCell Game #{Game.State.Seed}" : Kind == GameKind.Spider && !skin.Modern ? "Spider" : GameCatalog.Name(Kind);
-    private float CardWidth => skin.Future?Math.Clamp(Table.Width*.081f,58,122):skin.Modern ? Math.Clamp(Table.Width*(Kind==GameKind.Klondike?.085f:Kind==GameKind.FreeCell?.089f:.074f),42,160) : 71;
+    private float CardWidth => skin.Future?OrbitCardWidth:skin.Modern ? Math.Clamp(Table.Width*(Kind==GameKind.Klondike?.085f:Kind==GameKind.FreeCell?.089f:.074f),42,160) : 71;
     private float CardHeight => CardWidth * (skin.Modern?152f/111:96f/71);
     private float TableMargin => skin.Future?Table.Width*.052f:skin.Modern?Table.Width*(Kind==GameKind.Klondike?.1f:.035f):Kind==GameKind.FreeCell?1:12;
-    private float ColumnGap => (Table.Width-2*TableMargin-CardWidth)/(Game.State.Tableau.Count-1);
-    private float WasteStep => skin.Future?CardWidth*.36f:skin.Modern?19:16;
-    private float TableauY => Kind==GameKind.Spider?Table.Top+(skin.Modern?30:12):Table.Top + CardHeight + (skin.Future?72:skin.Modern ? 52 : Kind==GameKind.FreeCell?15:24);
-    private RectangleF TopCard(int slot) => new(Table.Left+TableMargin+ColumnGap*slot,Table.Top+(skin.Future?34:skin.Modern?24:12),CardWidth,CardHeight);
+    // Keep ORBIT's playing grid compact as the window grows. Chrome retains
+    // its own margins; card rendering, hit testing and motion share BoardLeft.
+    private float ColumnGap => skin.Future?CardWidth*1.16f:(Table.Width-2*TableMargin-CardWidth)/(Game.State.Tableau.Count-1);
+    private float BoardLeft => skin.Future?Table.Left+(Table.Width-CardWidth-ColumnGap*(Game.State.Tableau.Count-1))/2:Table.Left+TableMargin;
+    private float WasteStep => skin.Future?CardWidth*.50f:skin.Modern?19:16;
+    private float TableauY => Kind==GameKind.Spider?Table.Top+(skin.Modern?30:12):Table.Top + CardHeight + (skin.Future?OrbitTableauGap:skin.Modern ? 52 : Kind==GameKind.FreeCell?15:24);
+    private RectangleF TopCard(int slot) => new(BoardLeft+ColumnGap*slot,Table.Top+(skin.Future?26+8*OrbitRoom:skin.Modern?24:12),CardWidth,CardHeight);
     private RectangleF StockRect => Kind==GameKind.Spider?new(Table.Right-CardWidth-16,Table.Bottom-CardHeight-12,CardWidth,CardHeight):TopCard(0);
-    private float TableauBottom => Table.Bottom - (Kind==GameKind.Spider?CardHeight+30:16);
+    private float TableauBottom => Table.Bottom - (skin.Future?14-6*OrbitRoom:Kind==GameKind.Spider?CardHeight+30:16);
     private float StackStep(int col)
     {
         EnsureLayout();return stackSteps[col];
     }
     private RectangleF TableauCard(int col,int index)
     {
-        EnsureLayout();return new(Table.Left+TableMargin+ColumnGap*col,cardY[col][Math.Clamp(index,0,Game.State.Tableau[col].Count)],CardWidth,CardHeight);
+        EnsureLayout();return new(BoardLeft+ColumnGap*col,cardY[col][Math.Clamp(index,0,Game.State.Tableau[col].Count)],CardWidth,CardHeight);
     }
     public GameWindow(Store store, Era? era = null, int? seed = null, int? scale = null, bool ephemeral = false, GameKind? kind = null)
     {
@@ -107,45 +112,53 @@ public sealed partial class GameWindow : Form
         Name="Solitude";AccessibleName="Solitude Solitaire";
         AutoScaleMode=AutoScaleMode.None;FormBorderStyle=FormBorderStyle.None;
         SetStyle(ControlStyles.AllPaintingInWmPaint|ControlStyles.UserPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw|ControlStyles.Selectable,true);
-        DoubleBuffered=true;KeyPreview=true;StartPosition=FormStartPosition.CenterScreen;
+        DoubleBuffered=true;KeyPreview=true;
+        StartPosition=FormStartPosition.Manual;
+        startupWorkingArea=Screen.FromPoint(Cursor.Position).WorkingArea;
         using(var stream=typeof(GameWindow).Assembly.GetManifestResourceStream("Solitude.Assets.solitude.ico")) if(stream!=null)Icon=new Icon(stream);
         ConfigurePeriodIcon();
-        ApplySize();
+        ApplySize(startupWorkingArea);
         restingCards=CaptureLayout();
         clock.Tick+=(_,_)=>
         {
-            double now=activeTime.Elapsed.TotalSeconds;int before=Game.State.Elapsed;
-            bool active=Game.State.Started && !Game.State.Won && !Game.State.Lost && dialog==DialogPage.None && menu<0 && !showingVictory && WindowState!=FormWindowState.Minimized && Form.ActiveForm==this;
-            if(active) { elapsedFraction+=now-lastTick;int ticks=(int)elapsedFraction;for(int i=0;i<ticks;i++)Game.Tick();elapsedFraction-=ticks; }
-            lastTick=now;
+            long now=Environment.TickCount64;int before=Game.State.Elapsed;
+            bool active=editionMorph==null && Game.State.Started && !Game.State.Won && !Game.State.Lost && dialog==DialogPage.None && menu<0 && !showingVictory && WindowState!=FormWindowState.Minimized && Form.ActiveForm==this;
+            AdvanceGameTime(now,active);
             if(Game.State.Elapsed>=lastSavedSecond+15 && active){lastSavedSecond=Game.State.Elapsed;RequestSave();}
             bool expired=DateTime.Now>statusUntil && (hint.HasValue || status.Length>0);
             if(expired){hint=null;status="";}
             if(futureMessage!=null && MotionNow>=futureMessageUntil){futureMessage=null;expired=true;}
             BackgroundSaveTick();
+            CheckFutureVictoryEnd();
             bool animatedBack=Game.Rules.Timed && windowActive && dialog==DialogPage.None && Kind==GameKind.Klondike && !skin.Xp && !skin.Modern && Preferences.CardBack is 6 or 9 or 10 or 11;
             if(Game.State.Elapsed!=before || expired || animatedBack || oneMoveWarning || vistaTipTitle!=null)Invalidate();
             ScheduleFrames();
         };
         animation.Tick+=(_,_)=>RenderNextFrame();
-        Shown+=(_,_)=>{activeTime.Start();clock.Start();StartFrameClock();if(!Game.State.Started)BeginCardMotion(deal:true);if(ClassicSpider && Preferences.SpiderAutoOpen && spiderSaves.ContainsKey(Preferences.Era.ToString()))OpenSpiderGame(true,true);OfferVistaResume();if(store.Warning!=null){notice=store.Warning;OpenDialog(DialogPage.Notice);}};
+        Shown+=(_,_)=>{activeTime.Start();lastTick=Environment.TickCount64;clock.Start();StartFrameClock();if(!Game.State.Started)BeginCardMotion(deal:true);if(ClassicSpider && Preferences.SpiderAutoOpen && spiderSaves.ContainsKey(Preferences.Era.ToString()))OpenSpiderGame(true,true);OfferVistaResume();if(store.Warning!=null){notice=store.Warning;OpenDialog(DialogPage.Notice);}};
         FormClosing+=(_,e)=>{ if(shutdown)return; CancelDrag();if(!PeriodClosing(e))return; if(!Save() && !ephemeral) { e.Cancel=true;notice=(saves.Error??store.Warning)+"\n\nUse the window menu > Exit without saving to close anyway.";OpenDialog(DialogPage.Notice); } };
-        Activated+=(_,_)=>{windowActive=true;ScheduleFrames();Invalidate();};
-        Deactivate+=(_,_)=>{windowActive=false;CancelDrag();ScheduleFrames();RequestSave();lastTick=activeTime.Elapsed.TotalSeconds;};
+        Activated+=(_,_)=>{windowActive=true;lastTick=Environment.TickCount64;ScheduleFrames();Invalidate();};
+        Deactivate+=(_,_)=>{windowActive=false;FinishEditionMorph();CancelDrag();ScheduleFrames();RequestSave();lastTick=Environment.TickCount64;};
         MouseCaptureChanged+=(_,_)=>{if(!Capture){peekCard=null;if(dragging && selection.HasValue)ReturnDrag(selection.Value);dragging=false;pressedCard=false;pressedHotspot=null;movingDialog=false;ScheduleFrames();Invalidate();}};
     }
-    private void ApplySize()
+    internal static float FitOrbitScale(int requested,Size available)=>Math.Min(requested/100f,Math.Min(available.Width/800f,available.Height/540f));
+    private Size LogicalMinimum=>skin.Future?new(800,540):new(Kind==GameKind.Spider?780:Kind==GameKind.FreeCell?640:600,430);
+    private float FittedScale(Size area)=>Math.Min(Preferences.Scale/100f,Math.Min(area.Width/(float)LogicalMinimum.Width,area.Height/(float)LogicalMinimum.Height));
+    private void ApplySize(Rectangle? workingArea=null)
     {
+        var metrics=EditionWindowMetrics(workingArea??Screen.FromControl(this).WorkingArea);
+        MinimumSize=metrics.Minimum;ClientSize=metrics.Size;UpdateWindowShape();
+    }
+    private (Size Size,Size Minimum) EditionWindowMetrics(Rectangle area)
+    {
+        windowFitScale=FittedScale(area.Size);
         if(skin.Future)
         {
-            MinimumSize=new((int)(800*ScaleFactor),(int)(540*ScaleFactor));
-            var available=Screen.FromControl(this).WorkingArea;
-            ClientSize=new(Math.Min((int)(1120*ScaleFactor),available.Width),Math.Min((int)(720*ScaleFactor),available.Height));UpdateWindowShape();return;
+            return (new(Math.Min((int)(1120*ScaleFactor),area.Width),Math.Min((int)(720*ScaleFactor),area.Height)),new((int)(800*ScaleFactor),(int)(540*ScaleFactor)));
         }
-        MinimumSize=new((int)((Kind==GameKind.Spider?780:Kind==GameKind.FreeCell?640:600)*ScaleFactor),(int)(430*ScaleFactor));
-        var area=Screen.FromControl(this).WorkingArea;
-        ClientSize=new Size(Math.Min((int)((Kind==GameKind.Spider?900:Kind==GameKind.FreeCell?720:skin.Modern?720:640)*ScaleFactor),area.Width),(int)Math.Min((Kind==GameKind.Spider?600:skin.Modern?540:480)*ScaleFactor,area.Height));
-        UpdateWindowShape();
+        var minimum=new Size((int)((Kind==GameKind.Spider?780:Kind==GameKind.FreeCell?640:600)*ScaleFactor),(int)(430*ScaleFactor));
+        var size=new Size(Math.Max(minimum.Width,Math.Min((int)((Kind==GameKind.Spider?900:Kind==GameKind.FreeCell?720:skin.Modern?720:640)*ScaleFactor),area.Width)),Math.Max(minimum.Height,(int)Math.Min((Kind==GameKind.Spider?600:skin.Modern?540:480)*ScaleFactor,area.Height)));
+        return (size,minimum);
     }
     private void UpdateWindowShape()
     {
@@ -154,26 +167,28 @@ public sealed partial class GameWindow : Form
         using var transform=new System.Drawing.Drawing2D.Matrix();transform.Scale(ScaleFactor,ScaleFactor);shape.Transform(transform);
         var previous=Region;Region=new Region(shape);previous?.Dispose();
     }
-    protected override void OnSizeChanged(EventArgs e){base.OnSizeChanged(e);UpdateWindowShape();if(Game!=null && skin!=null){layoutState=null;StopCardMotion();ScheduleFrames();}}
+    protected override void OnSizeChanged(EventArgs e){base.OnSizeChanged(e);UpdateWindowShape();if(editionMorph!=null)return;if(Game!=null && skin!=null){layoutState=null;StopCardMotion();ScheduleFrames();}}
     private bool Save()
     {
         if(ephemeral)return true;
         saveDirty=false;return saves.Flush(SnapshotSave());
     }
+    private string? futureActionSound;
     private void Changed(bool success)
     {
         if(!success)return;
-        if(skin.Future)FutureMoveFeedback();
+        if(skin.Future){PrepareOrbitMoveLayout();FutureMoveFeedback();}
+        AnnounceOrbit(Game.State.Won?"Game won.":StateSummary);
         BeginCardMotion();
         PlayPeriodSound(Game.State.Won?129:124);
         if(skin.Modern)
         {
             var previous=Game.History.LastOrDefault();
-            PlayVistaSound(previous!=null && previous.Foundations.Sum(p=>p.Count)<Game.State.Foundations.Sum(p=>p.Count)?"SHARED_MOVETOHOME":"SHARED_MOVECARDSETDOWN");
+            PlayVistaSound(skin.Future && futureActionSound!=null?futureActionSound:previous!=null && previous.Foundations.Sum(p=>p.Count)<Game.State.Foundations.Sum(p=>p.Count)?"SHARED_MOVETOHOME":"SHARED_MOVECARDSETDOWN");
         }
         selection=null;hint=null;status="";
         if(skin.Modern && Kind==GameKind.Klondike && Game.History.LastOrDefault() is {} before && before.Foundations.Sum(p=>p.Count)<Game.State.Foundations.Sum(p=>p.Count) && !Game.State.Won)ShowVistaTip("Double-click and right-click","Double-click a card to move it to a foundation. Right-click the table to collect available cards.",true);
-        if(Game.State.Moves==1 && Game.State.Elapsed==0){lastTick=activeTime.Elapsed.TotalSeconds;elapsedFraction=0;}
+        if(Game.State.Moves==1 && Game.State.Elapsed==0){lastTick=Environment.TickCount64;elapsedMilliseconds=0;}
         if(Game.State.Won && !Game.State.WinRecorded)
         {
             Game.State.WinRecorded=true;Statistics.Record(Game.State,true,Game.Rules.Timed);
@@ -196,7 +211,7 @@ public sealed partial class GameWindow : Form
         Text=GameTitle;
         BeginCardMotion(deal:true);
         dialog=DialogPage.None;menu=-1;selection=null;hint=null;collecting=false;showingVictory=false;pendingWin=false;victoryTrail?.Dispose();victoryTrail=null;
-        status="";lastTick=activeTime.Elapsed.TotalSeconds;elapsedFraction=0;lastSavedSecond=0;RequestSave();ScheduleFrames();Invalidate();
+        status="";lastTick=Environment.TickCount64;elapsedMilliseconds=0;lastSavedSecond=0;RequestSave();ScheduleFrames();Invalidate();
     }
     private void RequestNew(bool same=false)
     {
@@ -204,18 +219,32 @@ public sealed partial class GameWindow : Form
         if(!Game.State.Started || Game.State.Won || Game.State.Lost || Kind==GameKind.Klondike && !skin.Modern)NewGame(same);
         else Confirm(ClassicFreeCell?"Do you want to resign this game?":same?"Do you want to restart this game?":"Do you want to start a new game?",()=>NewGame(same));
     }
+    private GameState? futureHintState;
+    private int futureHintMoves=-1,futureHintIndex;
+    private string? futureHintText;
     private void ShowHint()
     {
         if(!HasHints)return;
-        var result=Game.Hint();
+        (Position From,Position To,string Text)? result;
+        if(skin.Future)
+        {
+            var choices=Game.OrbitHints();
+            if(futureHintState!=Game.State || futureHintMoves!=Game.State.Moves){futureHintIndex=0;futureHintState=Game.State;futureHintMoves=Game.State.Moves;}
+            result=choices.Count==0?null:choices[futureHintIndex++%choices.Count];
+            futureHintText=result?.Text??"No unexplored move found. Try Undo or a different route.";
+            AnnounceOrbit(futureHintText);
+        }
+        else result=Game.Hint();
         PlayVistaSound(result.HasValue?"SHARED_HINTSHOWN":"SHARED_HINTNOMOVE");
-        if(!result.HasValue){if(skin.Future){futureMessage="No available move. Try Undo, or start a new deal.";futureMessageUntil=MotionNow+4;ScheduleFrames();Invalidate();}else ShowVistaTip("No moves available",Kind==GameKind.Spider && Game.State.Stock.Count>0?"Fill every empty column before dealing another row.":"You can undo a move or start a new game.");}
+        if(!result.HasValue){if(skin.Future){futureMessage=futureHintText;futureMessageUntil=MotionNow+4;ScheduleFrames();Invalidate();}else ShowVistaTip("No moves available",Kind==GameKind.Spider && Game.State.Stock.Count>0?"Fill every empty column before dealing another row.":"You can undo a move or start a new game.");}
         if(result.HasValue){hint=(result.Value.From,result.Value.To);statusUntil=DateTime.Now.AddSeconds(2);Invalidate();}
     }
     private void OpenDialog(DialogPage page)
     {
         futureOptionsParent=null;
         CancelDrag();selection=null;menu=-1;keyboardFocus=-1;collecting=false;dialogOffset=PointF.Empty;dialog=page;draft=Preferences.Clone();
+        if(page is DialogPage.Options or DialogPage.Difficulty)
+        {draft.Rules=Game.Rules.Clone();draft.Rules.KeepVegasScore=Preferences.Rules.KeepVegasScore;}
         if(page==DialogPage.SelectGame){dealText=Game.State.Seed.ToString();dealSelectAll=true;}
         if(page==DialogPage.Statistics)statisticsLevel=Game.State.SpiderSuits;
         if(page==DialogPage.Won)winSelectGame=false;
@@ -223,13 +252,14 @@ public sealed partial class GameWindow : Form
         QueueDialogHost();
         ScheduleFrames();Invalidate();
     }
-    private void CloseDialog(){if(ReturnToFutureOptions())return;dialog=DialogPage.None;draft=null;keyboardFocus=-1;lastTick=activeTime.Elapsed.TotalSeconds;ScheduleFrames();Invalidate();}
+    private void CloseDialog(){if(ReturnToFutureOptions())return;dialog=DialogPage.None;draft=null;keyboardFocus=-1;lastTick=Environment.TickCount64;ScheduleFrames();Invalidate();}
     private void CancelDrag(){peekCard=null;if(dragging && selection.HasValue)ReturnDrag(selection.Value);dragging=false;pressedCard=false;pressedHotspot=null;movingDialog=false;Capture=false;ScheduleFrames();Invalidate();}
     private PointF Logical(Point point)=>new(point.X/ScaleFactor,point.Y/ScaleFactor);
     private (Position Position,RectangleF Rect)? HitCard(PointF p)
     {var moving=HitMovingCard(p);if(moving!=null)return moving;for(int i=cardAreas.Count-1;i>=0;i--)if(cardAreas[i].Rect.Contains(p)){var area=cardAreas[i];var pile=Game.Pile(area.Position);int index=Game.Index(area.Position);if(pile==null || index<0 || index>=pile.Count)continue;if(flights.TryGetValue(pile[index].Key,out var flight) && MotionNow<flight.End)continue;return area;}return null;}
     protected override void OnMouseDown(MouseEventArgs e)
     {
+        if(editionMorph!=null)return;
         base.OnMouseDown(e);Focus();mouse=Logical(e.Location);keyboardFocus=-1;collecting=false;
         if(showingVictory){FinishVictory();return;}
         if(e.Button==MouseButtons.Right)
@@ -249,6 +279,7 @@ public sealed partial class GameWindow : Form
         if(e.Clicks>1 && Table.Contains(mouse))return;
         if(menu>=0)
         {
+            if(skin.Future && OrbitLogoButton.Contains(mouse)){menu=-1;menuFocus=-1;ScheduleFrames();Invalidate();return;}
             var settings=hotspots.LastOrDefault(h=>h.Id=="settings" && h.Bounds.Contains(mouse));
             if(settings!=null){menu=-1;pressedHotspot=settings.Id;Capture=true;Invalidate();return;}
             var menuHit=hotspots.LastOrDefault(h=>h.Id.StartsWith("menu-") && h.Bounds.Contains(mouse));
@@ -301,6 +332,7 @@ public sealed partial class GameWindow : Form
     }
     protected override void OnMouseDoubleClick(MouseEventArgs e)
     {
+        if(editionMorph!=null)return;
         base.OnMouseDoubleClick(e);
         if(e.Button==MouseButtons.Left && dialog==DialogPage.Deck && !skin.Modern)
         {
@@ -311,10 +343,11 @@ public sealed partial class GameWindow : Form
         if(e.Button!=MouseButtons.Left || dialog!=DialogPage.None || menu>=0 || showingVictory || ClassicFreeCell && !Preferences.FreeCellDoubleClick || doubleClickState!=Game.State || doubleClickMoves!=Game.State.Moves)return;
         var pos=HitCard(Logical(e.Location));
         if(pos.HasValue && Game.Pile(pos.Value.Position)?[Game.Index(pos.Value.Position)].Key==doubleClickCard)
-        {collecting=false;CancelDrag();Changed(Kind==GameKind.FreeCell && !skin.Modern?Game.ToFreeCell(pos.Value.Position):Game.ToFoundation(pos.Value.Position));}
+        {collecting=false;CancelDrag();Changed(skin.Future?Game.OrbitAutoMove(pos.Value.Position):Kind==GameKind.FreeCell && !skin.Modern?Game.ToFreeCell(pos.Value.Position):Game.ToFoundation(pos.Value.Position));}
     }
     protected override void OnMouseMove(MouseEventArgs e)
     {
+        if(editionMorph!=null)return;
         base.OnMouseMove(e);mouse=Logical(e.Location);
         if(movingDialog)
         {
@@ -328,11 +361,18 @@ public sealed partial class GameWindow : Form
         Cursor=dialog==DialogPage.None && menu<0 && skin.Modern && (HitCard(mouse).HasValue || Kind!=GameKind.FreeCell && StockHit(mouse))?Cursors.Hand:Cursors.Default;
         if(skin.Future && hot!=null)Cursor=Cursors.Hand;
         if(dragging){ScheduleFrames();return;}
-        string? nextHover=hot?.Id;bool king=Kind==GameKind.FreeCell && !skin.Modern;
-        if(nextHover!=hoverId || king || pressedHotspot!=null || skin.Future){hoverId=nextHover;Invalidate();}
+        string? nextHover=hot?.Id ?? (skin.Future?HitCard(mouse)?.Position.ToString():null);bool king=Kind==GameKind.FreeCell && !skin.Modern;
+        if(nextHover!=hoverId || king || pressedHotspot!=null){hoverId=nextHover;ScheduleFrames();Invalidate();}
+    }
+    protected override void OnMouseLeave(EventArgs e)
+    {
+        base.OnMouseLeave(e);
+        if(!skin.Future || dragging)return;
+        mouse=new(-1,-1);hoverId=null;ScheduleFrames();Invalidate();
     }
     protected override void OnMouseUp(MouseEventArgs e)
     {
+        if(editionMorph!=null)return;
         base.OnMouseUp(e);mouse=Logical(e.Location);
         if(e.Button==MouseButtons.Right){peekCard=null;Capture=false;Invalidate();return;}
         if(e.Button!=MouseButtons.Left)return;
@@ -358,7 +398,7 @@ public sealed partial class GameWindow : Form
         foreach(var target in DestinationAreas())if(target.Rect.Contains(p))return target.Position;
         for(int i=0;i<Game.State.Tableau.Count;i++)
         {
-            var rect=TableauCard(i,0);rect.Height=TableauBottom-rect.Top;
+            var rect=TableauCard(i,0);if(skin.Future)rect.Y=TableauY;rect.Height=TableauBottom-rect.Top;
             if(rect.Contains(p))return new(PileKind.Tableau,i);
         }
         return null;
@@ -376,11 +416,19 @@ public sealed partial class GameWindow : Form
     }
     protected override bool ProcessCmdKey(ref Message msg,Keys keyData)
     {
+        if(editionMorph!=null)
+        {
+            if(keyData==Keys.Escape)FinishEditionMorph();
+            else if(keyData==(Keys.Alt|Keys.F4)){FinishEditionMorph();Close();}
+            return true;
+        }
         if(keyData==(Keys.Alt|Keys.F4)){Close();return true;}
         if(keyData==Keys.Escape)
         {
             if(showingVictory)FinishVictory();else if(dialog!=DialogPage.None)CloseDialog();else {menu=-1;selection=null;CancelDrag();collecting=false;hint=null;}Invalidate();return true;
         }
+        if(showingVictory && dialog==DialogPage.None)
+        {if(keyData is Keys.Enter or Keys.Space)FinishVictory();return true;}
         if(dialog!=DialogPage.None)
         {
             if(dialog==DialogPage.SelectGame && EditDealNumber(keyData))return true;
@@ -398,7 +446,7 @@ public sealed partial class GameWindow : Form
                 keyboardFocus=controls.IndexOf(radios[index]);radios[index].Action();Invalidate();return true;
             }
             if(keyData==Keys.Tab || keyData==(Keys.Shift|Keys.Tab))
-            {keyboardFocus=(keyboardFocus+(keyData==Keys.Tab?1:-1)+controls.Count)%Math.Max(1,controls.Count);Invalidate();return true;}
+            {keyboardFocus=keyboardFocus<0?(keyData==Keys.Tab?0:controls.Count-1):(keyboardFocus+(keyData==Keys.Tab?1:-1)+controls.Count)%Math.Max(1,controls.Count);Invalidate();return true;}
             if(keyData==Keys.Enter || keyData==Keys.Space)
             {
                 var focused=keyboardFocus>=0 && keyboardFocus<controls.Count?controls[keyboardFocus]:null;
@@ -411,7 +459,7 @@ public sealed partial class GameWindow : Form
         if(menu>=0)
         {
             var items=PeriodMenu().Where(e=>e.Enabled && e.Action!=null).ToList();
-            if(keyData is Keys.Down or Keys.Up){if(items.Count>0)menuFocus=(menuFocus+(keyData==Keys.Down?1:-1)+items.Count)%items.Count;Invalidate();return true;}
+            if(keyData is Keys.Down or Keys.Up){if(items.Count>0)menuFocus=menuFocus<0?(keyData==Keys.Down?0:items.Count-1):(menuFocus+(keyData==Keys.Down?1:-1)+items.Count)%items.Count;Invalidate();return true;}
             if(keyData==Keys.Enter){if(menuFocus>=0 && menuFocus<items.Count)items[menuFocus].Action!();return true;}
             if(keyData is Keys.Left or Keys.Right){menu=menu==0?1:0;menuFocus=-1;Invalidate();return true;}
             if((keyData&Keys.KeyCode) is >= Keys.A and <= Keys.Z)
@@ -433,18 +481,18 @@ public sealed partial class GameWindow : Form
             case Keys.Control|Keys.Z:UndoMove();return true;
             case Keys.F10:if(Kind==GameKind.FreeCell){UndoMove();return true;}break;
             case Keys.Control|Keys.N:RequestNew();return true;
-            case Keys.Control|Keys.R:return true;
+            case Keys.Control|Keys.R:if(skin.Future)RequestNew(true);return true;
             case Keys.Control|Keys.S:if(ClassicSpider)SaveSpiderGame();return true;
             case Keys.Control|Keys.O:if(ClassicSpider)OpenSpiderGame();return true;
-            case Keys.Alt|Keys.G:menu=0;menuFocus=-1;Invalidate();return true;
-            case Keys.Alt|Keys.H:menu=1;menuFocus=-1;Invalidate();return true;
-            case Keys.Alt|Keys.Space:menu=2;menuFocus=-1;Invalidate();return true;
+            case Keys.Alt|Keys.G:menu=0;menuFocus=-1;ScheduleFrames();Invalidate();return true;
+            case Keys.Alt|Keys.H:menu=1;menuFocus=-1;ScheduleFrames();Invalidate();return true;
+            case Keys.Alt|Keys.Space:menu=2;menuFocus=-1;ScheduleFrames();Invalidate();return true;
             case Keys.H:if(skin.Modern)ShowHint();return true;
             case Keys.M:if(ClassicSpider)ShowHint();return true;
             case Keys.D:if(Kind==GameKind.Spider)DrawCards();return true;
             case Keys.A:return true;
-            case Keys.Left:case Keys.Right:case Keys.Tab:
-                keyboardPile=(keyboardPile+(keyData==Keys.Left?KeyboardPiles().Count-1:1))%KeyboardPiles().Count;ShowKeyboardPile();return true;
+            case Keys.Left:case Keys.Right:case Keys.Tab:case Keys.Shift|Keys.Tab:
+                keyboardPile=(keyboardPile+(keyData==Keys.Left || keyData==(Keys.Shift|Keys.Tab)?KeyboardPiles().Count-1:1))%KeyboardPiles().Count;ShowKeyboardPile();return true;
             case Keys.Enter:case Keys.Space:
                 var target=KeyboardPosition();
                 if(target.Kind==PileKind.Stock){DrawCards();return true;}
@@ -452,25 +500,31 @@ public sealed partial class GameWindow : Form
                 if(selection.HasValue && Game.CanMove(selection.Value,target)){Changed(Game.Move(selection.Value,target));return true;}
                 if(target.Kind==PileKind.Tableau && Game.Flip(target.Pile)){Changed(true);return true;}
                 if(Kind==GameKind.FreeCell && !skin.Modern && target.Kind==PileKind.Tableau)target=FreeCellSelection(target.Pile);
-                if(Game.CanPick(target)){selection=target;Invalidate();}return true;
+                if(Game.CanPick(target)){selection=target;AnnounceOrbit(Game.Pile(target)![Game.Index(target)].Name+" selected.");Invalidate();}return true;
             case Keys.Up:case Keys.Down:
                 if(selection.HasValue && selection.Value.Kind==PileKind.Tableau)
                 {
                     var p=selection.Value;int index=Game.Index(p)+(keyData==Keys.Up?-1:1);
-                    if(Game.CanPick(p with{Index=index}) && index>=0)selection=p with{Index=index};Invalidate();
+                    if(Game.CanPick(p with{Index=index}) && index>=0){selection=p with{Index=index};AnnounceOrbit(Game.Pile(p)![index].Name+" selected.");}Invalidate();
                 }return true;
         }
         return base.ProcessCmdKey(ref msg,keyData);
     }
     private Position KeyboardPosition()=>KeyboardPiles()[keyboardPile%KeyboardPiles().Count];
-    private void ShowKeyboardPile(){var pos=KeyboardPosition();hint=(pos,pos);statusUntil=DateTime.Now.AddSeconds(60);Invalidate();}
+    private void ShowKeyboardPile(){var pos=KeyboardPosition();orbitAccessibleFocus="pile-"+pos.Kind+"-"+pos.Pile;AnnounceOrbit(OrbitPileName(pos));hint=(pos,pos);statusUntil=DateTime.Now.AddSeconds(60);Invalidate();}
     private void ToggleMaximize()
     {
         if(maximized){maximized=false;Bounds=restoreBounds;}else{restoreBounds=Bounds;maximized=true;Bounds=Screen.FromControl(this).WorkingArea;}UpdateWindowShape();Invalidate();
     }
     protected override void WndProc(ref Message m)
     {
-        if(m.Msg==FramePump.Message){var pump=framePump;try{RenderNextFrame();}finally{pump?.Acknowledge();}return;}
+        if(m.Msg==SingleInstanceLease.ActivationMessage)
+        {
+            if(WindowState==FormWindowState.Minimized)WindowState=FormWindowState.Normal;
+            var target=(Form?)dialogHost??this;target.BringToFront();target.Activate();m.Result=1;return;
+        }
+        if(editionMorph!=null && m.Msg==0x84){m.Result=1;return;}
+        if(m.Msg==FramePump.Message){var pump=framePump;try{RenderNextFrame();}catch(Exception error){Application.OnThreadException(error);}finally{pump?.Acknowledge();}return;}
         const int hitTest=0x84;
         if(m.Msg==hitTest && !maximized && dialog==DialogPage.None)
         {
@@ -485,6 +539,7 @@ public sealed partial class GameWindow : Form
     }
     private bool CaptionControlAt(PointF point)
     {
+        if(skin.Future && OrbitLogoButton.Contains(point))return true;
         var layout=skin.CaptionLayout(new(0,0,WorldWidth,WorldHeight),maximized:maximized);
         return layout.Minimize.Contains(point) || layout.Maximize.Contains(point) || layout.Close.Contains(point) || layout.Icon.Contains(point);
     }
@@ -493,7 +548,7 @@ public sealed partial class GameWindow : Form
     private bool resourcesDisposed;
     protected override void Dispose(bool disposing)
     {
-        if(disposing && !resourcesDisposed){resourcesDisposed=true;CloseDialogHost();clock.Dispose();animation.Dispose();framePump?.Dispose();framePump=null;if(!shutdown && !ephemeral && saveDirty)Save();saves.Dispose();foreach(var sound in periodSounds.Values.Concat(vistaSounds.Values)){sound.Stream?.Dispose();sound.Dispose();}skin.Dispose();art.Dispose();victoryTrail?.Dispose();pixelCanvas?.Dispose();pixelPresentation?.Dispose();boardBitmap?.Dispose();}
+        if(disposing && !resourcesDisposed){resourcesDisposed=true;DisposeEditionMorph();CloseDialogHost();clock.Dispose();animation.Dispose();framePump?.Dispose();framePump=null;if(!shutdown && !ephemeral && saveDirty)Save();saves.Dispose();foreach(var sound in periodSounds.Values.Concat(vistaSounds.Values)){sound.Stream?.Dispose();sound.Dispose();}skin.Dispose();art.Dispose();victoryTrail?.Dispose();pixelCanvas?.Dispose();pixelPresentation?.Dispose();boardBitmap?.Dispose();}
         base.Dispose(disposing);
     }
     private sealed class FlyingCard(Card card,float x,float y,float vx,float vy)
@@ -511,9 +566,9 @@ public sealed partial class GameWindow : Form
     private void Animate()
     {
         UpdateMotions();
-        if(skin.Future){UpdateFutureEffects();if(showingVictory){if(MotionNow-victoryStart>=5.2)FinishVictory();return;}}
+        if(skin.Future){UpdateFutureEffects();if(showingVictory){CheckFutureVictoryEnd();return;}}
         if(collecting && !MotionActive && MotionNow>=nextCollect && dialog==DialogPage.None && !showingVictory)
-        {bool moved=Game.AutoStep();nextCollect=MotionNow+.04;if(!moved)collecting=false;else Changed(true);}
+        {bool moved=Game.AutoStep();nextCollect=MotionNow+.04;if(!moved){collecting=false;if(skin.Future && Game.State.Foundations.Sum(p=>p.Count)==collectStartHome){futureMessage="No safe foundation moves available.";futureMessageUntil=MotionNow+4;AnnounceOrbit(futureMessage);}}else Changed(true);}
         if(!showingVictory || victoryTrail==null)return;
         if(Kind!=GameKind.Klondike || skin.Modern){AnimatePeriodCelebration();return;}
         float step=(float)Math.Clamp((MotionNow-lastVictoryTime)*40,0,2);lastVictoryTime=MotionNow;

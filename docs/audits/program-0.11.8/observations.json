@@ -1,0 +1,239 @@
+{
+  "foundation-underlay": [
+    {
+      "era": "WindowsVista",
+      "kind": "Klondike",
+      "scale": 100,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "Klondike",
+      "scale": 125,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "Klondike",
+      "scale": 150,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "Klondike",
+      "scale": 200,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "FreeCell",
+      "scale": 100,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "FreeCell",
+      "scale": 125,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "FreeCell",
+      "scale": 150,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "WindowsVista",
+      "kind": "FreeCell",
+      "scale": 200,
+      "moved": true,
+      "before": -1,
+      "during": -1,
+      "underlayPreserved": true
+    },
+    {
+      "era": "Future2126",
+      "kind": "Klondike",
+      "scale": 100,
+      "moved": true,
+      "before": -919820,
+      "during": -919820,
+      "underlayPreserved": true
+    },
+    {
+      "era": "Future2126",
+      "kind": "Klondike",
+      "scale": 125,
+      "moved": true,
+      "before": -919820,
+      "during": -919820,
+      "underlayPreserved": true
+    },
+    {
+      "era": "Future2126",
+      "kind": "Klondike",
+      "scale": 150,
+      "moved": true,
+      "before": -919820,
+      "during": -919820,
+      "underlayPreserved": true
+    },
+    {
+      "era": "Future2126",
+      "kind": "Klondike",
+      "scale": 200,
+      "moved": true,
+      "before": -919820,
+      "during": -919820,
+      "underlayPreserved": true
+    }
+  ],
+  "resource-soak": [
+    {
+      "pass": 0,
+      "gdi": 25,
+      "user": 11,
+      "handles": 354,
+      "privateBytes": 35115008,
+      "managedBytes": 801280
+    },
+    {
+      "pass": 1,
+      "gdi": 33,
+      "user": 11,
+      "handles": 354,
+      "privateBytes": 37109760,
+      "managedBytes": 800776
+    },
+    {
+      "pass": 2,
+      "gdi": 33,
+      "user": 11,
+      "handles": 355,
+      "privateBytes": 39714816,
+      "managedBytes": 790376
+    },
+    {
+      "pass": 3,
+      "gdi": 33,
+      "user": 11,
+      "handles": 355,
+      "privateBytes": 39927808,
+      "managedBytes": 800872
+    },
+    {
+      "pass": 4,
+      "gdi": 33,
+      "user": 11,
+      "handles": 355,
+      "privateBytes": 41168896,
+      "managedBytes": 791352
+    },
+    {
+      "pass": 5,
+      "gdi": 33,
+      "user": 11,
+      "handles": 355,
+      "privateBytes": 41574400,
+      "managedBytes": 801880
+    },
+    {
+      "pass": 6,
+      "gdi": 33,
+      "user": 11,
+      "handles": 355,
+      "privateBytes": 41267200,
+      "managedBytes": 791480
+    },
+    {
+      "pass": 7,
+      "gdi": 33,
+      "user": 11,
+      "handles": 355,
+      "privateBytes": 42434560,
+      "managedBytes": 801976
+    }
+  ],
+  "long-session-cost": [
+    {
+      "moves": 100,
+      "history": 100,
+      "hintMedianMs": 0.153,
+      "hintMaxMs": 1.4806,
+      "snapshotMs": 6.5942,
+      "saveMs": 112.5978,
+      "loadMs": 75.1113,
+      "saved": true,
+      "bytes": 205218,
+      "loadedMoves": 100,
+      "warning": null
+    },
+    {
+      "moves": 1000,
+      "history": 1000,
+      "hintMedianMs": 0.3602,
+      "hintMaxMs": 0.5091,
+      "snapshotMs": 0.3581,
+      "saveMs": 62.6987,
+      "loadMs": 111.3088,
+      "saved": true,
+      "bytes": 2019020,
+      "loadedMoves": 1000,
+      "warning": null
+    },
+    {
+      "moves": 5000,
+      "history": 5000,
+      "hintMedianMs": 2.0072,
+      "hintMaxMs": 2.6274,
+      "snapshotMs": 0.2672,
+      "saveMs": 259.073,
+      "loadMs": 441.4293,
+      "saved": true,
+      "bytes": 10087914,
+      "loadedMoves": 5000,
+      "warning": null
+    }
+  ],
+  "hint-cold-vs-warm": [
+    {
+      "moves": 100,
+      "history": 100,
+      "coldMedianMs": 0.6459,
+      "warmMedianMs": 0.1072
+    },
+    {
+      "moves": 1000,
+      "history": 1000,
+      "coldMedianMs": 6.6635,
+      "warmMedianMs": 0.3847
+    },
+    {
+      "moves": 5000,
+      "history": 5000,
+      "coldMedianMs": 36.2358,
+      "warmMedianMs": 1.4871
+    }
+  ]
+}

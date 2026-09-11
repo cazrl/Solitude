@@ -5,7 +5,7 @@ namespace Solitude;
 
 public sealed partial class GameWindow
 {
-    private sealed record BoardStamp(GameState State,int Moves,RectangleF Bounds,int Scale,Era Era,int Deck,int Back,int Background,int BackFrame,
+    private sealed record BoardStamp(GameState State,int Moves,RectangleF Bounds,float Scale,Era Era,int Deck,int Back,int Background,int BackFrame,
         Position? Selection,bool Dragging,(Position From,Position To)? Hint,int Flights,int Revision,bool KingRight,bool Modal,int Score);
     private BoardStamp? boardStamp;
     private Bitmap? boardBitmap;
@@ -15,7 +15,7 @@ public sealed partial class GameWindow
     {
         int frame=art.TimedBacks && !skin.Xp && !skin.Modern && Kind==GameKind.Klondike && Preferences.CardBack is 6 or 9 or 10 or 11?art.AnimationFrame:0;
         if(skin.Future)frame=showingVictory?1:0;
-        var stamp=new BoardStamp(Game.State,Game.State.Moves,Table,Preferences.Scale,Preferences.Era,skin.Future?Preferences.FuturePalette:Preferences.VistaDeck,Preferences.CardBack,Preferences.VistaBackground,frame,
+        var stamp=new BoardStamp(Game.State,Game.State.Moves,Table,art.RenderScale,Preferences.Era,skin.Future?Preferences.FuturePalette:Preferences.VistaDeck,Preferences.CardBack,Preferences.VistaBackground,frame,
             selection,dragging,hint,flights.Count,motionRevision,Kind==GameKind.FreeCell && mouse.X>Table.Left+Table.Width/2,dialog!=DialogPage.None,Kind==GameKind.Spider?Game.State.Score:0);
         if(boardBitmap==null || boardStamp!=stamp)
         {

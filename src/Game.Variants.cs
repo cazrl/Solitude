@@ -163,7 +163,7 @@ public sealed partial class Game
     private bool UndoSpider()
     {
         int elapsed = State.Elapsed, moves = State.Moves + 1, undo = State.UndoCount + 1;
-        State = History[^1]; History.RemoveAt(History.Count - 1);
+        State = History[^1].Clone(); History.RemoveAt(History.Count - 1);
         State.Score = 500+100*State.Foundations.Count(p=>p.Count==13)-moves; State.UndoCount = undo;
         State.Elapsed = elapsed; State.Moves = moves; State.Started = true; return true;
     }

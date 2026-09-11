@@ -1,0 +1,1005 @@
+{
+  "date": "2026-09-11",
+  "target": "Solitude 0.11.7.0",
+  "preservation": {
+    "checkedSourceFiles": 252,
+    "changedSourceFiles": [],
+    "packageVersion": "0.11.7.0",
+    "packageBytes": 63702373,
+    "packageSha256": "6A813F532D73EF18BE161D872AD858179B48487CA91F8BC13830E6A189D63B85",
+    "signature": "NotSigned",
+    "errorLogPresent": false
+  },
+  "probes": {
+    "historical-active-rules": [
+      {
+        "era": "Windows30",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "Windows31",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "Windows95",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "Windows98",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "WindowsMe",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "Windows2000",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "WindowsXP",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      },
+      {
+        "era": "WindowsVista",
+        "active": 3,
+        "displayed": 1,
+        "afterChoosingOne": 3,
+        "cardsDrawn": 3,
+        "retainedDeal": true
+      }
+    ],
+    "spider-active-difficulty": [
+      {
+        "era": "WindowsMe",
+        "displayed": 4,
+        "afterChoosingFour": 1
+      },
+      {
+        "era": "WindowsXP",
+        "displayed": 4,
+        "afterChoosingFour": 1
+      },
+      {
+        "era": "WindowsVista",
+        "displayed": 4,
+        "afterChoosingFour": 1
+      }
+    ],
+    "foundation-underlay": [
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "scale": 100,
+        "moved": true,
+        "before": -1,
+        "during": -15963092,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "scale": 125,
+        "moved": true,
+        "before": -1,
+        "during": -15897556,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "scale": 150,
+        "moved": true,
+        "before": -1,
+        "during": -15897299,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "scale": 200,
+        "moved": true,
+        "before": -1,
+        "during": -15962835,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "scale": 100,
+        "moved": true,
+        "before": -1,
+        "during": -16225493,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "scale": 125,
+        "moved": true,
+        "before": -1,
+        "during": -16225493,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "scale": 150,
+        "moved": true,
+        "before": -1,
+        "during": -16225493,
+        "underlayPreserved": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "scale": 200,
+        "moved": true,
+        "before": -1,
+        "during": -16225493,
+        "underlayPreserved": false
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "scale": 100,
+        "moved": true,
+        "before": -919820,
+        "during": -919820,
+        "underlayPreserved": true
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "scale": 125,
+        "moved": true,
+        "before": -919820,
+        "during": -919820,
+        "underlayPreserved": true
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "scale": 150,
+        "moved": true,
+        "before": -919820,
+        "during": -919820,
+        "underlayPreserved": true
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "scale": 200,
+        "moved": true,
+        "before": -919820,
+        "during": -919820,
+        "underlayPreserved": true
+      }
+    ],
+    "victory-shortcuts": {
+      "optionsOpened": true,
+      "motionPreference": false,
+      "showingVictory": true,
+      "needsFrames": true,
+      "dialog": "None"
+    },
+    "small-screen-fitting": [
+      {
+        "era": "Windows30",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows30",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows31",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows31",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows95",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows95",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows95",
+        "kind": "FreeCell",
+        "scale": 150,
+        "bounds": "{X=143,Y=4,Width=1080,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows95",
+        "kind": "FreeCell",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows98",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows98",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows98",
+        "kind": "FreeCell",
+        "scale": 150,
+        "bounds": "{X=143,Y=4,Width=1080,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows98",
+        "kind": "FreeCell",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "FreeCell",
+        "scale": 150,
+        "bounds": "{X=143,Y=4,Width=1080,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "FreeCell",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "Spider",
+        "scale": 150,
+        "bounds": "{X=8,Y=0,Width=1350,Height=728}",
+        "fits": true
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "Spider",
+        "scale": 200,
+        "bounds": "{X=-97,Y=-66,Width=1560,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows2000",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows2000",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Windows2000",
+        "kind": "FreeCell",
+        "scale": 150,
+        "bounds": "{X=143,Y=4,Width=1080,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "Windows2000",
+        "kind": "FreeCell",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=203,Y=4,Width=960,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=43,Y=-66,Width=1280,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "FreeCell",
+        "scale": 150,
+        "bounds": "{X=143,Y=4,Width=1080,Height=720}",
+        "fits": true
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "FreeCell",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "Spider",
+        "scale": 150,
+        "bounds": "{X=8,Y=0,Width=1350,Height=728}",
+        "fits": true
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "Spider",
+        "scale": 200,
+        "bounds": "{X=-97,Y=-66,Width=1560,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=143,Y=0,Width=1080,Height=728}",
+        "fits": true
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "scale": 150,
+        "bounds": "{X=143,Y=0,Width=1080,Height=728}",
+        "fits": true
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "scale": 200,
+        "bounds": "{X=0,Y=-66,Width=1366,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Spider",
+        "scale": 150,
+        "bounds": "{X=8,Y=0,Width=1350,Height=728}",
+        "fits": true
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Spider",
+        "scale": 200,
+        "bounds": "{X=-97,Y=-66,Width=1560,Height=860}",
+        "fits": false
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "scale": 150,
+        "bounds": "{X=0,Y=0,Width=1366,Height=728}",
+        "fits": true
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "scale": 200,
+        "bounds": "{X=0,Y=0,Width=1366,Height=728}",
+        "fits": true
+      }
+    ],
+    "two-open-instances": {
+      "saveA": true,
+      "saveB": true,
+      "firstMoves": 2,
+      "finalMoves": 1,
+      "firstPalette": 2,
+      "finalPalette": 0,
+      "warningA": null,
+      "warningB": null
+    },
+    "accessibility-and-keyboard": [
+      {
+        "era": "Windows30",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows31",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows95",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows95",
+        "kind": "FreeCell",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows98",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows98",
+        "kind": "FreeCell",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "FreeCell",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsMe",
+        "kind": "Spider",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows2000",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Windows2000",
+        "kind": "FreeCell",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "FreeCell",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsXP",
+        "kind": "Spider",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Klondike",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "FreeCell",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "WindowsVista",
+        "kind": "Spider",
+        "boardChildren": -1,
+        "settingsChildren": -1
+      },
+      {
+        "era": "Future2126",
+        "kind": "Klondike",
+        "boardChildren": 29,
+        "settingsChildren": 19
+      }
+    ],
+    "resource-soak": [
+      {
+        "pass": 0,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 47755264,
+        "managedBytes": 1732384
+      },
+      {
+        "pass": 1,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 45715456,
+        "managedBytes": 1733768
+      },
+      {
+        "pass": 2,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 46252032,
+        "managedBytes": 1733816
+      },
+      {
+        "pass": 3,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 45608960,
+        "managedBytes": 1733864
+      },
+      {
+        "pass": 4,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 47534080,
+        "managedBytes": 1733912
+      },
+      {
+        "pass": 5,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 47034368,
+        "managedBytes": 1733992
+      },
+      {
+        "pass": 6,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 46092288,
+        "managedBytes": 1734040
+      },
+      {
+        "pass": 7,
+        "gdi": 33,
+        "user": 11,
+        "handles": 402,
+        "privateBytes": 46649344,
+        "managedBytes": 1734088
+      }
+    ]
+  },
+  "longSession": [
+    {
+      "moves": 100,
+      "history": 100,
+      "hintMedianMs": 0.4207,
+      "hintMaxMs": 0.5511,
+      "snapshotMs": 3.6224,
+      "saveMs": 63.1514,
+      "loadMs": 36.3968,
+      "saved": true,
+      "bytes": 205218,
+      "loadedMoves": 100,
+      "warning": null
+    },
+    {
+      "moves": 1000,
+      "history": 1000,
+      "hintMedianMs": 2.5491,
+      "hintMaxMs": 7.2654,
+      "snapshotMs": 0.1903,
+      "saveMs": 31.9434,
+      "loadMs": 78.9413,
+      "saved": true,
+      "bytes": 2019020,
+      "loadedMoves": 1000,
+      "warning": null
+    },
+    {
+      "moves": 5000,
+      "history": 5000,
+      "hintMedianMs": 12.056,
+      "hintMaxMs": 19.7421,
+      "snapshotMs": 0.1259,
+      "saveMs": 122.8793,
+      "loadMs": 305.6953,
+      "saved": true,
+      "bytes": 10087914,
+      "loadedMoves": 5000,
+      "warning": null
+    }
+  ],
+  "orbitPerformance": {
+    "description": "Offscreen production ORBIT renderer, cached deck, three-dimensional card-bank and flip frames. CPU costs and callback pacing, not measured monitor FPS.",
+    "results": [
+      {
+        "scale": 100,
+        "moving": true,
+        "width": 1120,
+        "height": 720,
+        "medianMs": 3.6802,
+        "p95Ms": 5.0107,
+        "allocatedBytesPerFrame": 16006
+      },
+      {
+        "scale": 100,
+        "moving": false,
+        "width": 1120,
+        "height": 720,
+        "medianMs": 1.6237,
+        "p95Ms": 2.4139,
+        "allocatedBytesPerFrame": 7594
+      },
+      {
+        "scale": 125,
+        "moving": true,
+        "width": 1400,
+        "height": 900,
+        "medianMs": 6.6733,
+        "p95Ms": 12.025,
+        "allocatedBytesPerFrame": 15918
+      },
+      {
+        "scale": 125,
+        "moving": false,
+        "width": 1400,
+        "height": 900,
+        "medianMs": 5.8059,
+        "p95Ms": 10.4317,
+        "allocatedBytesPerFrame": 7581
+      },
+      {
+        "scale": 150,
+        "moving": true,
+        "width": 1680,
+        "height": 1080,
+        "medianMs": 12.2067,
+        "p95Ms": 15.8984,
+        "allocatedBytesPerFrame": 15918
+      },
+      {
+        "scale": 150,
+        "moving": false,
+        "width": 1680,
+        "height": 1080,
+        "medianMs": 5.0746,
+        "p95Ms": 5.7842,
+        "allocatedBytesPerFrame": 7581
+      },
+      {
+        "scale": 200,
+        "moving": true,
+        "width": 2240,
+        "height": 1392,
+        "medianMs": 19.2484,
+        "p95Ms": 30.5743,
+        "allocatedBytesPerFrame": 15918
+      },
+      {
+        "scale": 200,
+        "moving": false,
+        "width": 2240,
+        "height": 1392,
+        "medianMs": 9.7678,
+        "p95Ms": 14.8324,
+        "allocatedBytesPerFrame": 7581
+      }
+    ],
+    "pacing": [
+      {
+        "redraw": "full",
+        "target": 60,
+        "deliveredFps": 60.04775125526158,
+        "p95IntervalMs": 17.12620000000009,
+        "frames": 131,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.2197334,
+        "highResolution": true
+      },
+      {
+        "redraw": "full",
+        "target": 120,
+        "deliveredFps": 119.02707542175715,
+        "p95IntervalMs": 9.594299999999834,
+        "frames": 261,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.2084168,
+        "highResolution": true
+      },
+      {
+        "redraw": "full",
+        "target": 144,
+        "deliveredFps": 102.39064872121133,
+        "p95IntervalMs": 16.405400000000014,
+        "frames": 225,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.2169635,
+        "highResolution": true
+      }
+    ]
+  },
+  "historicalPerformance": {
+    "description": "Warm production renderer into an offscreen bitmap; CPU frame cost, not measured monitor FPS. Spider contains 104 cards. Pacing uses the real Windows message queue and production frame clock with an offscreen dragged card.",
+    "results": [
+      {
+        "era": "Windows31",
+        "game": "Klondike",
+        "width": 960,
+        "height": 720,
+        "frames": 120,
+        "medianMs": 1.7715,
+        "p95Ms": 2.1662,
+        "allocatedBytesPerFrame": 5734
+      },
+      {
+        "era": "Windows95",
+        "game": "Klondike",
+        "width": 960,
+        "height": 720,
+        "frames": 120,
+        "medianMs": 1.6549,
+        "p95Ms": 1.8332,
+        "allocatedBytesPerFrame": 7698
+      },
+      {
+        "era": "Windows95",
+        "game": "FreeCell",
+        "width": 1080,
+        "height": 720,
+        "frames": 120,
+        "medianMs": 1.7983,
+        "p95Ms": 2.07,
+        "allocatedBytesPerFrame": 7250
+      },
+      {
+        "era": "WindowsXP",
+        "game": "Klondike",
+        "width": 960,
+        "height": 720,
+        "frames": 120,
+        "medianMs": 0.7637,
+        "p95Ms": 0.8273,
+        "allocatedBytesPerFrame": 8538
+      },
+      {
+        "era": "WindowsXP",
+        "game": "FreeCell",
+        "width": 1080,
+        "height": 720,
+        "frames": 120,
+        "medianMs": 0.8111,
+        "p95Ms": 0.9087,
+        "allocatedBytesPerFrame": 8082
+      },
+      {
+        "era": "WindowsXP",
+        "game": "Spider",
+        "width": 1350,
+        "height": 900,
+        "frames": 120,
+        "medianMs": 0.9459,
+        "p95Ms": 1.0527,
+        "allocatedBytesPerFrame": 8002
+      },
+      {
+        "era": "WindowsVista",
+        "game": "Klondike",
+        "width": 1080,
+        "height": 810,
+        "frames": 120,
+        "medianMs": 3.3885,
+        "p95Ms": 4.9327,
+        "allocatedBytesPerFrame": 8922
+      },
+      {
+        "era": "WindowsVista",
+        "game": "FreeCell",
+        "width": 1080,
+        "height": 810,
+        "frames": 120,
+        "medianMs": 4.2609,
+        "p95Ms": 5.2576,
+        "allocatedBytesPerFrame": 8946
+      },
+      {
+        "era": "WindowsVista",
+        "game": "Spider",
+        "width": 1350,
+        "height": 900,
+        "frames": 120,
+        "medianMs": 5.0484,
+        "p95Ms": 6.3968,
+        "allocatedBytesPerFrame": 9242
+      }
+    ],
+    "pacing": [
+      {
+        "redraw": "full",
+        "target": 60,
+        "deliveredFps": 60.0030349626692,
+        "p95IntervalMs": 17.79580000000003,
+        "frames": 131,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.2210434,
+        "highResolution": true
+      },
+      {
+        "redraw": "full",
+        "target": 120,
+        "deliveredFps": 113.06901641943755,
+        "p95IntervalMs": 12.22319999999999,
+        "frames": 249,
+        "heartbeatTicks": 34,
+        "elapsedSeconds": 2.2224738,
+        "highResolution": true
+      },
+      {
+        "redraw": "full",
+        "target": 144,
+        "deliveredFps": 98.09358986221453,
+        "p95IntervalMs": 15.522599999999942,
+        "frames": 215,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.2061131,
+        "highResolution": true
+      },
+      {
+        "redraw": "partial",
+        "target": 60,
+        "deliveredFps": 60.00436370195721,
+        "p95IntervalMs": 17.138700000000064,
+        "frames": 130,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.1888051,
+        "highResolution": true
+      },
+      {
+        "redraw": "partial",
+        "target": 120,
+        "deliveredFps": 120.02599891408522,
+        "p95IntervalMs": 8.778400000000186,
+        "frames": 262,
+        "heartbeatTicks": 34,
+        "elapsedSeconds": 2.2009805,
+        "highResolution": true
+      },
+      {
+        "redraw": "partial",
+        "target": 144,
+        "deliveredFps": 143.99788693386486,
+        "p95IntervalMs": 7.414700000000003,
+        "frames": 315,
+        "heartbeatTicks": 35,
+        "elapsedSeconds": 2.2011824,
+        "highResolution": true
+      }
+    ]
+  },
+  "publicRelease": {
+    "assets": [
+      {
+        "name": "Solitude.exe",
+        "size": 63646565
+      }
+    ],
+    "published": "2026-09-10T21:07:12Z",
+    "tag": "v0.10.1",
+    "url": "https://github.com/cazrl/Solitude/releases/tag/v0.10.1"
+  },
+  "renderParity": {
+    "sourceCount": 290,
+    "packageCount": 290,
+    "onlySource": [],
+    "onlyPackage": [],
+    "different": []
+  },
+  "verification": {
+    "displayedSeconds": 10,
+    "nativeChecks": 384,
+    "uiChecks": 24684,
+    "engineGroups": 53,
+    "wallSeconds": 10.008
+  },
+  "victoryPhaseTimings": [
+    "100% time 1 atmosphere True: 7,77 ms",
+    "100% time 2,8 atmosphere True: 6,04 ms",
+    "100% time 5 atmosphere True: 6,56 ms",
+    "100% time 6,6 atmosphere True: 6,89 ms",
+    "100% time 1 atmosphere False: 6,25 ms",
+    "100% time 2,8 atmosphere False: 4,71 ms",
+    "100% time 5 atmosphere False: 5,83 ms",
+    "100% time 6,6 atmosphere False: 6,89 ms",
+    "200% time 1 atmosphere True: 24,22 ms",
+    "200% time 2,8 atmosphere True: 27,26 ms",
+    "200% time 5 atmosphere True: 37,05 ms",
+    "200% time 6,6 atmosphere True: 43,17 ms",
+    "200% time 1 atmosphere False: 38,63 ms",
+    "200% time 2,8 atmosphere False: 29,69 ms",
+    "200% time 5 atmosphere False: 38,58 ms",
+    "200% time 6,6 atmosphere False: 42,46 ms"
+  ]
+}

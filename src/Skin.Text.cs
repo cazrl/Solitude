@@ -6,6 +6,42 @@ namespace Solitude;
 
 public sealed partial class Skin
 {
+    public void FutureButtonLabel(Graphics g,string text,RectangleF bounds,Color color,Font? face=null)
+    {
+        // Center the actual glyph ink, not Segoe UI's asymmetric line box.
+        // Reuse the device-resolution text mask so fractional scales stay crisp.
+        string label=text.Replace("&","");
+        using var matrix=g.Transform;float scale=matrix.Elements[0];
+        var font=NativeFont(face??Ui,scale);
+        var size=new Size(Math.Max(1,(int)MathF.Round(bounds.Width*scale)),Math.Max(1,(int)MathF.Round(bounds.Height*scale)));
+        var key=(label,font,size,color.ToArgb(),true,false);
+        if(!nativeText.TryGetValue(key,out var pixels))
+        {
+            if(nativeText.Count>=256 || textPixels+size.Width*size.Height>4_000_000){foreach(var item in nativeText.Values)item.Dispose();nativeText.Clear();textPixels=0;}
+            pixels=RenderNativeText(label,font,size,color,true,false);nativeText[key]=pixels;textPixels+=size.Width*size.Height;
+        }
+        // Cache the ink bounds alongside the existing mask, instead of doing
+        // font measurements with a different text engine.
+        if(!futureInk.TryGetValue(pixels,out var ink))
+        {
+            futureInk.Keys.Where(b=>!nativeText.Values.Contains(b)).ToList().ForEach(b=>futureInk.Remove(b));
+            int left=pixels.Width,top=pixels.Height,right=-1,bottom=-1;
+            for(int y=0;y<pixels.Height;y++)for(int x=0;x<pixels.Width;x++)if(pixels.GetPixel(x,y).A>=128)
+            {left=Math.Min(left,x);top=Math.Min(top,y);right=Math.Max(right,x);bottom=Math.Max(bottom,y);}
+            ink=right<0?Rectangle.Empty:Rectangle.FromLTRB(left,top,right+1,bottom+1);futureInk[pixels]=ink;
+        }
+        PointF[] origin=[bounds.Location];matrix.TransformPoints(origin);
+        int x0=CardArt.DevicePixel(origin[0].X+(bounds.Width*scale-ink.Width)/2)-ink.X;
+        int y0=CardArt.DevicePixel(origin[0].Y+(bounds.Height*scale-ink.Height)/2)-ink.Y;
+        var saved=g.Save();g.ResetTransform();g.DrawImageUnscaled(pixels,x0,y0);g.Restore(saved);
+        int marker=text.IndexOf('&');
+        if(marker>=0 && marker<label.Length)
+        {
+            float x=(x0+ink.X)/scale+Measure(g,label[..marker]);
+            Line(g,color,x,(y0+ink.Bottom+1)/scale,x+Measure(g,label[marker..(marker+1)])-1,(y0+ink.Bottom+1)/scale);
+        }
+    }
+    private readonly Dictionary<Bitmap,Rectangle> futureInk=[];
     private readonly Dictionary<(string,float,FontStyle),Font> nativeFonts=[];
     private readonly Dictionary<(string,Font,Size,int,bool,bool),Bitmap> nativeText=[];
     private int textPixels;
@@ -49,7 +85,7 @@ public sealed partial class Skin
     private float MeasureNative(Graphics g,string text,Font font)
     {
         using var matrix=g.Transform;float scale=matrix.Elements[0];
-        if(Vista)
+        if(Modern)
         {
             using var format=VistaTextFormat(false,false);
             // Measure at output resolution with the same engine that paints the mask.
@@ -88,8 +124,8 @@ public sealed partial class Skin
         using var mask=new Bitmap(size.Width,size.Height,PixelFormat.Format24bppRgb);
         using(var g=Graphics.FromImage(mask))
         {
-            g.Clear(Color.White);g.TextRenderingHint=Vista?TextRenderingHint.AntiAliasGridFit:TextRenderingHint.SingleBitPerPixelGridFit;
-            if(Vista)
+            g.Clear(Color.White);g.TextRenderingHint=Modern?TextRenderingHint.AntiAliasGridFit:TextRenderingHint.SingleBitPerPixelGridFit;
+            if(Modern)
             {
                 // DrawString preserves the requested Segoe UI face here. The GDI
                 // TextRenderer mask produced substituted serif glyphs on this host.
@@ -112,7 +148,7 @@ public sealed partial class Skin
             for(int y=0;y<size.Height;y++)for(int x=0;x<size.Width;x++)
             {
                 int i=y*input.Stride+x*3,o=y*output.Stride+x*4,coverage=255-(source[i]+source[i+1]+source[i+2])/3;
-                int a=(Vista?coverage:coverage>=128?255:0)*color.A/255;dest[o]=(byte)(color.B*a/255);dest[o+1]=(byte)(color.G*a/255);dest[o+2]=(byte)(color.R*a/255);dest[o+3]=(byte)a;
+                int a=(Modern?coverage:coverage>=128?255:0)*color.A/255;dest[o]=(byte)(color.B*a/255);dest[o+1]=(byte)(color.G*a/255);dest[o+2]=(byte)(color.R*a/255);dest[o+3]=(byte)a;
             }
             Marshal.Copy(dest,0,output.Scan0,dest.Length);
         }

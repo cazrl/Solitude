@@ -9,6 +9,15 @@ internal static class Program
         Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
         string? Arg(string key){int i=Array.IndexOf(args,key);return i>=0 && i+1<args.Length?args[i+1]:null;}
         string data=Arg("--data-dir") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Solitude");
+        GameWindow? activeWindow=null;
+        AppDomain.CurrentDomain.UnhandledException+=(_,e)=>RuntimeDiagnostics.Write(data,e.ExceptionObject as Exception??new Exception(e.ExceptionObject?.ToString()),activeWindow?.DiagnosticContext??"Unhandled runtime error");
+        Application.ThreadException+=(_,e)=>
+        {
+            RuntimeDiagnostics.Write(data,e.Exception,activeWindow?.DiagnosticContext??"UI callback error");
+            if(activeWindow?.TryRecoverOrbitUi(e.Exception)==true)return;
+            MessageBox.Show("Solitude encountered an error and must close. Error details were saved to:\n\n"+Path.Combine(data,"Solitude-error.txt"),"Solitude",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            Application.Exit();
+        };
         try
         {
             if(Arg("--licenses") is string licenses)
@@ -49,6 +58,7 @@ internal static class Program
                         form.RenderTo(Path.Combine(render,$"{prefix}-inactive.png"),inactive:true);count++;
                         form.RenderTo(Path.Combine(render,$"{prefix}-maximized.png"),maximize:true);count++;
                         if(era is Era.WindowsXP or Era.WindowsVista or Era.Future2126)form.RenderMotionSequence(Path.Combine(render,"motion"));
+                        if(era==Era.Future2126)form.RenderOrbitVictorySequence(Path.Combine(render,"victory"));
                     }
                 }
                 File.WriteAllText(Path.Combine(render,"complete.txt"),$"Rendered {count} application views using the production renderer.\n");
@@ -58,11 +68,21 @@ internal static class Program
             int? seed=int.TryParse(Arg("--seed"),out int deal)?deal:null;
             int? size=int.TryParse(Arg("--scale"),out int scaleArg) && scaleArg is 100 or 125 or 150 or 200?scaleArg:null;
             GameKind? kindArg=Enum.TryParse<GameKind>(Arg("--game"),out var parsedKind)&&Enum.IsDefined(parsedKind)?parsedKind:null;
+            using var instance=SingleInstanceLease.TryAcquire(data);
+            if(instance==null)
+            {
+                if(!SingleInstanceLease.ActivateExisting(data))MessageBox.Show("Solitude is already open or starting for these saved games.","Solitude",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                return 0;
+            }
             using var main=new GameWindow(new Store(data),selected,seed,size,kind:kindArg);
+            main.HandleCreated+=(_,_)=>instance.SetWindow(main.Handle);
+            if(main.IsHandleCreated)instance.SetWindow(main.Handle);
+            activeWindow=main;
             Application.Run(main);return 0;
         }
         catch(Exception ex)
         {
+            RuntimeDiagnostics.Write(data,ex,activeWindow?.DiagnosticContext??"Startup or render error");
             string log=Path.Combine(AppContext.BaseDirectory,"Solitude-error.txt");
             try{File.WriteAllText(log,ex.ToString());}catch(IOException){}catch(UnauthorizedAccessException){}
             if(!args.Contains("--render"))MessageBox.Show("Solitude could not start.\n\n"+ex.Message,"Solitude",MessageBoxButtons.OK,MessageBoxIcon.Error);

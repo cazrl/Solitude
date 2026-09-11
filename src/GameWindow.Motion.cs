@@ -56,7 +56,7 @@ public sealed partial class GameWindow
             Add(Game.State.Waste[i],r,new(PileKind.Waste,0,i),slot>=0,100+i);
         }
         for(int col=0;col<Game.State.Tableau.Count;col++)for(int i=0;i<Game.State.Tableau[col].Count;i++)
-            Add(Game.State.Tableau[col][i],TableauCard(col,i),new(PileKind.Tableau,col,i),true,1000+col*110+i);
+            Add(Game.State.Tableau[col][i],TableauCard(col,i),new(PileKind.Tableau,col,i),!skin.Future || TableauCard(col,i).IntersectsWith(OrbitColumnViewport(col)),1000+col*110+i);
         for(int f=0;f<Game.State.Foundations.Count;f++)
         {
             var pile=Game.State.Foundations[f];var r=Kind==GameKind.FreeCell?CellRect(f,true):Kind==GameKind.Spider?new RectangleF(Table.Left+16+f*(skin.Modern?CardWidth*.42f:24),Table.Bottom-CardHeight-12,CardWidth,CardHeight):TopCard(f+3);
@@ -75,7 +75,7 @@ public sealed partial class GameWindow
         foreach(var (key,pose) in dragPoses)origins[key]=pose;
         flights.Clear();
         if(ClassicFreeCell && !deal && !Preferences.FreeCellQuickPlay)BeginFreeCellSequence(origins,targets,now);
-        bool animate=skin.Modern?Preferences.Animate:ClassicSpider && Preferences.SpiderAnimateDeal;
+        bool animate=skin.Future?OrbitMotionEnabled:skin.Modern?Preferences.Animate:ClassicSpider && Preferences.SpiderAnimateDeal;
         if(animate)
         {
             int dealt=0,home=0;
@@ -83,7 +83,7 @@ public sealed partial class GameWindow
             {
                 bool dragged=dragPoses.ContainsKey(target.Card.Key);
                 var from=origins.GetValueOrDefault(target.Card.Key,target with{Rect=StockRect,Card=target.Card with{FaceUp=false}});
-                if(deal){if(target.Position.Kind!=PileKind.Tableau)continue;from=target with{Rect=StockRect,Card=target.Card with{FaceUp=false}};}
+                if(deal){if(target.Position.Kind!=PileKind.Tableau)continue;from=target with{Rect=StockRect,Card=target.Card with{FaceUp=false},Position=new(PileKind.Stock),Visible=true};}
                 if(ClassicSpider && !deal && (from.Position.Kind!=PileKind.Stock || target.Position.Kind!=PileKind.Tableau))continue;
                 bool moved=Math.Abs(from.Rect.X-target.Rect.X)+Math.Abs(from.Rect.Y-target.Rect.Y)>0.5f,turned=from.Card.FaceUp!=target.Card.FaceUp;
                 if((moved || turned) && (from.Visible || target.Visible || deal))
@@ -147,6 +147,12 @@ public sealed partial class GameWindow
         for(int i=Game.Index(selected);i<pile.Count;i++)if(pile[i].Key==card.Key)return true;
         return false;
     }
+    private int SettledTop(List<Card> pile,Position position)
+    {
+        int index=pile.Count-1-(dragging && IsSelected(position)?1:0);
+        while(index>=0 && flights.ContainsKey(pile[index].Key))index--;
+        return index;
+    }
     private void DrawGameCard(Graphics g,Card card,RectangleF r)
     {
         if(showingVictory && skin.Modern && Kind==GameKind.Klondike)return;
@@ -159,16 +165,24 @@ public sealed partial class GameWindow
     private void PaintMovingCards(Graphics g)
     {
         double now=MotionNow;var saved=g.Save();g.SetClip(Table,CombineMode.Intersect);
+        if(skin.Future)g.SetClip(new RectangleF(Table.X,Table.Y,Table.Width,TableauBottom-Table.Y),CombineMode.Intersect);
         foreach(var flight in flights.Values.OrderBy(f=>f.To.Layer))
         {
+            // Undealt cards are still inside the visible stock, not a second
+            // pile of sprites painted over cards that have already departed.
+            if(skin.Future && flight.From.Position.Kind==PileKind.Stock && now<flight.Start)continue;
             if(IsDragged(flight.To.Card) || now>=flight.End && !flight.To.Visible)continue;
             var pose=flight.Sample(now);
             if(skin.Future)
             {
+                var cardClip=g.Save();
+                if(flight.From.Position.Kind==PileKind.Tableau && flight.To.Position.Kind==PileKind.Tableau && flight.From.Position.Pile==flight.To.Position.Pile)
+                    g.SetClip(OrbitColumnViewport(flight.To.Position.Pile),CombineMode.Intersect);
                 float t=(float)Math.Clamp((now-flight.Start)/flight.Duration,0,1),bank=flight.Bank(now);
                 if(Preferences.FutureAtmosphere && t>0 && t<1 && Math.Abs(flight.To.Rect.X-flight.From.Rect.X)>30)
                     for(int i=4;i>=1;i--){var tail=flight.Sample(Math.Max(flight.Start,now-i*.017)).Rect;using var b=new SolidBrush(Color.FromArgb(55-i*9,Orbit.Accent));g.FillEllipse(b,tail.X+tail.Width/2-1.4f,tail.Y+tail.Height/2-1.4f,2.8f,2.8f);}
                 Orbit.DrawCard(g,pose.Card,pose.Rect,ScaleFactor,flight.To.Rect.Width,bank);
+                g.Restore(cardClip);
             }
             else art.Draw(g,pose.Card,pose.Rect,Preferences.Era,Preferences.CardBack,flight.To.Rect.Width);
         }

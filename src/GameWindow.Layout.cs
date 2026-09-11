@@ -21,9 +21,10 @@ public sealed partial class GameWindow
             while(down<pile.Count && !pile[down].FaceUp)down++;
             float available=TableauBottom-TableauY-CardHeight;
             stackSteps[col]=Math.Clamp((available-down*7)/Math.Max(1,pile.Count-down-1),1,skin.Modern?25:Kind==GameKind.Spider?27:18);
+            if(skin.Future)stackSteps[col]=Math.Min(CardWidth*.34f,Math.Max(CardWidth*.27f,(available-down*OrbitHiddenStep)/Math.Max(1,pile.Count-down-1)));
             if(cardY[col]==null || cardY[col].Length<pile.Count+1)cardY[col]=new float[pile.Count+8];
             float y=TableauY;
-            for(int i=0;i<=pile.Count;i++){cardY[col][i]=y;if(i<pile.Count)y+=pile[i].FaceUp?stackSteps[col]:7;}
+            for(int i=0;i<=pile.Count;i++){cardY[col][i]=y;if(i<pile.Count)y+=pile[i].FaceUp?stackSteps[col]:skin.Future?OrbitHiddenStep:7;}
         }
     }
 }

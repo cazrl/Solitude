@@ -11,6 +11,7 @@ public sealed class FutureArt : IDisposable
     private readonly Dictionary<(float,FontStyle),Font> fonts=[];
     private Bitmap? scene;
     private (int,int,int,bool) sceneKey;
+    private static readonly Dictionary<int,Bitmap> glowSprites=[];
     public int Palette { get; set; }
     public Color Accent=>Palette switch{1=>Color.FromArgb(239,191,126),2=>Color.FromArgb(175,179,255),_=>Color.FromArgb(119,232,218)};
     public static readonly Color Ink=Color.FromArgb(229,239,243),Muted=Color.FromArgb(146,168,183);
@@ -25,8 +26,21 @@ public sealed class FutureArt : IDisposable
     {using var path=Skin.Rounded(r,radius);using var brush=new SolidBrush(fill);using var pen=new Pen(edge);g.FillPath(brush,path);g.DrawPath(pen,path);}
     public static void Glow(Graphics g,PointF center,float radius,Color color)
     {
-        using var path=new GraphicsPath();path.AddEllipse(center.X-radius,center.Y-radius,radius*2,radius*2);
-        using var brush=new PathGradientBrush(path){CenterColor=color,SurroundColors=[Color.FromArgb(0,color)],CenterPoint=center};g.FillPath(brush,path);
+        // Reuse a small radial texture instead of tessellating gradients for
+        // every particle in every frame. This cache has a fixed memory bound.
+        lock(glowSprites)
+        {
+            int key=color.ToArgb();
+            if(!glowSprites.TryGetValue(key,out var sprite))
+            {
+                if(glowSprites.Count>=48){int oldest=glowSprites.Keys.First();glowSprites[oldest].Dispose();glowSprites.Remove(oldest);}
+                sprite=new Bitmap(128,128,PixelFormat.Format32bppPArgb);
+                using var target=Graphics.FromImage(sprite);using var path=new GraphicsPath();path.AddEllipse(0,0,128,128);
+                using var brush=new PathGradientBrush(path){CenterColor=color,SurroundColors=[Color.FromArgb(0,color)],CenterPoint=new(64,64)};target.FillPath(brush,path);
+                glowSprites[key]=sprite;
+            }
+            g.DrawImage(sprite,new RectangleF(center.X-radius,center.Y-radius,radius*2,radius*2));
+        }
     }
     public static void OrbitMark(Graphics g,RectangleF r,Color color)
     {
@@ -68,25 +82,47 @@ public sealed class FutureArt : IDisposable
     public void DrawCard(Graphics g,Card card,RectangleF r,float density,float faceWidth=0,float bank=0)
     {
         float fullWidth=faceWidth>0?faceWidth:r.Width;
-        int w=Math.Max(1,(int)MathF.Ceiling(fullWidth*density)),h=Math.Max(1,(int)MathF.Ceiling(r.Height*density));
-        var key=(card.FaceUp?card.Id:-1,Palette,w,h);
-        if(!cards.TryGetValue(key,out var bitmap))
-        {
-            if(cards.Count>=160){foreach(var old in cards.Values)old.Dispose();cards.Clear();}
-            int pad=(int)MathF.Ceiling(8*density);bitmap=new Bitmap(w+pad,h+pad,PixelFormat.Format32bppPArgb);
-            using(var c=Graphics.FromImage(bitmap)){c.ScaleTransform(w/96f,h/136f);c.SmoothingMode=SmoothingMode.AntiAlias;c.TextRenderingHint=TextRenderingHint.AntiAliasGridFit;PaintCard(c,card);}
-            cards[key]=bitmap;
-        }
+        var bitmap=CardBitmap(card,fullWidth,r.Height,density);
         var target=new RectangleF(r.X,r.Y,bitmap.Width/density*r.Width/fullWidth,bitmap.Height/density);
         if(Math.Abs(bank)>.001f)
         {
             var s=g.Save();g.TranslateTransform(r.X+r.Width/2,r.Y+r.Height/2);g.RotateTransform(bank);g.TranslateTransform(-r.X-r.Width/2,-r.Y-r.Height/2);
-            g.InterpolationMode=InterpolationMode.HighQualityBilinear;g.DrawImage(bitmap,target,new RectangleF(0,0,bitmap.Width,bitmap.Height),GraphicsUnit.Pixel);g.Restore(s);return;
+            g.InterpolationMode=InterpolationMode.Bilinear;g.DrawImage(bitmap,target);g.Restore(s);return;
         }
         using var transform=g.Transform;PointF[] points=[target.Location,new(target.Right,target.Bottom)];transform.TransformPoints(points);
         var device=Rectangle.FromLTRB(CardArt.DevicePixel(points[0].X),CardArt.DevicePixel(points[0].Y),CardArt.DevicePixel(points[1].X),CardArt.DevicePixel(points[1].Y));
         var state=g.Save();g.ResetTransform();g.InterpolationMode=InterpolationMode.HighQualityBilinear;
         if(device.Size==bitmap.Size)g.DrawImageUnscaled(bitmap,device.Location);else g.DrawImage(bitmap,device,0,0,bitmap.Width,bitmap.Height,GraphicsUnit.Pixel);g.Restore(state);
+    }
+    private Bitmap CardBitmap(Card card,float width,float height,float density)
+    {
+        int w=Math.Max(1,(int)MathF.Ceiling(width*density)),h=Math.Max(1,(int)MathF.Ceiling(height*density));
+        var key=(card.FaceUp?card.Id:-1,Palette,w,h);
+        if(!cards.TryGetValue(key,out var bitmap))
+        {
+            if(cards.Count>=192){var oldest=cards.Keys.First();cards[oldest].Dispose();cards.Remove(oldest);}
+            int pad=(int)MathF.Ceiling(8*density);bitmap=new Bitmap(w+pad,h+pad,PixelFormat.Format32bppPArgb);
+            using(var c=Graphics.FromImage(bitmap)){c.ScaleTransform(w/96f,h/136f);c.SmoothingMode=SmoothingMode.AntiAlias;c.TextRenderingHint=TextRenderingHint.AntiAliasGridFit;PaintCard(c,card);}
+            cards[key]=bitmap;
+        }
+        return bitmap;
+    }
+    public void DrawOrbitingCard(Graphics g,Card card,PointF center,float width,float height,float roll,float yaw,float density,float referenceWidth,float referenceHeight)
+    {
+        float facing=MathF.Cos(yaw),squash=Math.Max(.025f,Math.Abs(facing));
+        var bitmap=CardBitmap(card with{FaceUp=facing>=0},referenceWidth,referenceHeight,density);
+        float c=MathF.Cos(roll),s=MathF.Sin(roll),shear=MathF.Sin(yaw)*width*.08f;
+        PointF Project(float x,float y)
+        {
+            float px=(x-.5f)*width*squash+(y-.5f)*shear,py=(y-.5f)*height;
+            return new(center.X+px*c-py*s,center.Y+px*s+py*c);
+        }
+        // Use one stable-resolution sprite per card. Perspective/flip changes
+        // its destination only, avoiding a new bitmap for every animation step.
+        float right=bitmap.Width/(referenceWidth*density),bottom=bitmap.Height/(referenceHeight*density);
+        PointF[] corners=[Project(0,0),Project(right,0),Project(0,bottom)];
+        var saved=g.Save();g.InterpolationMode=InterpolationMode.Bilinear;
+        g.DrawImage(bitmap,corners,new RectangleF(0,0,bitmap.Width,bitmap.Height),GraphicsUnit.Pixel);g.Restore(saved);
     }
     private void PaintCard(Graphics g,Card card)
     {
@@ -104,7 +140,7 @@ public sealed class FutureArt : IDisposable
         }
         Color ink=card.Red?Color.FromArgb(179,49,65):Color.FromArgb(22,45,59);
         string rank=card.Rank switch{1=>"A",11=>"J",12=>"Q",13=>"K",_=>card.Rank.ToString()};
-        void Corner(){Text(g,rank,new(6,3,25,23),19,ink,false,FontStyle.Bold);Suit(g,card.Suit,new(8,28,12,12),ink);}
+        void Corner(){Text(g,rank,new(6,3,25,23),19,ink,false,FontStyle.Bold);Suit(g,card.Suit,new(32,8,12,12),ink);}
         Corner();var rotated=g.Save();g.TranslateTransform(96,136);g.RotateTransform(180);Corner();g.Restore(rotated);
         if(card.Rank==1)
         {
@@ -122,7 +158,7 @@ public sealed class FutureArt : IDisposable
             }
             g.DrawLine(thin,0,-39,0,39);g.DrawLine(thin,-31,0,31,0);g.Restore(s);
             Suit(g,card.Suit,new(40,60,16,17),ink);
-            Text(g,card.Rank==11?"NAVIGATOR":card.Rank==12?"SOVEREIGN":"ARCHITECT",new(15,110,66,9),5.5f,ink,true,FontStyle.Bold);
+            Text(g,card.Rank==11?"NAVIGATOR":card.Rank==12?"SOVEREIGN":"ARCHITECT",new(12,106,72,13),7.5f,ink,true,FontStyle.Bold);
         }
         else
         {

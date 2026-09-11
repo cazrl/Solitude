@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Security.Cryptography;
 
 namespace Solitude;
 
@@ -16,6 +17,7 @@ public sealed class Preferences
     public int CardBack { get; set; } = 6;
     public int VistaDeck { get; set; } = 1;
     public int VistaBackground { get; set; }
+    public int FutureVolume { get; set; } = 65;
     public int FuturePalette { get; set; }
     public bool FutureAtmosphere { get; set; } = true;
     public bool ShowStatus { get; set; } = true;
@@ -96,17 +98,46 @@ public sealed class SavedSession
     public GameState? Game { get; set; }
     public List<GameState> History { get; set; } = [];
 }
-public sealed class Store(string directory)
+public sealed class Store
 {
-    public string DirectoryPath { get; } = Path.GetFullPath(directory);
+    public string DirectoryPath { get; }
     public string FilePath => Path.Combine(DirectoryPath, "solitude.json");
     public string? Warning { get; private set; }
     private bool preserveUnreadable;
-    private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
+    private string? expectedRevision;
+    private bool revisionKnown;
+    public Store(string directory)
+    {
+        DirectoryPath=Path.GetFullPath(directory);
+        try{expectedRevision=Revision();revisionKnown=true;}
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { }
+    }
+    private string? Revision()
+    {
+        if(!File.Exists(FilePath))return null;
+        using var file=new FileStream(FilePath,FileMode.Open,FileAccess.Read,FileShare.Read|FileShare.Delete);
+        return Convert.ToHexString(SHA256.HashData(file));
+    }
+    private FileStream LockFile()
+    {
+        Directory.CreateDirectory(DirectoryPath);
+        // A file lock also works when two paths alias the same directory.
+        for(int attempt=0;;attempt++)
+        {
+            try{return new FileStream(FilePath+".lock",FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);}
+            catch(IOException ex) when((ex.HResult&0xffff) is 32 or 33 && attempt<100){Thread.Sleep(10);}
+        }
+    }
+    private static readonly JsonSerializerOptions Options = new() { WriteIndented = false };
     public SaveFile Load()
     {
-        if (!File.Exists(FilePath)) return new();
-        try { return Read(FilePath); }
+        try
+        {
+            using var fileLock=LockFile();
+            expectedRevision=Revision();revisionKnown=true;Warning=null;preserveUnreadable=false;
+            if(expectedRevision==null)return new();
+            return Read(FilePath);
+        }
         catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or UnauthorizedAccessException or ArgumentException)
         {
             preserveUnreadable = true;
@@ -180,6 +211,7 @@ public sealed class Store(string directory)
     {
         if (p?.Rules == null || history == null || !Enum.IsDefined(p.Era) || !GameCatalog.Available(p.Era, p.Rules.Kind) || !Enum.IsDefined(p.Rules.Scoring) || p.Rules.DrawCount is not (1 or 3) || p.Scale is not (100 or 125 or 150 or 200) || p.CardBack is < 0 or > 11 || p.VistaDeck is < 0 or > 3 || p.VistaBackground is < 0 or > 4)
             throw new InvalidDataException("Invalid saved preferences.");
+        if(p.FutureVolume is <0 or >100)throw new InvalidDataException("Invalid ORBIT volume.");
         if(p.FuturePalette is <0 or >2)throw new InvalidDataException("Invalid ORBIT palette.");
         _ = new Game(p.Rules, 1);
         if(p.FrameRate is not (60 or 120 or 144) || p.MotionDuration is not (140 or 210 or 320))throw new InvalidDataException("Invalid animation preferences.");
@@ -191,18 +223,21 @@ public sealed class Store(string directory)
     {
         try
         {
-            Directory.CreateDirectory(DirectoryPath);
+            string json=JsonSerializer.Serialize(saved, Options);
+            if(System.Text.Encoding.UTF8.GetByteCount(json)>128*1024*1024)throw new IOException("The saved game is too large. Your previous save has been preserved.");
+            using var fileLock=LockFile();
+            if(!revisionKnown || Revision()!=expectedRevision)
+                throw new IOException("Another instance changed the saved games. Its progress has been preserved. Close this window without saving, then reopen Solitude to load the latest games.");
             if (preserveUnreadable && File.Exists(FilePath))
             {
                 File.Copy(FilePath, FilePath + ".unreadable-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff"), false);
                 preserveUnreadable = false;
             }
             string temporary = FilePath + ".tmp";
-            string json=JsonSerializer.Serialize(saved, Options);
-            if(System.Text.Encoding.UTF8.GetByteCount(json)>128*1024*1024)throw new IOException("The saved game is too large. Your previous save has been preserved.");
             File.WriteAllText(temporary,json);
             if (File.Exists(FilePath)) File.Replace(temporary, FilePath, FilePath + ".bak");
             else File.Move(temporary, FilePath);
+            expectedRevision=Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(json)));
             Warning = null; return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

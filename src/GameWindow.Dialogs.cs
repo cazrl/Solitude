@@ -6,6 +6,7 @@ public sealed partial class GameWindow
     private readonly Dictionary<char,string> dialogMnemonics=[];
     private readonly Dictionary<string,string> dialogRadios=[];
     private readonly HashSet<string> dialogButtons=[];
+    private readonly List<(string Text,RectangleF Bounds)> dialogReadText=[];
     private void RefreshDialogInput()
     {
         hotspots.RemoveAll(h=>h.Id.StartsWith("dialog-") || h.Id=="modal-close");
@@ -18,7 +19,7 @@ public sealed partial class GameWindow
     }
     private void PaintDialog(Graphics g)
     {
-        dialogControl=0;dialogMnemonics.Clear();dialogRadios.Clear();dialogButtons.Clear();
+        dialogControl=0;dialogMnemonics.Clear();dialogRadios.Clear();dialogButtons.Clear();dialogReadText.Clear();
         if(skin.Future && dialog is DialogPage.Options or DialogPage.Deck or DialogPage.Won or DialogPage.Help or DialogPage.About or DialogPage.AppAbout){PaintFutureDialog(g);return;}
         string title=dialog switch {
             DialogPage.Settings=>"Settings",DialogPage.Options=>ClassicFreeCell?"FreeCell Options":ClassicSpider?"Spider Options":"Options",DialogPage.Deck=>skin.Modern?"Change Appearance":"Select Card Back",
@@ -77,7 +78,7 @@ public sealed partial class GameWindow
                 Wrapped(g,$"Games played: {Statistics.Played}\nGames won: {Statistics.Won}\nBest score: {Statistics.BestScore}",new(x,y+38,w,75));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.AppAbout:
-                skin.Text(g,"Solitude 0.10.1",new(x,y,w,25),font:skin.Bold);
+                skin.Text(g,$"Solitude {typeof(GameWindow).Assembly.GetName().Version?.ToString(3)}",new(x,y,w,25),font:skin.Bold);
                 Wrapped(g,"Windows card games, 1990-2007.\nORBIT, imagined for 2126.\nPress F6 to choose an edition.",new(x,y+38,w,78));
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.MoveColumn:
@@ -112,6 +113,7 @@ public sealed partial class GameWindow
     private void Wrapped(Graphics g,string text,RectangleF r)
     {
         skin.Wrapped(g,text,r);
+        if(!string.IsNullOrWhiteSpace(text))dialogReadText.Add((text,r));
     }
     private void DialogButton(Graphics g,string id,RectangleF r,string label,Action action,bool primary=false)
     {
@@ -120,6 +122,7 @@ public sealed partial class GameWindow
         // The close widget is excluded from the tab sequence so indexes follow the visible form controls.
         bool focus=keyboardFocus==dialogControl++;
         skin.Button(g,r,label,r.Contains(mouse),primary,focus:focus,pressed:pressedHotspot=="dialog-"+id && r.Contains(mouse));Add("dialog-"+id,r,action);
+        hotspots[^1]=hotspots[^1] with{Label=label.Replace("&","")};
     }
     private void Check(Graphics g,string id,RectangleF r,string label,bool selected,Action action,bool radio=false,bool enabled=true)
     {
@@ -128,6 +131,7 @@ public sealed partial class GameWindow
         skin.Check(g,r,label,selected,radio,enabled && r.Contains(mouse),enabled && pressedHotspot=="dialog-"+id && r.Contains(mouse),enabled);
         if(enabled && keyboardFocus==dialogControl){var rect=r;rect.X+=16;rect.Width-=16;using var pen=new Pen(skin.Future?Orbit.Accent:Color.Black){DashStyle=System.Drawing.Drawing2D.DashStyle.Dot};g.DrawRectangle(pen,rect.X,rect.Y,rect.Width,rect.Height);}
         if(enabled)dialogControl++;Add("dialog-"+id,r,action,enabled);
+        hotspots[^1]=hotspots[^1] with{Label=label.Replace("&",""),Role=radio?AccessibleRole.RadioButton:AccessibleRole.CheckButton,Checked=selected};
     }
     private void PaintSettings(Graphics g,float x,float y,float w,float bottom)
     {
@@ -141,6 +145,7 @@ public sealed partial class GameWindow
             skin.Text(g,Skin.Years[i],new(row.Right-40,row.Y,37,row.Height),selected?Color.White:Color.Gray);
             if(keyboardFocus==dialogControl){using var pen=new Pen(selected?Color.White:Color.Black){DashStyle=System.Drawing.Drawing2D.DashStyle.Dot};g.DrawRectangle(pen,row.X+2,row.Y+2,row.Width-5,row.Height-5);}
             Add("dialog-era-"+i,row,()=>ChooseDraftEra((Era)index));dialogControl++;
+            hotspots[^1]=hotspots[^1] with{Label=Skin.Names[i],Role=AccessibleRole.RadioButton,Checked=selected};
         }
         float px=x+255,pw=w-255;
         using(var preview=new Skin(draft!.Era))
@@ -170,7 +175,7 @@ public sealed partial class GameWindow
         }
         DialogButton(g,"records",new(x,bottom-36,92,25),"Records...",()=>OpenDialog(DialogPage.Records));
         DialogButton(g,"app-about",new(x+100,bottom-36,88,25),"About...",()=>OpenDialog(DialogPage.AppAbout));
-        skin.Text(g,"Shared settings. Existing deals keep their current rules.",new(x,y+286,w,20));
+        skin.Text(g,skin.Future?"Display size fits your screen. Existing deals keep their rules.":"Shared settings. Existing deals keep their current rules.",new(x,y+286,w,20));
         DialogButton(g,"ok",new(x+w-170,bottom-36,80,25),"OK",ApplySettings,true);
         DialogButton(g,"cancel",new(x+w-80,bottom-36,80,25),"Cancel",CloseDialog);
     }
@@ -186,8 +191,16 @@ public sealed partial class GameWindow
     }
     private void ApplyOptions()
     {
-        bool rulesChanged=Preferences.Rules.DrawCount!=draft!.Rules.DrawCount || Preferences.Rules.Scoring!=draft.Rules.Scoring || Preferences.Rules.Timed!=draft.Rules.Timed || Preferences.Rules.AutoFlip!=draft.Rules.AutoFlip || Preferences.Rules.SpiderSuits!=draft.Rules.SpiderSuits;
-        Preferences=draft;shared.Capture(Preferences);CloseDialog();if(rulesChanged)NewGame();else Save();Invalidate();
+        var current=Game.Rules;
+        bool rulesChanged=current.DrawCount!=draft!.Rules.DrawCount || current.Scoring!=draft.Rules.Scoring || current.Timed!=draft.Rules.Timed || current.AutoFlip!=draft.Rules.AutoFlip || current.SpiderSuits!=draft.Rules.SpiderSuits;
+        if(!rulesChanged)
+        {
+            // Appearance-only Apply must not replace shared next-deal rules
+            // with the suspended deal's rules. Keep score is a next-deal choice.
+            bool keepScore=draft.Rules.KeepVegasScore;
+            draft.Rules=Preferences.Rules.Clone();draft.Rules.KeepVegasScore=keepScore;
+        }
+        Preferences=draft;shared.Capture(Preferences);CloseDialog();if(rulesChanged)NewGame();else if(skin.Future)QueueSaveNow();else Save();Invalidate();
     }
     private void PaintClassicOptions(Graphics g,float x,float y,float w,float bottom)
     {

@@ -15,11 +15,22 @@ public sealed partial class GameWindow
             Preferences = Preferences.Clone(), Statistics = Statistics,
             ActiveRules=Game.Rules.Clone(),
             Game = Game.State.Clone(),
-            History = Game.History.Select(s => s.Clone()).ToList()
+            History = Game.History.ToList()
         };
     }
     private void SwitchGame(Preferences chosen)
     {
+        FinishEditionMorph();
+        var area = Screen.FromControl(this).WorkingArea;
+        CancelDrag();StopCardMotion();
+        bool leavingOrbit=skin.Future && chosen.Era!=Era.Future2126;
+        bool orbitMotion=Preferences.Animate;
+        var departureAccent=skin.Future?Orbit.Accent:Color.Empty;
+        bool morphRequested=Visible && (leavingOrbit || !skin.Future && chosen.Era==Era.Future2126);
+        if(morphRequested)CloseDialog();
+        using var previousSurface=morphRequested?CaptureEditionSurface(ClientSize):null;
+        var previousBounds=Bounds;
+        bool orbitTransition=skin.Future || chosen.Era==Era.Future2126;
         futurePulses.Clear();futureMessage=null;
         Rules? storedRules=Game.Rules.Clone();GameState? storedGame=Game.State;List<GameState> storedHistory=Game.History;
         bool different = Preferences.Era != chosen.Era || Kind != chosen.Rules.Kind;
@@ -40,15 +51,15 @@ public sealed partial class GameWindow
         else Preferences.Scale = chosen.Scale;
         shared.Scale=chosen.Scale;shared.Apply(Preferences);GameCatalog.ApplyPeriodPresentation(Preferences);
         Game=storedGame==null?new(Preferences.Rules.Clone()):Game.Restore(storedRules??Preferences.Rules.Clone(),storedGame,storedHistory);
-        CancelDrag(); StopCardMotion(); selection = null; hint = null; collecting = false; showingVictory = false;pendingWin=false; keyboardPile = 0;
-        victoryTrail?.Dispose(); victoryTrail = null; status = ""; elapsedFraction = 0; lastSavedSecond = Game.State.Elapsed;
+        selection = null; hint = null; collecting = false; showingVictory = false;pendingWin=false; keyboardPile = 0;
+        victoryTrail?.Dispose(); victoryTrail = null; status = ""; elapsedMilliseconds = 0; lastSavedSecond = Game.State.Elapsed;
         skin.Dispose(); skin = new(Preferences.Era); Text = GameTitle;
         ConfigurePeriodIcon();closingDecision=false;
         vistaSaveOnce=false;offerVistaResume=false;oneMoveWarning=false;peekCard=null;vistaTipTitle=null;
-        CloseDialog(); maximized = false; ApplySize();
-        var area = Screen.FromControl(this).WorkingArea;
-        Location = new(Math.Clamp(Left, area.Left, Math.Max(area.Left, area.Right-Width)), Math.Clamp(Top, area.Top, Math.Max(area.Top, area.Bottom-Height)));
-        CheckFreeCellEnd();Save(); Invalidate();
+        CloseDialog(); maximized = false;
+        if(previousSurface!=null)BeginEditionMorph(previousSurface,previousBounds,area,leavingOrbit?orbitMotion:Preferences.Animate,departureAccent);
+        else CenterGameWindow(area);
+        CheckFreeCellEnd();if(orbitTransition)QueueSaveNow();else Save(); Invalidate();
     }
     private void ChooseDraftEra(Era era)
     {
@@ -88,7 +99,7 @@ public sealed partial class GameWindow
     {
         if (Kind == GameKind.Spider && Game.State.Stock.Count > 0 && !Game.CanDealSpider)
         { notice="You cannot deal a new row while any columns are empty. Move a card into each empty column first."; OpenDialog(DialogPage.Notice); return; }
-        bool dealt=Game.Draw();Changed(dealt);if(dealt)PlayVistaSound("SHARED_CARDDEAL");
+        futureActionSound="SHARED_CARDDEAL";bool dealt=Game.Draw();Changed(dealt);futureActionSound=null;if(dealt && !skin.Future)PlayVistaSound("SHARED_CARDDEAL");
     }
     private Position FreeCellSelection(int column)
     {
@@ -151,13 +162,13 @@ public sealed partial class GameWindow
         {
             foreach(var cell in DestinationAreas())
             {
-                var pile=Game.Pile(cell.Position)!;int count=pile.Count-(dragging && IsSelected(cell.Position)?1:0);
-                if(count==0)
+                var pile=Game.Pile(cell.Position)!;int index=SettledTop(pile,cell.Position);
+                if(index<0)
                 {
                     if(skin.Modern)Empty(g,cell.Rect,true);
                     else {var r=cell.Rect;Skin.Line(g,Color.Black,r.X,r.Y,r.Right-1,r.Y);Skin.Line(g,Color.Black,r.X,r.Y,r.X,r.Bottom-1);Skin.Line(g,Color.LimeGreen,r.Right-1,r.Y,r.Right-1,r.Bottom-1);Skin.Line(g,Color.LimeGreen,r.X,r.Bottom-1,r.Right-1,r.Bottom-1);}
                 }
-                else {DrawGameCard(g,pile[count-1],cell.Rect);cardAreas.Add((cell.Position,cell.Rect));}
+                else {DrawGameCard(g,pile[index],cell.Rect);cardAreas.Add((cell.Position,cell.Rect));}
                 Highlight(g,cell.Position,cell.Rect);
             }
             if(!skin.Modern)
