@@ -11,6 +11,8 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw 'Game verification failed.' }
     dotnet run --project tests/Solitude.UiChecks.csproj -c Release -p:OutputPath=../artifacts/ui-check-build/
     if ($LASTEXITCODE -ne 0) { throw 'Historical window and interaction verification failed.' }
+    dotnet run --project tests/Solitude.PinballChecks.csproj -c Release -p:OutputPath=../artifacts/pinball-check-build/ -- artifacts/pinball-build-checks
+    if ($LASTEXITCODE -ne 0) { throw 'Pinball integration verification failed.' }
 }
 [xml]$project=Get-Content -LiteralPath 'src/Solitude.csproj'
 $version=$project.Project.PropertyGroup.Version

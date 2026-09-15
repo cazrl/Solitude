@@ -1,0 +1,13 @@
+{
+  "version": "0.12.0.0",
+  "bytes": 66928485,
+  "sha256": "770F7240E301B3E229AEE3FC0A63B32EB7A92530804E582E97400B0A42AFE437",
+  "testedAssemblySha256": "AC77DE5C87A4A8D0C19A7F958F6E67A657549A591A9209A3B2F4D918D032BB6C",
+  "personalSaveUnchanged": true,
+  "previousExeSha256": "F21F30F46E2E4FF0AF61EECF2119C4B455AADE21141F892BEFCE1B5B360067EE",
+  "backup": "C:\\Users\\Cazrl\\Documents\\ChatGPT\\Solitude\\artifacts\\pinball\\Solitude-before-0.12.0-20260912-204725.exe",
+  "pinballChecks": 28,
+  "selectorChecks": 288,
+  "fullRegression": "53 engine groups, 27137 UI checks, 384 native checks, 290 matching renders before final Pinball-only polish",
+  "publishedToGitHub": false
+}

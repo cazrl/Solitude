@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Solitude</AssemblyName>
     <RootNamespace>Solitude</RootNamespace>
-    <Version>0.11.8</Version>
-    <Description>Windows card games through time, with ORBIT Solitaire for 2126</Description>
+    <Version>0.12.1</Version>
+    <Description>Windows card games and Space Cadet Pinball, with ORBIT Solitaire for 2126</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/solitude.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>
@@ -19,8 +19,13 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
+    <PinballSource Include="../third_party/SpaceCadetPinball/**/*.cpp;../third_party/SpaceCadetPinball/**/*.h;../third_party/SpaceCadetPinball/**/*.rc;../third_party/SpaceCadetPinball/**/*.rc2;../third_party/SpaceCadetPinball/**/*.vcxproj;../tools/Build-Pinball.ps1" />
+    <EmbeddedResource Include="../artifacts/pinball/native/Solitude.Pinball.dll" LogicalName="Solitude.Pinball.Engine.dll" />
     <EmbeddedResource Include="Assets/**/*" />
     <EmbeddedResource Include="../THIRD_PARTY_NOTICES.md" LogicalName="Solitude.Notices.THIRD_PARTY_NOTICES.md" />
     <EmbeddedResource Include="../docs/licenses/*.txt" LogicalName="Solitude.Notices.%(Filename)%(Extension)" />
   </ItemGroup>
+  <Target Name="BuildPinball" BeforeTargets="PrepareForBuild" Inputs="@(PinballSource)" Outputs="../artifacts/pinball/native/Solitude.Pinball.dll">
+    <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildProjectDirectory)/../tools/Build-Pinball.ps1&quot;" />
+  </Target>
 </Project>

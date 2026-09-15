@@ -6,5 +6,7 @@
   </PropertyGroup>
   <ItemGroup><Compile Include="OrbitCardMotionChecks.cs" /></ItemGroup>
   <ItemGroup><Compile Include="ProgramFixChecks.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="AboutSupportChecks.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="PinballSelectorChecks.cs" /></ItemGroup>
   <ItemGroup><Compile Include="UiProgram.cs" /><Compile Include="PeriodUiChecks.cs" /><Compile Include="CaptionUiChecks.cs" /><Compile Include="FidelityFixChecks.cs" /><Compile Include="RenderingAuditChecks.cs" /><Compile Include="FutureChecks.cs" /><Compile Include="OrbitAuditFixChecks.cs" /><Compile Include="OrbitPolishChecks.cs" /><ProjectReference Include="../src/Solitude.csproj" /></ItemGroup>
 </Project>

@@ -64,6 +64,7 @@ public sealed partial class GameWindow
     private void ChooseDraftEra(Era era)
     {
         draft!.Era = era;
+        if(!PinballAvailable(era))draftPinball=false;
         if (!GameCatalog.Available(era, draft.Rules.Kind)) draft.Rules.Kind = GameKind.Klondike;
         Invalidate();
     }

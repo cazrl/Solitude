@@ -31,7 +31,7 @@ public sealed partial class GameWindow
         int height=dialog switch{DialogPage.Deck=>312,DialogPage.Help=>396,DialogPage.Settings=>406,DialogPage.Options=>338,DialogPage.About=>272,DialogPage.Statistics=>252,DialogPage.Won=>216,_=>182};
         if(dialog==DialogPage.Options && !skin.Modern && Kind==GameKind.Klondike){width=skin.Early?278:342;height=skin.Early?230:216+(skin.Xp?9:0);}
         if(dialog==DialogPage.SelectGame){width=360;height=228;}
-        if(dialog==DialogPage.About && Kind==GameKind.Spider && !skin.Modern){width=395;height=320;}
+        if(dialog==DialogPage.About && Kind==GameKind.Spider && !skin.Modern){width=395;height=380;}
         if(dialog==DialogPage.Deck && skin.Modern)height=408;
         if(dialog==DialogPage.Options && ClassicFreeCell){width=390;height=200;}
         if(dialog==DialogPage.Options && ClassicSpider){width=395;height=268;}
@@ -79,7 +79,8 @@ public sealed partial class GameWindow
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.AppAbout:
                 skin.Text(g,$"Solitude {typeof(GameWindow).Assembly.GetName().Version?.ToString(3)}",new(x,y,w,25),font:skin.Bold);
-                Wrapped(g,"Windows card games, 1990-2007.\nORBIT, imagined for 2126.\nPress F6 to choose an edition.",new(x,y+38,w,78));
+                Wrapped(g,"Created by Cazrl\n\nWindows card games, 1990-2007.\nORBIT, imagined for 2126.\nPress F6 to choose an edition.",new(x,y+33,w,116));
+                DialogButton(g,"donate",new(x,body.Bottom-36,80,25),"&Donate",OpenDonationPage);
                 DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
             case DialogPage.MoveColumn:
                 Wrapped(g,"Move the entire column, or just the single card?",new(x,y,w,45));
@@ -90,6 +91,8 @@ public sealed partial class GameWindow
                 if(Kind==GameKind.Spider && !skin.Modern)
                 {
                     art.DrawSpiderAbout(g,new(x,y,w,243*w/359));
+                    Wrapped(g,"Solitude recreation\nCreated by Cazrl",new(x,y+243*w/359+7,w,38));
+                    DialogButton(g,"donate",new(x,body.Bottom-36,80,25),"&Donate",OpenDonationPage);
                     DialogButton(g,"ok",new(body.Right-94,body.Bottom-36,80,25),"OK",CloseDialog,true);break;
                 }
                 PaintPeriodAbout(g,x,y,w,body.Bottom);break;
@@ -151,22 +154,26 @@ public sealed partial class GameWindow
         using(var preview=new Skin(draft!.Era))
         {
             var state=g.Save();var r=new RectangleF(px,y+29,pw,95);
-            preview.Frame(g,r,GameCatalog.Name(draft.Rules.Kind));
+            if(draftPinball){EnsurePinballPreview();preview.GameIcon=pinballPreviewIcon;}
+            preview.Frame(g,r,draftPinball?"3D Pinball":GameCatalog.Name(draft.Rules.Kind));
             if(!preview.Future)
             {
                 preview.MenuBar(g,new(r.X+preview.Border,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border,preview.MenuHeight));
-                preview.Text(g,"Game   Help",new(r.X+preview.Border+5,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border-10,preview.MenuHeight));
+                preview.Text(g,draftPinball?"Game   Options   Help":"Game   Help",new(r.X+preview.Border+5,r.Y+preview.Border+preview.Caption,r.Width-2*preview.Border-10,preview.MenuHeight));
             }
             var table=new RectangleF(r.X+preview.Border,r.Y+(preview.Future?36:preview.Top),r.Width-preview.Border*2,r.Height-(preview.Future?36:preview.Top)-preview.Border);
             if(preview.Future)Skin.Fill(g,Color.FromArgb(9,24,37),table);else if(preview.Vista)art.DrawFelt(g,table);else Skin.Fill(g,Color.Green,table);
-            PaintGamePreview(g,table,draft);g.Restore(state);
+            if(draftPinball)PaintPinballPreview(g,table);
+            else PaintGamePreview(g,table,draft);g.Restore(state);
         }
         skin.Text(g,"Game",new(px,y+133,pw,19),font:skin.Bold);
         int gameRow=0;
+        int gameRowHeight=PinballAvailable(draft!.Era)?18:23;
         foreach(var kind in Enum.GetValues<GameKind>().Where(k=>GameCatalog.Available(draft!.Era,k)))
         {
-            var chosen=kind;Check(g,"game-"+kind,new(px,y+157+gameRow*23,pw,23),GameCatalog.Name(kind),draft!.Rules.Kind==kind,()=>{draft.Rules.Kind=chosen;Invalidate();},true);gameRow++;
+            var chosen=kind;Check(g,"game-"+kind,new(px,y+157+gameRow*gameRowHeight,pw,gameRowHeight),GameCatalog.Name(kind),!draftPinball && draft!.Rules.Kind==kind,()=>{draftPinball=false;draft!.Rules.Kind=chosen;Invalidate();},true);gameRow++;
         }
+        if(PinballAvailable(draft!.Era))Check(g,"game-pinball",new(px,y+157+gameRow*18,pw,18),"3D Pinball: Space Cadet",draftPinball,()=>{draftPinball=true;Invalidate();},true);
         skin.Group(g,"Display size",new(x,y+232,w,49));
         int[] scales=[100,125,150,200];
         for(int i=0;i<4;i++)
@@ -181,6 +188,12 @@ public sealed partial class GameWindow
     }
     private void ApplySettings()
     {
+        if(draftPinball && PinballAvailable(draft!.Era))
+        {
+            shared.Scale=draft.Scale;Preferences.Scale=draft.Scale;
+            CloseDialog();BeginInvoke(()=>LaunchPinball());return;
+        }
+        if(!ephemeral)File.Delete(Path.Combine(store.DirectoryPath,"pinball","selected"));
         SwitchGame(draft!);
     }
     private void PaintOptions(Graphics g,float x,float y,float w,float bottom)

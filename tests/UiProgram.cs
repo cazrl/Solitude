@@ -35,6 +35,8 @@ internal static partial class UiProgram
         if(args.Length==2 && args[0]=="--instance-probe"){using var lease=SingleInstanceLease.TryAcquire(args[1]);return lease!=null?10:11;}
         try
         {
+            if(args.Contains("--pinball-selector-only")){CheckPinballSelector();Console.WriteLine($"{checks} Pinball selector checks passed.");return 0;}
+            if(args.Contains("--about-support-only")){CheckAboutSupport();Console.WriteLine($"{checks} About and donation checks passed.");return 0;}
             if(args.Contains("--program-fixes-only")){CheckProgramFixes();Console.WriteLine($"{checks} program audit regression checks passed.");return 0;}
             if(args.Contains("--orbit-motion-profile")){ProfileOrbitVictory();return 0;}
             if(args.Contains("--orbit-cards-only")){CheckOrbitCardMotion();Console.WriteLine($"{checks} ORBIT card motion checks passed without showing windows.");return 0;}
@@ -104,7 +106,7 @@ internal static partial class UiProgram
                 Call(form,"ToggleMaximize");Check(!(bool)Field(form,"maximized")!,"Restore failed");
                 Console.WriteLine("PASS "+era+" frame, typography, inactive state, input, era switch, dialog drag, maximize/restore");
             }
-            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();CheckFutureEdition();CheckProgramFixes();
+            CheckGameInteractions();CheckDoubleClicks();CheckFeel();CheckPartialFrames();CheckPeriodPresentation();CheckCaptionRendering();CheckFidelityFixes();CheckAnimationContinuity();CheckImmediateInput();CheckFutureEdition();CheckProgramFixes();CheckAboutSupport();CheckPinballSelector();
             Console.WriteLine($"{checks} UI checks passed. No windows were shown and no desktop input was sent.");return 0;
         }
         catch(Exception ex){Console.Error.WriteLine(ex);return 1;}

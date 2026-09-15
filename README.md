@@ -1,6 +1,6 @@
-# Solitude 0.11.8
+# Solitude 0.12.1
 
-Solitaire, FreeCell and Spider in one portable Windows EXE, now with **ORBIT / Solitude 2126**: a fictional Solitaire edition imagined one century ahead. Click **Settings** at the top right to choose an edition and game. **F6** and the window icon menu remain available too. Windows 7–11 remain deferred.
+Solitaire, FreeCell, Spider and **Space Cadet Pinball** in one portable Windows EXE, plus **ORBIT / Solitude 2126**: a fictional Solitaire edition imagined one century ahead. Click **Settings** to choose an edition and game. Pinball is under **Windows XP**. Windows 7–11 remain deferred.
 
 | Windows version | Solitaire / Klondike | FreeCell | Spider |
 |---|---|---|---|
@@ -18,9 +18,13 @@ Windows 98's Spider belonged to the separate Plus! 98 add-on and is not offered 
 
 ## Run
 
-Download **[Solitude 0.11.8 for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.11.8/Solitude.exe)**. See the [release notes and checksum](https://github.com/cazrl/Solitude/releases/tag/v0.11.8).
+**0.12.1** adds Space Cadet Pinball with XP-styled menus, aligned shortcuts and outside-click dismissal. About includes **Created by Cazrl** and a **Donate** button linking to [Ko-fi](https://ko-fi.com/flightwire).
 
-The local delivery is `dist/Solitude.exe`, with an identical retained copy under `artifacts/release-v0118/`. These build folders are excluded from the source repository; use the release download above.
+Choose **Settings → Windows XP → 3D Pinball: Space Cadet → OK**. Hold **Space** and release to launch; use **Z** and **/** for the flippers. **F3** pauses and **F6** returns to Settings. The original engine supplies physics, missions, ranks, scoring, tilt, demo play and one to four players. Options includes sound, music and configurable controls. Pinball runs in an isolated worker launched from the same EXE. Its verified native library and table data extract into `%LOCALAPPDATA%/Solitude/pinball/runtime`; high scores and control settings are stored in the adjacent `settings.ini`. An unfinished Pinball ball is not resumed after leaving the game; card-game deals remain saved.
+
+Download **[Solitude 0.12.1 for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.12.1/Solitude.exe)**. See the [release notes and checksum](https://github.com/cazrl/Solitude/releases/tag/v0.12.1).
+
+Local builds are delivered to `dist/Solitude.exe`. Generated build folders are excluded from the source repository; use the release download above for the published version.
 
 Run the EXE on 64-bit Windows 10 or 11. It contains the runtime, artwork and notices. No installer, account, network connection or separate .NET installation is required. Native runtime components may extract into the temporary directory.
 
@@ -34,7 +38,11 @@ The normal application allows one instance per data folder. Opening the EXE agai
 
 ## Screenshots
 
-Every available edition and game, captured from Solitude **0.11.8**. Click any screenshot to view it at full size. These show Solitude's recreations; ORBIT is its original futuristic edition.
+The card-game gallery below was captured from Solitude **0.11.8**; Space Cadet was added in **0.12.0**, with updated menus in **0.12.1**. Click any screenshot to view it at full size. These show Solitude's recreations; ORBIT is its original futuristic edition.
+
+[![Windows XP Space Cadet Pinball](docs/images/pinball/windows-xp-pinball.png)](docs/images/pinball/windows-xp-pinball.png)
+
+[![XP Pinball Game menu](docs/images/pinball/menu-game.png)](docs/images/pinball/menu-game.png) [![XP Pinball Options menu](docs/images/pinball/menu-options.png)](docs/images/pinball/menu-options.png)
 
 | Edition | Solitaire | FreeCell | Spider |
 |---|---|---|---|
@@ -138,7 +146,7 @@ This is a recreation, not original Windows running inside the EXE. Exact pixel i
 
 ## Build and diagnostics
 
-With the .NET 10 SDK on Windows, run `./build.ps1`. It tests and packages the single EXE. Run `./tools/verify-program.ps1` for the full rules, UI, native-message and source/package parity gate; its package remains isolated under `artifacts/verification`. The GitHub Actions workflow uses this same verification script. Included assets do not require network downloads; missing SDK/runtime packages do.
+With the .NET 10 SDK, PowerShell 7, Visual Studio 2022 C++ Build Tools (v143), and a Windows SDK, run `./build.ps1` on Windows. It tests and packages the single EXE. Run `./tools/verify-program.ps1` for the full rules, UI, native-message and source/package parity gate; its package remains isolated under `artifacts/verification`. The GitHub Actions workflow uses this same verification script. Included assets do not require network downloads; missing SDK/runtime packages do.
 
 ```powershell
 # Offscreen renders, with no game window shown.

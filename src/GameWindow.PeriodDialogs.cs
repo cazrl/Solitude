@@ -74,6 +74,8 @@ public sealed partial class GameWindow
         skin.Text(g,Skin.Names[(int)Preferences.Era],new(x+52,y+33,w-52,23));
         string credits=Kind==GameKind.Klondike && !skin.Modern?"Developed for Microsoft by Wes Cherry.\nOriginal card designs by Susan Kare.":ClassicFreeCell?"By Jim Horne.":"Microsoft Windows Games";
         Wrapped(g,credits,new(x+5,y+80,w-10,55));
+        Wrapped(g,"Solitude recreation\nCreated by Cazrl",new(x+5,y+143,w-10,40));
+        DialogButton(g,"donate",new(x,bottom-36,80,25),"&Donate",OpenDonationPage);
         DialogButton(g,"ok",new(x+w-80,bottom-36,80,25),"OK",CloseDialog,true);
     }
     private void PaintPeriodWin(Graphics g,float x,float y,float w,float bottom)

@@ -89,7 +89,9 @@ public sealed partial class GameWindow
         else
         {
             FutureArt.OrbitMark(g,new(x,y+4,48,48),Orbit.Accent);Orbit.Text(g,"ORBIT / 2126",new(x+65,y,w-65,36),25);
-            Wrapped(g,"Solitude, imagined one century from now.\n\nOriginal geometric cards, spatial choreography and synthesized sound. The rules remain Klondike.\n\nPart of Solitude 0.11.8.",new(x,y+73,w,156));
+            Wrapped(g,"Created by Cazrl",new(x+65,y+39,w-65,24));
+            Wrapped(g,$"Solitude, imagined one century from now.\n\nOriginal geometric cards, spatial choreography and synthesized sound. The rules remain Klondike.\n\nPart of Solitude {typeof(GameWindow).Assembly.GetName().Version?.ToString(3)}.",new(x,y+73,w,156));
+            DialogButton(g,"donate",new(x,bottom-45,100,30),"&Donate",OpenDonationPage);
             DialogButton(g,"ok",new(x+w-100,bottom-45,100,30),"Continue",CloseDialog,true);
         }
     }

@@ -9,6 +9,11 @@ internal static class Program
         Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
         string? Arg(string key){int i=Array.IndexOf(args,key);return i>=0 && i+1<args.Length?args[i+1]:null;}
         string data=Arg("--data-dir") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Solitude");
+        if(long.TryParse(Arg("--pinball-worker"),out long pinballHost))
+        {
+            try{return PinballRuntime.RunWorker((nint)pinballHost,data);}
+            catch(Exception ex){RuntimeDiagnostics.Write(data,ex,"Pinball worker startup");return 3;}
+        }
         GameWindow? activeWindow=null;
         AppDomain.CurrentDomain.UnhandledException+=(_,e)=>RuntimeDiagnostics.Write(data,e.ExceptionObject as Exception??new Exception(e.ExceptionObject?.ToString()),activeWindow?.DiagnosticContext??"Unhandled runtime error");
         Application.ThreadException+=(_,e)=>
@@ -75,6 +80,8 @@ internal static class Program
                 return 0;
             }
             using var main=new GameWindow(new Store(data),selected,seed,size,kind:kindArg);
+            if(args.Contains("--pinball") || selected==null && kindArg==null && File.Exists(Path.Combine(data,"pinball","selected")))
+                main.Shown+=(_,_)=>main.BeginInvoke(()=>main.LaunchPinball());
             main.HandleCreated+=(_,_)=>instance.SetWindow(main.Handle);
             if(main.IsHandleCreated)instance.SetWindow(main.Handle);
             activeWindow=main;

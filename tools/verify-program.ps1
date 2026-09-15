@@ -17,6 +17,8 @@ $uiExe = Join-Path $ui 'Solitude.UiChecks.exe'
 if ($Focused) { Invoke-Checked $uiExe @('--program-fixes-only') } else { Invoke-Checked $uiExe @() }
 Invoke-Checked $uiExe @('--orbit-native-only')
 Invoke-Checked dotnet @('publish', 'src/Solitude.csproj', '-c', 'Release', '--no-restore', '-o', $package)
+Invoke-Checked dotnet @('build','tests/Solitude.PinballChecks.csproj','-c','Release','-o',(Join-Path $output 'pinball-check-app'))
+Invoke-Checked (Join-Path $output 'pinball-check-app/Solitude.PinballChecks.exe') @((Join-Path $output 'pinball-checks'),(Join-Path $package 'Solitude.exe'))
 function Render-Application([string]$Executable, [string]$Directory) {
     $render = Start-Process -FilePath $Executable -ArgumentList @('--render', ('"' + $Directory + '"'), '--data-dir', ('"' + (Join-Path $output 'isolated-state') + '"')) -WindowStyle Hidden -PassThru -Wait
     if ($render.ExitCode -ne 0) { throw "Render failed: $Executable" }

@@ -1,0 +1,7 @@
+# About and support — 0.11.9
+
+Both Settings → About and Help → About now identify the Solitude recreation with **Created by Cazrl**. Original historical game credits remain. **Donate** lives inside About, uses the current edition's button styling, and opens `https://ko-fi.com/flightwire` in the default browser. It does not change the deal or close About. Alt+D also activates it; the default closing button remains OK/Continue. If the browser cannot launch, a styled notice supplies the URL.
+
+Validation: **870 focused checks** passed across all **18 profiles** at **100%, 125%, 150%, and 200%**, covering placement, accessible credit text, mouse and keyboard activation, the exact URL, unchanged deal state, and browser failure handling. Tests intercepted external launches. The final build had zero warnings/errors; its assembly matched the assembly used for publishing. The packaged EXE completed 40 offscreen Windows Me views. Representative classic, Vista, ORBIT, and Spider About views were visually reviewed and are retained under [images/about-v0119](images/about-v0119).
+
+Local single EXE: `dist/Solitude.exe`, version **0.11.9.0**, **63,712,101 bytes**, SHA-256 `F21F30F46E2E4FF0AF61EECF2119C4B455AADE21141F892BEFCE1B5B360067EE`. Personal save contents remained unchanged. This update has not been published to GitHub. Detailed current-run logs and delivery metadata remain in `artifacts/about-support` and `artifacts/about-support-build.log`; temporary compiled output can be regenerated.

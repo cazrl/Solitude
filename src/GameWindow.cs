@@ -241,6 +241,7 @@ public sealed partial class GameWindow : Form
     }
     private void OpenDialog(DialogPage page)
     {
+        if(page==DialogPage.Settings)draftPinball=false;
         futureOptionsParent=null;
         CancelDrag();selection=null;menu=-1;keyboardFocus=-1;collecting=false;dialogOffset=PointF.Empty;dialog=page;draft=Preferences.Clone();
         if(page is DialogPage.Options or DialogPage.Difficulty)
@@ -548,7 +549,7 @@ public sealed partial class GameWindow : Form
     private bool resourcesDisposed;
     protected override void Dispose(bool disposing)
     {
-        if(disposing && !resourcesDisposed){resourcesDisposed=true;DisposeEditionMorph();CloseDialogHost();clock.Dispose();animation.Dispose();framePump?.Dispose();framePump=null;if(!shutdown && !ephemeral && saveDirty)Save();saves.Dispose();foreach(var sound in periodSounds.Values.Concat(vistaSounds.Values)){sound.Stream?.Dispose();sound.Dispose();}skin.Dispose();art.Dispose();victoryTrail?.Dispose();pixelCanvas?.Dispose();pixelPresentation?.Dispose();boardBitmap?.Dispose();}
+        if(disposing && !resourcesDisposed){resourcesDisposed=true;DisposeEditionMorph();CloseDialogHost();pinballPreview?.Dispose();pinballPreviewIcon?.Dispose();clock.Dispose();animation.Dispose();framePump?.Dispose();framePump=null;if(!shutdown && !ephemeral && saveDirty)Save();saves.Dispose();foreach(var sound in periodSounds.Values.Concat(vistaSounds.Values)){sound.Stream?.Dispose();sound.Dispose();}skin.Dispose();art.Dispose();victoryTrail?.Dispose();pixelCanvas?.Dispose();pixelPresentation?.Dispose();boardBitmap?.Dispose();}
         base.Dispose(disposing);
     }
     private sealed class FlyingCard(Card card,float x,float y,float vx,float vy)

@@ -18,7 +18,13 @@ Preservation sources used by this local build:
 - The Sounds Resource, Windows Vista / 7 Card Games, asset `442489`: twenty preserved game WAV effects, including FreeCell win music and Spider fireworks. These are embedded sound data only.
 - Microsoft Windows System and MS Sans Serif bitmap-font strikes: extracted as FNT data from the local Windows font resources, now embedded to keep early lettering consistent between machines and scales. No font is installed. Source hashes and provenance are in `docs/FIDELITY-RESOURCE-HASHES-0.9.0.json` and `docs/ASSET-SOURCES.md`.
 
-Original application code and the native runtime are not taken from those preservation projects. The game's logic, renderer, persistence and UI implementation are written in this repository.
+The card-game logic, renderer, persistence and UI implementation are written in this repository. Pinball uses the separately attributed native engine below.
+
+## Space Cadet Pinball
+
+- Native engine: Andrey Muzychenko and contributors, [k4zmu2a/SpaceCadetPinball](https://github.com/k4zmu2a/SpaceCadetPinball), WindowsClassic commit `20032b08931000da0dc6c508f270c9e5c728bcb6`, under the MIT license. The full copyright and permission notice is in `docs/licenses/SpaceCadetPinball-MIT.txt`, embedded in the EXE. Modified source and host integration are in `third_party/SpaceCadetPinball`.
+- Original table, font, MIDI and WAV data: Cinematronics / Maxis / Microsoft. Retrieved from the public browser port linked by upstream, [alula's Space Cadet port](https://pinball.alula.me/), on 2026-09-12. These are original game data, not MIT-licensed assets. Their redistribution rights have not been independently established. See `docs/PINBALL-0.12.0.md` for hashes and provenance.
+- Solitude's host, selector integration, process isolation and private settings storage: created by Cazrl.
 
 ORBIT / Solitude 2126 uses original procedural card designs, observatory scenery, iconography, animation and synthesized audio implemented in `FutureArt.cs`, `Skin.Future.cs` and the `GameWindow.Future` files. No downloaded artwork or audio was added for this fictional edition. It uses the host's Segoe UI font for text; that font is not newly embedded or installed by ORBIT.
 
