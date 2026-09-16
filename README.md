@@ -1,4 +1,4 @@
-# Solitude 0.12.1
+# Solitude 0.12.2
 
 Solitaire, FreeCell, Spider and **Space Cadet Pinball** in one portable Windows EXE, plus **ORBIT / Solitude 2126**: a fictional Solitaire edition imagined one century ahead. Click **Settings** to choose an edition and game. Pinball is under **Windows XP**. Windows 7–11 remain deferred.
 
@@ -18,11 +18,13 @@ Windows 98's Spider belonged to the separate Plus! 98 add-on and is not offered 
 
 ## Run
 
+**0.12.2** fixes dense, frame-rate-dependent lines in the classic bouncing-card win animation. Cards now animate sequentially with consistent trail spacing. See the [fix and comparison](docs/CLASSIC-VICTORY-0.12.2.md).
+
 **0.12.1** adds Space Cadet Pinball with XP-styled menus, aligned shortcuts and outside-click dismissal. About includes **Created by Cazrl** and a **Donate** button linking to [Ko-fi](https://ko-fi.com/flightwire).
 
 Choose **Settings → Windows XP → 3D Pinball: Space Cadet → OK**. Hold **Space** and release to launch; use **Z** and **/** for the flippers. **F3** pauses and **F6** returns to Settings. The original engine supplies physics, missions, ranks, scoring, tilt, demo play and one to four players. Options includes sound, music and configurable controls. Pinball runs in an isolated worker launched from the same EXE. Its verified native library and table data extract into `%LOCALAPPDATA%/Solitude/pinball/runtime`; high scores and control settings are stored in the adjacent `settings.ini`. An unfinished Pinball ball is not resumed after leaving the game; card-game deals remain saved.
 
-Download **[Solitude 0.12.1 for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.12.1/Solitude.exe)**. See the [release notes and checksum](https://github.com/cazrl/Solitude/releases/tag/v0.12.1).
+Download **[Solitude 0.12.2 for Windows x64](https://github.com/cazrl/Solitude/releases/download/v0.12.2/Solitude.exe)**. See the [release notes and checksum](https://github.com/cazrl/Solitude/releases/tag/v0.12.2).
 
 Local builds are delivered to `dist/Solitude.exe`. Generated build folders are excluded from the source repository; use the release download above for the published version.
 

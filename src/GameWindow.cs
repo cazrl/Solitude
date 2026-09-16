@@ -559,7 +559,7 @@ public sealed partial class GameWindow : Form
         if(skin.Future){StartFutureVictory();return;}
         if(StartPeriodCelebration())return;
         collecting=false;selection=null;showingVictory=true;victoryFrame=0;victoryDealt=0;flying.Clear();
-        victoryStart=lastVictoryTime=MotionNow;nextVictoryCard=MotionNow;
+        victoryStart=lastVictoryTime=MotionNow;victoryAccumulator=0;
         victoryTrail?.Dispose();victoryTrail=new Bitmap((int)Math.Ceiling(WorldWidth),(int)Math.Ceiling(WorldHeight));
         ScheduleFrames();
     }
@@ -572,26 +572,7 @@ public sealed partial class GameWindow : Form
         {bool moved=Game.AutoStep();nextCollect=MotionNow+.04;if(!moved){collecting=false;if(skin.Future && Game.State.Foundations.Sum(p=>p.Count)==collectStartHome){futureMessage="No safe foundation moves available.";futureMessageUntil=MotionNow+4;AnnounceOrbit(futureMessage);}}else Changed(true);}
         if(!showingVictory || victoryTrail==null)return;
         if(Kind!=GameKind.Klondike || skin.Modern){AnimatePeriodCelebration();return;}
-        float step=(float)Math.Clamp((MotionNow-lastVictoryTime)*40,0,2);lastVictoryTime=MotionNow;
-        victoryFrame++;
-        if(MotionNow>=nextVictoryCard && victoryDealt<52)
-        {
-            nextVictoryCard=MotionNow+.175;
-            int foundation=victoryDealt%4,rank=12-victoryDealt/4;var r=TopCard(foundation+3);var card=Game.State.Foundations[foundation][rank];
-            float speed=(victoryDealt%2==0?-1:1)*(2+(victoryDealt*7%5));flying.Add(new(card,r.X,r.Y,speed,-2-(victoryDealt%4)));victoryDealt++;
-        }
-        using(var g=Graphics.FromImage(victoryTrail))
-        {
-            skin.Configure(g);g.SetClip(Table);
-            foreach(var c in flying)
-            {
-                c.X+=c.Vx*step;c.Y+=c.Vy*step;c.Vy+=.55f*step;
-                if(c.Y+CardHeight>=Table.Bottom){c.Y=Table.Bottom-CardHeight;c.Vy=-Math.Abs(c.Vy)*.77f;}
-                art.Draw(g,c.Card,new(c.X,c.Y,CardWidth,CardHeight),Preferences.Era,Preferences.CardBack);
-            }
-            flying.RemoveAll(c=>c.X < -CardWidth || c.X>WorldWidth);
-        }
-        if(victoryDealt==52 && flying.Count==0 || MotionNow-victoryStart>40)FinishVictory();
+        AnimateClassicVictory();
         Invalidate();
     }
 }

@@ -5,7 +5,7 @@ namespace Solitude;
 public sealed partial class GameWindow
 {
     private int celebrationCue=-1;
-    private double victoryStart,lastVictoryTime,nextVictoryCard;
+    private double victoryStart,lastVictoryTime,victoryAccumulator;
     private bool StartPeriodCelebration()
     {
         if(Kind==GameKind.FreeCell)
